@@ -14,8 +14,8 @@ export default function StreakTracker({ data, loading }) {
     );
   }
 
-  const days = data?.days || generateDemoDays();
-  const stats = data?.stats || { currentStreak: 5, longestStreak: 12, totalActive: 21 };
+  const days = data?.days || [];
+  const stats = data?.stats || null;
   const weekLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   return (
@@ -37,29 +37,31 @@ export default function StreakTracker({ data, loading }) {
           />
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-1 text-amber-500 mb-1">
-            <Flame className="w-4 h-4" />
-            <span className="text-lg font-bold text-slate-900">{stats.currentStreak}</span>
+      {stats && (
+        <div className="grid grid-cols-3 gap-3">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 text-amber-500 mb-1">
+              <Flame className="w-4 h-4" />
+              <span className="text-lg font-bold text-slate-900">{stats.currentStreak}</span>
+            </div>
+            <p className="text-[10px] text-slate-500">Current Streak</p>
           </div>
-          <p className="text-[10px] text-slate-500">Current Streak</p>
-        </div>
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-1 text-purple-500 mb-1">
-            <Zap className="w-4 h-4" />
-            <span className="text-lg font-bold text-slate-900">{stats.longestStreak}</span>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 text-purple-500 mb-1">
+              <Zap className="w-4 h-4" />
+              <span className="text-lg font-bold text-slate-900">{stats.longestStreak}</span>
+            </div>
+            <p className="text-[10px] text-slate-500">Longest</p>
           </div>
-          <p className="text-[10px] text-slate-500">Longest</p>
-        </div>
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-1 text-blue-500 mb-1">
-            <Calendar className="w-4 h-4" />
-            <span className="text-lg font-bold text-slate-900">{stats.totalActive}</span>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 text-blue-500 mb-1">
+              <Calendar className="w-4 h-4" />
+              <span className="text-lg font-bold text-slate-900">{stats.totalActive}</span>
+            </div>
+            <p className="text-[10px] text-slate-500">Active Days</p>
           </div>
-          <p className="text-[10px] text-slate-500">Active Days</p>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -69,20 +71,4 @@ function getDayColor(count) {
   if (count <= 5) return 'bg-green-400';
   if (count <= 8) return 'bg-green-500';
   return 'bg-green-600';
-}
-
-function generateDemoDays() {
-  const days = [];
-  const today = new Date();
-  for (let i = 27; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    const active = Math.random() > 0.3;
-    days.push({
-      date: date.toISOString().slice(0, 10),
-      count: active ? Math.floor(Math.random() * 10) + 1 : 0,
-      active,
-    });
-  }
-  return days;
 }

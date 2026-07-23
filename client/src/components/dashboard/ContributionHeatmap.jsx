@@ -1,12 +1,30 @@
 import CalendarHeatmap from 'react-calendar-heatmap';
+import ChartCard from '../ui/ChartCard';
+import EmptyState from '../ui/EmptyState';
+import { Skeleton } from '../ui/LoadingSkeleton';
+import { Activity } from 'lucide-react';
 
-export default function ActivityHeatmap({ data = [], loading }) {
-  if (loading) {
+function HeatmapSkeleton() {
+  return (
+    <ChartCard title="Activity (Last 6 Months)">
+      <Skeleton className="h-3 w-full mb-2" />
+      <Skeleton className="h-28 w-full" />
+    </ChartCard>
+  );
+}
+
+export default function ContributionHeatmap({ data = [], loading, empty }) {
+  if (loading) return <HeatmapSkeleton />;
+
+  if (empty || data.length === 0) {
     return (
-      <div className="card">
-        <div className="skeleton h-4 w-32 mb-4" />
-        <div className="skeleton h-32 w-full" />
-      </div>
+      <ChartCard title="Activity (Last 6 Months)">
+        <EmptyState
+          icon={Activity}
+          title="No contribution data"
+          description="Connect your GitHub account to see your activity heatmap."
+        />
+      </ChartCard>
     );
   }
 
@@ -15,8 +33,7 @@ export default function ActivityHeatmap({ data = [], loading }) {
   sixMonthsAgo.setMonth(today.getMonth() - 6);
 
   return (
-    <div className="card">
-      <h3 className="section-title">Activity (Last 6 Months)</h3>
+    <ChartCard title="Activity (Last 6 Months)">
       <CalendarHeatmap
         startDate={sixMonthsAgo}
         endDate={today}
@@ -35,6 +52,6 @@ export default function ActivityHeatmap({ data = [], loading }) {
           return `${value.date}: ${value.count || 0} contributions`;
         }}
       />
-    </div>
+    </ChartCard>
   );
 }
