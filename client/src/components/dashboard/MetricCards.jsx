@@ -1,23 +1,25 @@
 import MetricCard from '../MetricCard';
 import { Flame, CheckCircle, GitCommit, Target } from 'lucide-react';
 
-export default function MetricCards({ streakData, leetcodeData, githubData, jobMatch, loading }) {
+export default function MetricCards({ developerScore, leetcodeData, githubData, weeklyGoal, loading }) {
+  const streakDays = weeklyGoal?.completed ?? 0;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <MetricCard
-        label="Current Streak"
-        value={streakData?.currentStreak ?? 0}
-        icon={Flame}
-        color="text-amber-500"
+        label="Developer Score"
+        value={developerScore ?? 0}
+        icon={Target}
+        color="text-purple-500"
         badge={{
-          text: `${streakData?.currentStreak ?? 0} days`,
-          color: 'bg-amber-50 text-amber-700',
+          text: `${weeklyGoal?.percentage ?? 0}% weekly goal`,
+          color: 'bg-purple-50 text-purple-700',
         }}
         loading={loading}
       />
       <MetricCard
         label="Problems Solved"
-        value={leetcodeData?.total ?? 0}
+        value={leetcodeData?.solved ?? 0}
         icon={CheckCircle}
         color="text-emerald-500"
         badge={{
@@ -28,20 +30,20 @@ export default function MetricCards({ streakData, leetcodeData, githubData, jobM
       />
       <MetricCard
         label="Total Commits"
-        value={githubData?.totalCommits ?? 0}
+        value={githubData?.commits ?? 0}
         icon={GitCommit}
         color="text-blue-500"
         badge={{ text: 'Last 6 months', color: 'bg-blue-50 text-blue-700' }}
         loading={loading}
       />
       <MetricCard
-        label="Job Match"
-        value={`${jobMatch?.totalScore ?? 0}%`}
-        icon={Target}
-        color="text-purple-500"
+        label="Weekly Goal"
+        value={`${streakDays}/${weeklyGoal?.target ?? 25}`}
+        icon={Flame}
+        color="text-amber-500"
         badge={{
-          text: jobMatch?.companyReadiness?.[2]?.status ?? 'N/A',
-          color: 'bg-purple-50 text-purple-700',
+          text: `${weeklyGoal?.percentage ?? 0}% complete`,
+          color: 'bg-amber-50 text-amber-700',
         }}
         loading={loading}
       />

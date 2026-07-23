@@ -38,6 +38,7 @@ app.use('/api/profile', require('./routes/profile'));
 app.use('/api/github', require('./routes/github'));
 app.use('/api/leetcode', require('./routes/leetcode'));
 app.use('/api/jobmatch', require('./routes/jobmatch'));
+app.use('/api/dashboard', require('./routes/dashboard'));
 
 // Health check
 app.get('/api/health', (req, res) => {

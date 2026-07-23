@@ -1,8 +1,8 @@
-import { useGitHub } from '../hooks/useGitHub';
-import { useUser } from '../context/UserContext';
-import { calculateJobMatchScore } from '../utils/jobMatchScore';
-import { generateWeeklyReport } from '../utils/helpers';
+import { useDashboard } from '../features/dashboard/hooks/useDashboard';
 import PageContainer from '../components/ui/PageContainer';
+import EmptyState from '../components/ui/EmptyState';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import Button from '../components/ui/Button';
 import {
   MetricCards,
   ContributionHeatmap,
@@ -13,126 +13,186 @@ import {
 } from '../components/dashboard';
 import { useMemo } from 'react';
 
+function ErrorState({ error, onRetry }) {
+  return (
+    <PageContainer title="Dashboard">
+      <EmptyState
+        icon={AlertTriangle}
+        title={error.message}
+        description={
+          error.type === 'auth'
+            ? 'Please log in again to view your dashboard.'
+            : 'Something went wrong while loading your dashboard.'
+        }
+        action={
+          <Button onClick={onRetry} variant="primary" size="sm">
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </Button>
+        }
+      />
+    </PageContainer>
+  );
+}
+
+function buildSkills(languages) {
+  if (!languages) return [];
+  const entries = Object.entries(languages);
+  if (entries.length === 0) return [];
+
+  const colorMap = {
+    JavaScript: '#F59E0B',
+    TypeScript: '#3B82F6',
+    React: '#3B82F6',
+    'C++': '#8B5CF6',
+    Python: '#10B981',
+    Java: '#EF4444',
+    Go: '#06B6D4',
+    Rust: '#F97316',
+    CSS: '#EC4899',
+    HTML: '#F59E0B',
+    Ruby: '#DC2626',
+    PHP: '#8B5CF6',
+    Swift: '#F97316',
+    Kotlin: '#8B5CF6',
+  };
+
+  return entries
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([name, pct]) => ({
+      name,
+      level: pct,
+      color: colorMap[name] || '#64748B',
+    }));
+}
+
+function buildContributionData(github) {
+  if (!github?._raw?.commitActivity) return [];
+  const activity = github._raw.commitActivity;
+  const today = new Date();
+  return activity.slice(-180).map((count, i) => {
+    const date = new Date(today);
+    date.setDate(date.getDate() - (180 - i));
+    return { date: date.toISOString().slice(0, 10), count };
+  });
+}
+
+function buildStreakData(github) {
+  if (!github?._raw?.commitActivity) return { days: [], stats: null };
+  const activity = github._raw.commitActivity;
+  const days = activity.slice(-28).map((count, i) => ({
+    date: `day-${i}`,
+    count,
+    active: count > 0,
+  }));
+  const stats = {
+    currentStreak: activity.filter((c) => c > 0).slice(-7).length,
+    longestStreak: Math.max(...activity, 0),
+    totalActive: activity.reduce((a, b) => a + (b > 0 ? 1 : 0), 0),
+  };
+  return { days, stats };
+}
+
+function buildCompanyReadiness(score) {
+  const companies = [
+    { company: 'Zoho', threshold: 55 },
+    { company: 'Freshworks', threshold: 60 },
+    { company: 'TCS/Infosys', threshold: 50 },
+    { company: 'Wipro', threshold: 52 },
+    { company: 'Flipkart', threshold: 72 },
+    { company: 'Google/Amazon', threshold: 88 },
+  ];
+  return companies.map((c) => {
+    let status;
+    if (score >= c.threshold) status = 'Ready';
+    else if (score >= c.threshold - 10) status = 'Almost';
+    else status = 'Not yet';
+    return { ...c, status };
+  });
+}
+
 export default function Dashboard() {
-  const { githubUser } = useUser();
-  const { data: gitData, loading: gitLoading } = useGitHub();
+  const { dashboard, loading, error, refetch } = useDashboard();
 
-  const gitHubData = useMemo(() => gitData || null, [gitData]);
-
-  const jobMatch = useMemo(() => {
-    if (!gitHubData) return null;
-    return calculateJobMatchScore(
-      {
-        public_repos: gitHubData.public_repos,
-        totalCommits: gitHubData.totalCommits,
-        repos: gitHubData.repos,
-        commitActivity: gitHubData.commitActivity,
-      },
-      null
-    );
-  }, [gitHubData]);
-
-  const weeklyReport = useMemo(
-    () => generateWeeklyReport(gitHubData, null),
-    [gitHubData]
+  const skills = useMemo(
+    () => buildSkills(dashboard?.github?.languages),
+    [dashboard]
   );
 
-  const skills = useMemo(() => {
-    if (!gitHubData) return [];
-    const langs = gitHubData.languages || {};
-    const totalLangs = Object.values(langs).reduce((a, b) => a + b, 0) || 1;
-    return [
-      { name: 'JavaScript', level: Math.round(((langs.JavaScript || 0) / totalLangs) * 100) || 0, color: '#F59E0B' },
-      { name: 'React', level: Math.round(((langs.React || 0) / totalLangs) * 100) || 0, color: '#3B82F6' },
-      { name: 'Node.js', level: Math.round((((langs.JavaScript || 0) + (langs.Python || 0)) / totalLangs) * 100) || 0, color: '#10B981' },
-      { name: 'Python', level: Math.round(((langs.Python || 0) / totalLangs) * 100) || 0, color: '#8B5CF6' },
-      { name: 'CSS', level: Math.round(((langs.CSS || 0) / totalLangs) * 100) || 0, color: '#EC4899' },
-    ].filter((s) => s.level > 0);
-  }, [gitHubData]);
+  const contributionData = useMemo(
+    () => buildContributionData(dashboard?.github),
+    [dashboard]
+  );
 
-  const streakStats = useMemo(() => {
-    if (!gitHubData) return null;
-    const activity = gitHubData.commitActivity || [];
-    return {
-      currentStreak: activity.filter((c) => c > 0).slice(-7).length,
-      longestStreak: Math.max(...activity, 0),
-      totalActive: activity.reduce((a, b) => a + (b > 0 ? 1 : 0), 0),
-    };
-  }, [gitHubData]);
+  const { days: streakDays, stats: streakStats } = useMemo(
+    () => buildStreakData(dashboard?.github),
+    [dashboard]
+  );
 
-  const streakDays = useMemo(() => {
-    if (!gitHubData?.commitActivity) return [];
-    const activity = gitHubData.commitActivity;
-    return activity.slice(-28).map((count, i) => ({
-      date: `day-${i}`,
-      count,
-      active: count > 0,
-    }));
-  }, [gitHubData]);
+  const companyReadiness = useMemo(
+    () => buildCompanyReadiness(dashboard?.jobMatch?.score ?? 0),
+    [dashboard]
+  );
 
-  const contributionData = useMemo(() => {
-    if (!gitHubData?.commitActivity) return [];
-    const today = new Date();
-    return gitHubData.commitActivity.slice(-180).map((count, i) => {
-      const date = new Date(today);
-      date.setDate(date.getDate() - (180 - i));
-      return {
-        date: date.toISOString().slice(0, 10),
-        count,
-      };
-    });
-  }, [gitHubData]);
+  const weeklyRecs = useMemo(
+    () => (dashboard?.recommendations || []).map((r) => `${r.title} — ${r.description}`),
+    [dashboard]
+  );
 
-  const hasData = !!gitHubData;
-  const isLoading = gitLoading && !!githubUser;
+  const hasData = !!dashboard;
 
   const subtitle = useMemo(() => {
-    if (isLoading) return 'Loading your data...';
-    if (githubUser && hasData) return `Showing data for @${githubUser}`;
-    if (githubUser) return `Fetching data for @${githubUser}...`;
-    return 'Connect your GitHub account to get started';
-  }, [isLoading, githubUser, hasData]);
+    if (loading) return 'Loading your data...';
+    if (error) return 'Failed to load dashboard';
+    if (hasData) return `Developer Score: ${dashboard.developerScore}/100`;
+    return 'Connect your accounts to get started';
+  }, [loading, error, hasData, dashboard]);
+
+  if (error) {
+    return <ErrorState error={error} onRetry={refetch} />;
+  }
 
   return (
     <PageContainer title="Dashboard" subtitle={subtitle}>
       <MetricCards
-        streakData={streakStats}
-        leetcodeData={null}
-        githubData={gitHubData}
-        jobMatch={jobMatch}
-        loading={isLoading}
+        developerScore={dashboard?.developerScore}
+        leetcodeData={dashboard?.leetcode}
+        githubData={dashboard?.github}
+        weeklyGoal={dashboard?.weeklyGoal}
+        loading={loading}
       />
 
       <ContributionHeatmap
         data={contributionData}
-        loading={isLoading}
+        loading={loading}
         empty={!hasData}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SkillBreakdown
           skills={skills}
-          loading={isLoading}
+          loading={loading}
           empty={!hasData}
         />
         <StreakOverview
           days={streakDays}
           stats={streakStats}
-          loading={isLoading}
+          loading={loading}
           empty={!hasData}
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <WeeklyRecommendations
-          recommendations={weeklyReport}
-          loading={isLoading}
+          recommendations={weeklyRecs}
+          loading={loading}
           empty={!hasData}
         />
         <ScoreGauge
-          score={jobMatch?.totalScore ?? 0}
-          companyReadiness={jobMatch?.companyReadiness ?? []}
-          loading={isLoading}
+          score={dashboard?.jobMatch?.score ?? 0}
+          companyReadiness={companyReadiness}
+          loading={loading}
           empty={!hasData}
         />
       </div>
