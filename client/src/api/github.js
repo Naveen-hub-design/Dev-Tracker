@@ -19,7 +19,8 @@ const demoGitHub = {
 
 export async function fetchGitHubProfile(username) {
   try {
-    const res = await axios.get(`/api/github/${username}`);
+    const base = import.meta.env.VITE_API_URL || '';
+    const res = await axios.get(`${base}/api/github/${username}`);
     return res.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {

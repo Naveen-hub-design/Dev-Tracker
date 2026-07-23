@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: '/api/profile' });
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api/profile`
+    : '/api/profile',
+});
 
 API.interceptors.request.use((req) => {
   const user = localStorage.getItem('devtrack_user');

@@ -13,7 +13,22 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
+
+const allowedOrigins = (process.env.CLIENT_URL || '*')
+  .split(',')
+  .map((o) => o.trim());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(morgan('dev'));
 app.use(express.json());
 

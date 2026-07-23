@@ -19,7 +19,8 @@ const demoLeetCode = {
 
 export async function fetchLeetCodeProfile(username) {
   try {
-    const res = await axios.get(`/api/leetcode/${username}`);
+    const base = import.meta.env.VITE_API_URL || '';
+    const res = await axios.get(`${base}/api/leetcode/${username}`);
     return res.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
