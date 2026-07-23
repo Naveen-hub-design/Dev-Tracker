@@ -1,30 +1,31 @@
-import { getScoreColor } from '../utils/helpers';
+import Card from './ui/Card';
+import { MetricCardSkeleton } from './ui/LoadingSkeleton';
 
 export default function MetricCard({ label, value, icon: Icon, color = 'text-blue-500', badge, loading }) {
   if (loading) {
-    return (
-      <div className="card">
-        <div className="skeleton h-4 w-20 mb-2" />
-        <div className="skeleton h-8 w-16 mb-2" />
-        <div className="skeleton h-4 w-24" />
-      </div>
-    );
+    return <MetricCardSkeleton />;
   }
 
   return (
-    <div className="card">
+    <Card>
       <div className="flex items-start justify-between">
-        <div>
-          <p className="metric-label">{label}</p>
-          <p className={`metric-value mt-1 ${getScoreColor(value)}`}>{value}</p>
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</p>
+          <p className="text-2xl font-semibold text-slate-900 mt-1">{value}</p>
         </div>
-        {Icon && <Icon className={`w-8 h-8 ${color} opacity-80`} />}
+        {Icon && (
+          <div className={`p-2.5 rounded-xl bg-slate-50 ${color}`}>
+            <Icon className="w-5 h-5" />
+          </div>
+        )}
       </div>
       {badge && (
-        <span className={`inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full ${badge.color}`}>
+        <span
+          className={`inline-block mt-3 text-xs font-medium px-2.5 py-1 rounded-lg ${badge.color}`}
+        >
           {badge.text}
         </span>
       )}
-    </div>
+    </Card>
   );
 }
