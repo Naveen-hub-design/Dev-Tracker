@@ -18,8 +18,10 @@ export function AuthProvider({ children }) {
     }
     try {
       const data = await getMe();
-      setUser(data);
-      localStorage.setItem('devtrack_user', JSON.stringify(data));
+      const existingToken = JSON.parse(stored).token;
+      const merged = { ...data, token: data.token || existingToken };
+      setUser(merged);
+      localStorage.setItem('devtrack_user', JSON.stringify(merged));
     } catch {
       localStorage.removeItem('devtrack_user');
       setUser(null);

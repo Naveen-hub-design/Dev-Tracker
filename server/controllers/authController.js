@@ -85,6 +85,7 @@ const getMe = async (req, res) => {
     leetcodeData: req.user.leetcodeData || null,
     codeforcesData: req.user.codeforcesData || null,
     jobMatchScore: req.user.jobMatchScore || 0,
+    token: generateToken(req.user._id),
   });
 };
 
