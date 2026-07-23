@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import LeetCodePage from './pages/LeetCodePage';
 import GitHubPage from './pages/GitHubPage';
 import JobMatchPage from './pages/JobMatchPage';
+import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/leetcode" element={<LeetCodePage />} />
         <Route path="/github" element={<GitHubPage />} />
         <Route path="/jobmatch" element={<JobMatchPage />} />
+        <Route path="/analytics" element={<Analytics />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
