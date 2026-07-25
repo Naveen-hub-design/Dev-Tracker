@@ -1,7 +1,7 @@
 export function Skeleton({ className = '', ...props }) {
   return (
     <div
-      className={`animate-pulse bg-slate-100 rounded-lg ${className}`}
+      className={`animate-pulse bg-slate-100 dark:bg-slate-800 rounded-lg ${className}`}
       {...props}
     />
   );
@@ -9,7 +9,7 @@ export function Skeleton({ className = '', ...props }) {
 
 export function MetricCardSkeleton() {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
       <div className="flex items-start justify-between">
         <div className="space-y-2.5">
           <Skeleton className="h-3 w-20" />
@@ -24,7 +24,7 @@ export function MetricCardSkeleton() {
 
 export function ChartSkeleton({ height = 220 }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800">
       <Skeleton className="h-4 w-32 mb-4" />
       <Skeleton className={`w-full`} style={{ height }} />
     </div>

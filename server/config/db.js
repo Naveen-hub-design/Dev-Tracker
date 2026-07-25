@@ -22,15 +22,23 @@ db.exec(`
     password TEXT NOT NULL,
     githubUsername TEXT DEFAULT '',
     leetcodeUsername TEXT DEFAULT '',
-    codeforcesUsername TEXT DEFAULT '',
     githubData TEXT,
     leetcodeData TEXT,
-    codeforcesData TEXT,
+    hackerRankUsername TEXT DEFAULT '',
+    hackerRankData TEXT,
     jobMatchScore INTEGER DEFAULT 0,
     createdAt TEXT DEFAULT (datetime('now')),
     updatedAt TEXT DEFAULT (datetime('now'))
   )
 `);
+
+const migrateColumns = [
+  'ALTER TABLE users ADD COLUMN hackerRankUsername TEXT DEFAULT \'\'',
+  'ALTER TABLE users ADD COLUMN hackerRankData TEXT',
+];
+migrateColumns.forEach((sql) => {
+  try { db.exec(sql); } catch { /* column already exists */ }
+});
 
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
@@ -63,7 +71,7 @@ const getCollection = (name) => {
         db.prepare(
           'INSERT INTO users (_id, name, email, password, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)'
         ).run(_id, name, email, password, now, now);
-        return { _id, name, email, password, githubUsername: '', leetcodeUsername: '', codeforcesUsername: '', githubData: null, leetcodeData: null, codeforcesData: null, jobMatchScore: 0, createdAt: now, updatedAt: now };
+        return { _id, name, email, password, githubUsername: '', leetcodeUsername: '', hackerRankUsername: '', githubData: null, leetcodeData: null, hackerRankData: null, jobMatchScore: 0, createdAt: now, updatedAt: now };
       },
 
       findOneAndUpdate(query, update) {
@@ -102,7 +110,7 @@ const getCollection = (name) => {
 
 function parseRow(row) {
   const parsed = { ...row };
-  ['githubData', 'leetcodeData', 'codeforcesData'].forEach((field) => {
+  ['githubData', 'leetcodeData', 'hackerRankData'].forEach((field) => {
     if (typeof parsed[field] === 'string') {
       try { parsed[field] = JSON.parse(parsed[field]); } catch { parsed[field] = null; }
     }

@@ -50,28 +50,9 @@ function generateLcTopicData(dashboard) {
   return topics.map((t) => ({ topic: t.name, count: t.solved }));
 }
 
-function generateCfHistory(dashboard) {
-  const rating = dashboard?.codeforces?.rating || 1200;
-  const maxRating = dashboard?.codeforces?.maxRating || rating + 130;
-  const contests = dashboard?.codeforces?.contests || 12;
-  const history = [];
-  let r = Math.max(800, rating - contests * 20);
-  for (let i = 0; i < Math.max(contests, 6); i++) {
-    const delta = Math.floor(Math.random() * 80) - 25;
-    r = Math.min(maxRating + 20, Math.max(700, r + delta));
-    history.push({
-      contest: `#${1000 + i}`,
-      rating: Math.round(r),
-    });
-  }
-  if (history.length > 0) history[history.length - 1].rating = rating;
-  return history;
-}
-
 function computeSkills(dashboard) {
   const langs = dashboard?.github?.languages || {};
   const lc = dashboard?.leetcode || {};
-  const cf = dashboard?.codeforces || {};
 
   const langEntries = Object.entries(langs);
   const topLang = langEntries.length > 0 ? langEntries.sort((a, b) => b[1] - a[1])[0] : null;
@@ -99,7 +80,6 @@ function computeAchievements(dashboard) {
   const achs = [];
   const gh = dashboard?.github;
   const lc = dashboard?.leetcode;
-  const cf = dashboard?.codeforces;
 
   if (gh?.repositories > 0) achs.push({ title: 'First Repository', description: `Created your first GitHub repo`, date: 'Jan 2024', color: 'blue' });
   if (gh?.repositories >= 5) achs.push({ title: '5 Repositories', description: `Built ${gh.repositories} projects`, date: 'Mar 2024', color: 'emerald' });
@@ -108,8 +88,6 @@ function computeAchievements(dashboard) {
   if (lc?.solved >= 50) achs.push({ title: '50 Problems', description: `Solved ${lc.solved} LeetCode problems`, date: 'Feb 2024', color: 'emerald' });
   if (lc?.solved >= 100) achs.push({ title: '100 Problems', description: `Solved ${lc.solved} LeetCode problems`, date: 'May 2024', color: 'blue' });
   if (lc?.solved >= 200) achs.push({ title: '200 Problems', description: `Solved ${lc.solved} LeetCode problems`, date: 'Jul 2024', color: 'purple' });
-  if (cf?.contests >= 5) achs.push({ title: '5 Contests', description: `Participated in ${cf.contests} Codeforces contests`, date: 'Mar 2024', color: 'amber' });
-  if (cf?.rating >= 1400) achs.push({ title: 'Specialist Rank', description: `Codeforces rating ${cf.rating}`, date: 'Jun 2024', color: 'red' });
 
   if (achs.length === 0) {
     achs.push({ title: 'Getting Started', description: 'Set up your DevTrack profile', date: 'Today', color: 'blue' });
@@ -132,7 +110,6 @@ export function useAnalyticsData(dashboard, dateRange) {
     const timeSeries = generateTimeSeries(dashboard, rangeDays);
     const monthlySeries = generateMonthlySeries(dashboard);
     const lcTopics = generateLcTopicData(dashboard);
-    const cfHistory = generateCfHistory(dashboard);
     const skills = computeSkills(dashboard);
     const achievements = computeAchievements(dashboard);
 
@@ -140,7 +117,6 @@ export function useAnalyticsData(dashboard, dateRange) {
       timeSeries,
       monthlySeries,
       lcTopics,
-      cfHistory,
       skills,
       achievements,
       rangeDays,

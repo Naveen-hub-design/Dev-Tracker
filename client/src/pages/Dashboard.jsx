@@ -3,19 +3,24 @@ import PageContainer from '../components/ui/PageContainer';
 import EmptyState from '../components/ui/EmptyState';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import Button from '../components/ui/Button';
-import {
-  MetricCards,
-  ContributionHeatmap,
-  SkillBreakdown,
-  StreakOverview,
-  WeeklyRecommendations,
-  ScoreGauge,
-} from '../components/dashboard';
 import { useMemo } from 'react';
+
+import DashboardHero from '../components/dashboard/DashboardHero';
+import QuickStats from '../components/dashboard/QuickStats';
+import GitHubSection from '../components/dashboard/GitHubSection';
+import LeetCodeSection from '../components/dashboard/LeetCodeSection';
+import DashboardCharts from '../components/dashboard/DashboardCharts';
+import ActivityFeed from '../components/dashboard/ActivityFeed';
+import AchievementGrid from '../components/dashboard/AchievementGrid';
+import GoalProgress from '../components/dashboard/GoalProgress';
+import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
+import ContributionHeatmap from '../components/dashboard/ContributionHeatmap';
+import StreakOverview from '../components/dashboard/StreakOverview';
+import WeeklyRecommendations from '../components/dashboard/WeeklyRecommendations';
 
 function ErrorState({ error, onRetry }) {
   return (
-    <PageContainer title="Dashboard">
+    <PageContainer>
       <EmptyState
         icon={AlertTriangle}
         title={error.message}
@@ -33,38 +38,6 @@ function ErrorState({ error, onRetry }) {
       />
     </PageContainer>
   );
-}
-
-function buildSkills(languages) {
-  if (!languages) return [];
-  const entries = Object.entries(languages);
-  if (entries.length === 0) return [];
-
-  const colorMap = {
-    JavaScript: '#F59E0B',
-    TypeScript: '#3B82F6',
-    React: '#3B82F6',
-    'C++': '#8B5CF6',
-    Python: '#10B981',
-    Java: '#EF4444',
-    Go: '#06B6D4',
-    Rust: '#F97316',
-    CSS: '#EC4899',
-    HTML: '#F59E0B',
-    Ruby: '#DC2626',
-    PHP: '#8B5CF6',
-    Swift: '#F97316',
-    Kotlin: '#8B5CF6',
-  };
-
-  return entries
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 6)
-    .map(([name, pct]) => ({
-      name,
-      level: pct,
-      color: colorMap[name] || '#64748B',
-    }));
 }
 
 function buildContributionData(github) {
@@ -94,31 +67,8 @@ function buildStreakData(github) {
   return { days, stats };
 }
 
-function buildCompanyReadiness(score) {
-  const companies = [
-    { company: 'Zoho', threshold: 55 },
-    { company: 'Freshworks', threshold: 60 },
-    { company: 'TCS/Infosys', threshold: 50 },
-    { company: 'Wipro', threshold: 52 },
-    { company: 'Flipkart', threshold: 72 },
-    { company: 'Google/Amazon', threshold: 88 },
-  ];
-  return companies.map((c) => {
-    let status;
-    if (score >= c.threshold) status = 'Ready';
-    else if (score >= c.threshold - 10) status = 'Almost';
-    else status = 'Not yet';
-    return { ...c, status };
-  });
-}
-
 export default function Dashboard() {
   const { dashboard, loading, error, refetch } = useDashboard();
-
-  const skills = useMemo(
-    () => buildSkills(dashboard?.github?.languages),
-    [dashboard]
-  );
 
   const contributionData = useMemo(
     () => buildContributionData(dashboard?.github),
@@ -130,11 +80,6 @@ export default function Dashboard() {
     [dashboard]
   );
 
-  const companyReadiness = useMemo(
-    () => buildCompanyReadiness(dashboard?.jobMatch?.score ?? 0),
-    [dashboard]
-  );
-
   const weeklyRecs = useMemo(
     () => (dashboard?.recommendations || []).map((r) => `${r.title} — ${r.description}`),
     [dashboard]
@@ -142,59 +87,42 @@ export default function Dashboard() {
 
   const hasData = !!dashboard;
 
-  const subtitle = useMemo(() => {
-    if (loading) return 'Loading your data...';
-    if (error) return 'Failed to load dashboard';
-    if (hasData) return `Developer Score: ${dashboard.developerScore}/100`;
-    return 'Connect your accounts to get started';
-  }, [loading, error, hasData, dashboard]);
+  if (error) return <ErrorState error={error} onRetry={refetch} />;
 
-  if (error) {
-    return <ErrorState error={error} onRetry={refetch} />;
+  if (loading) {
+    return (
+      <PageContainer>
+        <DashboardSkeleton />
+      </PageContainer>
+    );
   }
 
   return (
-    <PageContainer title="Dashboard" subtitle={subtitle}>
-      <MetricCards
-        developerScore={dashboard?.developerScore}
-        leetcodeData={dashboard?.leetcode}
-        githubData={dashboard?.github}
-        weeklyGoal={dashboard?.weeklyGoal}
-        loading={loading}
-      />
+    <PageContainer>
+      <DashboardHero score={dashboard?.developerScore} loading={loading} />
 
-      <ContributionHeatmap
-        data={contributionData}
-        loading={loading}
-        empty={!hasData}
-      />
+      <QuickStats dashboard={dashboard} loading={loading} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SkillBreakdown
-          skills={skills}
-          loading={loading}
-          empty={!hasData}
-        />
-        <StreakOverview
-          days={streakDays}
-          stats={streakStats}
-          loading={loading}
-          empty={!hasData}
-        />
+        <GitHubSection data={dashboard?.github} loading={loading} />
+        <LeetCodeSection data={dashboard?.leetcode} loading={loading} />
+      </div>
+
+      <DashboardCharts dashboard={dashboard} loading={loading} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ContributionHeatmap data={contributionData} loading={loading} empty={!hasData} />
+        <StreakOverview days={streakDays} stats={streakStats} loading={loading} empty={!hasData} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <WeeklyRecommendations
-          recommendations={weeklyRecs}
-          loading={loading}
-          empty={!hasData}
-        />
-        <ScoreGauge
-          score={dashboard?.jobMatch?.score ?? 0}
-          companyReadiness={companyReadiness}
-          loading={loading}
-          empty={!hasData}
-        />
+        <ActivityFeed data={dashboard?.recentActivity} loading={loading} />
+        <AchievementGrid dashboard={dashboard} loading={loading} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <GoalProgress weeklyGoal={dashboard?.weeklyGoal} loading={loading} />
+        <WeeklyRecommendations recommendations={weeklyRecs} loading={loading} empty={!hasData} />
       </div>
     </PageContainer>
   );

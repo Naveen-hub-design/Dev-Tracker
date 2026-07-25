@@ -33,7 +33,7 @@ const registerUser = async (req, res, next) => {
       email: user.email,
       githubUsername: user.githubUsername || '',
       leetcodeUsername: user.leetcodeUsername || '',
-      codeforcesUsername: user.codeforcesUsername || '',
+      hackerRankUsername: user.hackerRankUsername || '',
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -65,7 +65,7 @@ const loginUser = async (req, res, next) => {
       email: user.email,
       githubUsername: user.githubUsername || '',
       leetcodeUsername: user.leetcodeUsername || '',
-      codeforcesUsername: user.codeforcesUsername || '',
+      hackerRankUsername: user.hackerRankUsername || '',
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -80,10 +80,10 @@ const getMe = async (req, res) => {
     email: req.user.email,
     githubUsername: req.user.githubUsername || '',
     leetcodeUsername: req.user.leetcodeUsername || '',
-    codeforcesUsername: req.user.codeforcesUsername || '',
+    hackerRankUsername: req.user.hackerRankUsername || '',
     githubData: req.user.githubData || null,
     leetcodeData: req.user.leetcodeData || null,
-    codeforcesData: req.user.codeforcesData || null,
+    hackerRankData: req.user.hackerRankData || null,
     jobMatchScore: req.user.jobMatchScore || 0,
     token: generateToken(req.user._id),
   });

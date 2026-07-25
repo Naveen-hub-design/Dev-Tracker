@@ -7,7 +7,6 @@ import {
   TrendChart,
   GitHubAnalytics,
   LeetCodeAnalytics,
-  CodeforcesAnalytics,
   RadarSkills,
   AchievementsTimeline,
   RecommendationPanel,
@@ -86,12 +85,6 @@ export default function Analytics() {
       />
 
       <LeetCodeAnalytics data={dashboard} loading={loading} />
-
-      <CodeforcesAnalytics
-        data={dashboard}
-        cfHistory={analyticsData?.cfHistory || []}
-        loading={loading}
-      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RadarSkills skills={analyticsData?.skills || []} loading={loading} />

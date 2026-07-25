@@ -1,10 +1,10 @@
 const axios = require('axios');
 const User = require('../models/User');
 const { calculateJobMatch } = require('../services/jobMatchService');
+const { fetchHackerRankData } = require('../services/hackerRankService');
 
 const GITHUB_API = 'https://api.github.com';
 const LEETCODE_GRAPHQL = 'https://leetcode.com/graphql';
-const CODEFORCES_API = 'https://codeforces.com/api';
 
 const githubHeaders = { Accept: 'application/vnd.github.v3+json' };
 if (process.env.GITHUB_TOKEN) {
@@ -15,23 +15,23 @@ async function getDashboardData(userId) {
   const user = await User.findById(userId);
   if (!user) throw new Error('User not found');
 
-  const [github, leetcode, codeforces] = await Promise.all([
+  const [github, leetcode, hackerrank] = await Promise.all([
     resolveGithubData(user),
     resolveLeetcodeData(user),
-    resolveCodeforcesData(user),
+    resolveHackerRankData(user),
   ]);
 
-  const { developerScore, recommendations, jobMatch } = calculateJobMatch({ github, leetcode, codeforces });
+  const { developerScore, recommendations, jobMatch } = calculateJobMatch({ github, leetcode, hackerrank });
 
-  const weeklyGoal = computeWeeklyGoal(github, leetcode, codeforces);
+  const weeklyGoal = computeWeeklyGoal(github, leetcode);
 
-  const recentActivity = mergeRecentActivity(github, leetcode, codeforces);
+  const recentActivity = mergeRecentActivity(github, leetcode);
 
   return {
     developerScore,
     github,
     leetcode,
-    codeforces,
+    hackerrank,
     weeklyGoal,
     jobMatch,
     recentActivity,
@@ -219,15 +219,15 @@ function normalizeLeetcodeData(raw) {
   };
 }
 
-async function resolveCodeforcesData(user) {
-  if (user.codeforcesData) {
-    return normalizeCodeforcesData(user.codeforcesData);
+async function resolveHackerRankData(user) {
+  if (user.hackerRankData) {
+    return normalizeHackerRankData(user.hackerRankData);
   }
-  if (user.codeforcesUsername) {
+  if (user.hackerRankUsername) {
     try {
-      const fresh = await fetchCodeforcesFromApi(user.codeforcesUsername);
-      await User.findOneAndUpdate({ _id: user._id }, { codeforcesData: fresh });
-      return normalizeCodeforcesData(fresh);
+      const fresh = await fetchHackerRankData(user.hackerRankUsername);
+      await User.findOneAndUpdate({ _id: user._id }, { hackerRankData: fresh });
+      return normalizeHackerRankData(fresh);
     } catch {
       // fall through
     }
@@ -235,43 +235,22 @@ async function resolveCodeforcesData(user) {
   return null;
 }
 
-async function fetchCodeforcesFromApi(handle) {
-  const [infoRes, subsRes] = await Promise.all([
-    axios.get(`${CODEFORCES_API}/user.info?handles=${handle}`, { timeout: 8000 }),
-    axios.get(`${CODEFORCES_API}/user.status?handle=${handle}&from=1&count=50`, { timeout: 8000 }),
-  ]);
-
-  const info = infoRes.data.result[0];
-  const submissions = subsRes.data.result || [];
-  const accepted = submissions.filter((s) => s.verdict === 'OK');
-  const totalSolved = new Set(accepted.map((s) => `${s.problem.contestId}-${s.problem.index}`)).size;
-
-  const contests = new Set(submissions.map((s) => s.contestId)).size;
-
-  return {
-    username: info.handle,
-    rating: info.rating || 0,
-    maxRating: info.maxRating || 0,
-    rank: info.rank || 'unrated',
-    maxRank: info.maxRank || 'unrated',
-    totalSolved,
-    contribution: info.contribution || 0,
-    contests,
-  };
-}
-
-function normalizeCodeforcesData(raw) {
+function normalizeHackerRankData(raw) {
   if (!raw) return null;
   return {
-    rating: raw.rating || 0,
-    maxRating: raw.maxRating || 0,
-    rank: raw.rank || 'unrated',
-    contests: raw.contests || 0,
+    solved: raw.totalSolved || 0,
+    easy: raw.problemsSolved?.easy || 0,
+    medium: raw.problemsSolved?.medium || 0,
+    hard: raw.problemsSolved?.hard || 0,
+    hackerRank: raw.hackerRank || 0,
+    hackerBadge: raw.hackerBadge || 'None',
+    languages: (raw.languages || []).reduce((map, l) => { map[l.name] = l.percentage; return map; }, {}),
+    badges: raw.badges || [],
     _raw: raw,
   };
 }
 
-function computeWeeklyGoal(github, leetcode, codeforces) {
+function computeWeeklyGoal(github, leetcode) {
   let completed = 0;
   let target = 25;
 
@@ -286,10 +265,6 @@ function computeWeeklyGoal(github, leetcode, codeforces) {
     completed = Math.min(completed, 25);
   }
 
-  if (codeforces) {
-    completed += Math.min(5, codeforces.contests || 0);
-  }
-
   completed = Math.min(completed, target);
 
   return {
@@ -299,7 +274,7 @@ function computeWeeklyGoal(github, leetcode, codeforces) {
   };
 }
 
-function mergeRecentActivity(github, leetcode, codeforces) {
+function mergeRecentActivity(github, leetcode) {
   const activities = [];
 
   if (github?._raw?.repos) {
@@ -323,15 +298,6 @@ function mergeRecentActivity(github, leetcode, codeforces) {
         description: `Total solved: ${leetcode.solved}`,
       });
     }
-  }
-
-  if (codeforces) {
-    activities.push({
-      time: new Date().toISOString(),
-      type: 'codeforces',
-      title: `Codeforces rating: ${codeforces.rating}`,
-      description: `Rank: ${codeforces.rank}, ${codeforces.contests} contests`,
-    });
   }
 
   activities.sort((a, b) => new Date(b.time) - new Date(a.time));

@@ -7,7 +7,6 @@ import {
   Target,
   Github,
   Code2,
-  Trophy,
   Flame,
   Zap,
 } from 'lucide-react';
@@ -16,7 +15,6 @@ const iconMap = {
   score: Target,
   github: Github,
   leetcode: Code2,
-  codeforces: Trophy,
   weeklyGoal: Flame,
   streak: Zap,
 };
@@ -25,7 +23,6 @@ const colorMap = {
   score: 'text-purple-500 bg-purple-50',
   github: 'text-blue-500 bg-blue-50',
   leetcode: 'text-emerald-500 bg-emerald-50',
-  codeforces: 'text-orange-500 bg-orange-50',
   weeklyGoal: 'text-amber-500 bg-amber-50',
   streak: 'text-cyan-500 bg-cyan-50',
 };
@@ -77,8 +74,8 @@ function OverviewCardSkeleton() {
 export default function OverviewCards({ dashboard, loading }) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {Array.from({ length: 5 }).map((_, i) => (
           <OverviewCardSkeleton key={i} />
         ))}
       </div>
@@ -87,7 +84,6 @@ export default function OverviewCards({ dashboard, loading }) {
 
   const gh = dashboard?.github || {};
   const lc = dashboard?.leetcode || {};
-  const cf = dashboard?.codeforces || {};
   const wg = dashboard?.weeklyGoal || {};
 
   const cards = [
@@ -113,13 +109,6 @@ export default function OverviewCards({ dashboard, loading }) {
       sparkline: dashboard?.leetcode?._raw?.weeklyProgress || [5, 8, 6, 10, 7, 12],
     },
     {
-      key: 'codeforces',
-      label: 'CF Rating',
-      value: cf.rating ?? 0,
-      trend: cf.rating > 1200 ? 3 : -1,
-      sparkline: [1000, 1050, 1100, 1080, 1150, cf.rating || 1200],
-    },
-    {
       key: 'weeklyGoal',
       label: 'Weekly Goal',
       value: `${wg.completed ?? 0}/${wg.target ?? 25}`,
@@ -136,7 +125,7 @@ export default function OverviewCards({ dashboard, loading }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       {cards.map((card) => {
         const Icon = iconMap[card.key];
         return (

@@ -1,15 +1,15 @@
 const User = require('../models/User');
 const { fetchGitHubData, getDemoData } = require('../services/githubService');
 const { fetchLeetCodeData } = require('../services/leetcodeService');
-const { fetchCodeforcesData } = require('../services/codeforcesService');
+const { fetchHackerRankData } = require('../services/hackerRankService');
 
 const updateUsernames = async (req, res, next) => {
   try {
-    const { githubUsername, leetcodeUsername, codeforcesUsername } = req.body;
+    const { githubUsername, leetcodeUsername, hackerRankUsername } = req.body;
     const update = {};
     if (githubUsername !== undefined) update.githubUsername = githubUsername;
     if (leetcodeUsername !== undefined) update.leetcodeUsername = leetcodeUsername;
-    if (codeforcesUsername !== undefined) update.codeforcesUsername = codeforcesUsername;
+    if (hackerRankUsername !== undefined) update.hackerRankUsername = hackerRankUsername;
 
     const user = await User.findOneAndUpdate({ _id: req.user._id }, update);
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -19,7 +19,7 @@ const updateUsernames = async (req, res, next) => {
       message: 'Usernames updated',
       githubUsername: updated.githubUsername || '',
       leetcodeUsername: updated.leetcodeUsername || '',
-      codeforcesUsername: updated.codeforcesUsername || '',
+      hackerRankUsername: updated.hackerRankUsername || '',
     });
   } catch (error) {
     next(error);
@@ -64,19 +64,24 @@ const refreshLeetCode = async (req, res, next) => {
   }
 };
 
-const refreshCodeforces = async (req, res, next) => {
+const refreshHackerRank = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: 'User not found' });
-    if (!user.codeforcesUsername) return res.status(400).json({ message: 'No Codeforces username set' });
+    if (!user.hackerRankUsername) return res.status(400).json({ message: 'No HackerRank username set' });
 
-    const codeforcesData = await fetchCodeforcesData(user.codeforcesUsername);
-    await User.findOneAndUpdate({ _id: req.user._id }, { codeforcesData });
-    res.json(codeforcesData);
-  } catch (error) {
-    if (error.response?.status === 400) {
-      return res.status(404).json({ message: 'Codeforces user not found' });
+    try {
+      const hackerRankData = await fetchHackerRankData(user.hackerRankUsername);
+      await User.findOneAndUpdate({ _id: req.user._id }, { hackerRankData });
+      return res.json(hackerRankData);
+    } catch (apiError) {
+      console.warn(`HackerRank API error for ${user.hackerRankUsername}: ${apiError.message}`);
+      if (apiError.message === 'HackerRank user not found') {
+        return res.status(404).json({ message: 'HackerRank user not found' });
+      }
+      return res.status(503).json({ message: 'HackerRank API unavailable. Please try again later.' });
     }
+  } catch (error) {
     next(error);
   }
 };
@@ -88,4 +93,4 @@ const getProfile = async (req, res) => {
   res.json(profile);
 };
 
-module.exports = { updateUsernames, refreshGitHub, refreshLeetCode, refreshCodeforces, getProfile };
+module.exports = { updateUsernames, refreshGitHub, refreshLeetCode, refreshHackerRank, getProfile };

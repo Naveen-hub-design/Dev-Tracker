@@ -1,30 +1,37 @@
 const { calculateDeveloperScore } = require('../utils/developerScore');
 
-function calculateJobMatch({ github, leetcode, codeforces }) {
-  const developerScore = calculateDeveloperScore({ github, leetcode, codeforces });
-  const recommendations = generateRecommendations({ github, leetcode, codeforces });
-  const jobMatch = computeJobMatch(github, leetcode);
+function calculateJobMatch({ github, leetcode, hackerrank }) {
+  const developerScore = calculateDeveloperScore({ github, leetcode, hackerrank });
+  const recommendations = generateRecommendations({ github, leetcode, hackerrank });
+  const jobMatch = computeJobMatch(github, leetcode, hackerrank);
 
   return { developerScore, recommendations, jobMatch };
 }
 
-function computeJobMatch(github, leetcode) {
+function computeJobMatch(github, leetcode, hackerrank) {
   let score = 0;
 
   if (leetcode) {
-    if (leetcode.solved > 100) score += 20;
-    else if (leetcode.solved > 50) score += 10;
-    if (leetcode.hard > 10) score += 15;
-    else if (leetcode.hard > 5) score += 8;
+    if (leetcode.solved > 100) score += 18;
+    else if (leetcode.solved > 50) score += 9;
+    if (leetcode.hard > 10) score += 12;
+    else if (leetcode.hard > 5) score += 6;
   }
 
   if (github) {
-    if (github.repositories > 5) score += 15;
-    else if (github.repositories > 2) score += 8;
-    if (github.commits > 200) score += 15;
-    else if (github.commits > 100) score += 8;
-    if (github.stars > 30) score += 10;
-    else if (github.stars > 10) score += 5;
+    if (github.repositories > 5) score += 14;
+    else if (github.repositories > 2) score += 7;
+    if (github.commits > 200) score += 14;
+    else if (github.commits > 100) score += 7;
+    if (github.stars > 30) score += 9;
+    else if (github.stars > 10) score += 4;
+  }
+
+  if (hackerrank) {
+    if (hackerrank.solved > 100) score += 15;
+    else if (hackerrank.solved > 50) score += 8;
+    if (['DIAMOND', 'PLATINUM', 'GOLD'].includes(hackerrank.hackerBadge)) score += 10;
+    else if (['SILVER', 'BRONZE'].includes(hackerrank.hackerBadge)) score += 5;
   }
 
   score = Math.min(100, score);
@@ -38,7 +45,7 @@ function computeJobMatch(github, leetcode) {
   return { score, companyLevel };
 }
 
-function generateRecommendations({ github, leetcode, codeforces }) {
+function generateRecommendations({ github, leetcode, hackerrank }) {
   const recs = [];
 
   if (leetcode) {
@@ -94,21 +101,27 @@ function generateRecommendations({ github, leetcode, codeforces }) {
     });
   }
 
-  if (codeforces) {
-    if (codeforces.contests < 10) {
+  if (hackerrank) {
+    if (hackerrank.solved < 80) {
       recs.push({
-        title: 'Participate in more contests',
-        description: `You've joined ${codeforces.contests} contests. Regular participation improves rating.`,
+        title: 'Solve more HackerRank challenges',
+        description: `You've solved ${hackerrank.solved} challenges. Target 80+ for stronger algorithm skills.`,
+        priority: 'high',
+      });
+    }
+    if (!['DIAMOND', 'PLATINUM', 'GOLD'].includes(hackerrank.hackerBadge)) {
+      recs.push({
+        title: 'Earn a HackerRank Gold badge',
+        description: `Current badge: ${hackerrank.hackerBadge}. Solve more algorithmic problems to level up.`,
         priority: 'medium',
       });
     }
-    if (codeforces.rating < 1400) {
-      recs.push({
-        title: 'Work on competitive programming',
-        description: `Current rating: ${codeforces.rating}. Practice rated problems to improve.`,
-        priority: 'medium',
-      });
-    }
+  } else {
+    recs.push({
+      title: 'Connect HackerRank',
+      description: 'Link your HackerRank account to showcase your coding certifications.',
+      priority: 'low',
+    });
   }
 
   return recs.slice(0, 5);

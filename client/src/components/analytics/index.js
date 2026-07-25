@@ -3,7 +3,6 @@ export { default as OverviewCards } from './OverviewCards';
 export { default as TrendChart } from './TrendChart';
 export { default as GitHubAnalytics } from './GitHubAnalytics';
 export { default as LeetCodeAnalytics } from './LeetCodeAnalytics';
-export { default as CodeforcesAnalytics } from './CodeforcesAnalytics';
 export { default as RadarSkills } from './RadarSkills';
 export { default as AchievementsTimeline } from './AchievementsTimeline';
 export { default as RecommendationPanel } from './RecommendationPanel';

@@ -1,17 +1,18 @@
 import { useLeetCode } from '../hooks/useLeetCode';
 import PageContainer from '../components/ui/PageContainer';
-import LeetCodeLoading from '../components/leetcode/LeetCodeLoading';
 import LeetCodeEmptyState from '../components/leetcode/LeetCodeEmptyState';
 import {
-  LeetCodeHeader,
-  LeetCodeProfileCard,
-  LeetCodeOverviewCards,
-  DifficultyBreakdown,
-  SubmissionTrendChart,
-  TopicStrengthChart,
-  ContestPerformance,
-  RecentActivityTimeline,
-  AIRecommendations,
+  LCProfileHero,
+  LCSolvedCards,
+  LCMetricCards,
+  LCDifficultyPie,
+  LCTopicBar,
+  LCHeatmap,
+  LCWeeklyProgress,
+  LCGoalTracker,
+  LCRecentProblems,
+  LCAchievements,
+  LCPageSkeleton,
 } from '../components/leetcode';
 
 export default function LeetCodePage() {
@@ -19,18 +20,18 @@ export default function LeetCodePage() {
 
   if (loading) {
     return (
-      <PageContainer title="LeetCode Tracker">
-        <LeetCodeLoading />
+      <PageContainer title="LeetCode Analytics">
+        <LCPageSkeleton />
       </PageContainer>
     );
   }
 
   if (error) {
     return (
-      <PageContainer title="LeetCode Tracker">
-        <div className="bg-white border border-slate-200 rounded-xl p-8 text-center shadow-sm">
-          <p className="text-red-500 font-medium">{error}</p>
-          <p className="text-sm text-slate-500 mt-2">Try a different username or connect via Settings</p>
+      <PageContainer title="LeetCode Analytics">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center shadow-sm">
+          <p className="text-red-500 dark:text-red-400 font-medium">{error}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Try a different username or connect via Settings</p>
         </div>
       </PageContainer>
     );
@@ -38,52 +39,54 @@ export default function LeetCodePage() {
 
   if (!data) {
     return (
-      <PageContainer title="LeetCode Tracker">
+      <PageContainer title="LeetCode Analytics">
         <LeetCodeEmptyState />
       </PageContainer>
     );
   }
 
   return (
-    <PageContainer
-      title=""
-      subtitle=""
-      actions={
-        <LeetCodeHeader username={data.username} onRefresh={() => fetchProfile(data.username)} loading={loading} />
-      }
-    >
+    <PageContainer title="LeetCode Analytics" subtitle="Premium coding analytics dashboard">
       <section aria-label="Profile">
-        <LeetCodeProfileCard data={data} />
+        <LCProfileHero data={data} onRefresh={() => fetchProfile(data.username)} loading={loading} />
       </section>
 
-      <section aria-label="Overview">
-        <LeetCodeOverviewCards data={data} />
+      <section aria-label="Solved problems">
+        <LCSolvedCards data={data} />
       </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <section aria-label="Key metrics">
+        <LCMetricCards data={data} />
+      </section>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <section aria-label="Difficulty breakdown">
-          <DifficultyBreakdown data={data} />
+          <LCDifficultyPie data={data} />
         </section>
-        <section aria-label="Weekly progress">
-          <SubmissionTrendChart weeklyProgress={data.weeklyProgress} />
-        </section>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <section aria-label="Topic strength">
-          <TopicStrengthChart topics={data.topics} />
-        </section>
-        <section aria-label="Cumulative progress">
-          <ContestPerformance weeklyProgress={data.weeklyProgress} />
+          <LCTopicBar topics={data.topics} />
         </section>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section aria-label="Recent activity">
-          <RecentActivityTimeline data={data} />
+      <section aria-label="Activity heatmap">
+        <LCHeatmap weeklyProgress={data.weeklyProgress} />
+      </section>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <section aria-label="Weekly progress">
+          <LCWeeklyProgress weeklyProgress={data.weeklyProgress} />
         </section>
-        <section aria-label="Study recommendations">
-          <AIRecommendations data={data} />
+        <section aria-label="Goal tracker">
+          <LCGoalTracker data={data} />
+        </section>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <section aria-label="Recent topics">
+          <LCRecentProblems topics={data.topics} />
+        </section>
+        <section aria-label="Achievements">
+          <LCAchievements data={data} />
         </section>
       </div>
     </PageContainer>

@@ -26,7 +26,7 @@ export function useLeetCode() {
     return raw;
   };
 
-  const loadProfile = useCallback(async (user) => {
+  const loadProfile = useCallback(async () => {
     if (!user) return;
 
     // Try auth profile first
@@ -57,19 +57,24 @@ export function useLeetCode() {
     setLoading(true);
     setError(null);
     try {
-      const result = await fetchLeetCodeProfile(user);
+      const result = await fetchLeetCodeProfile(username || user.leetcodeUsername);
       setData(normalizeData(result));
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  }, [user, username]);
+
+  const fetchProfile = useCallback((newUsername) => {
+    setUsername(newUsername);
   }, []);
 
-  const fetchProfile = useCallback((user) => {
-    setUsername(user);
-    loadProfile(user);
-  }, [loadProfile]);
+  useEffect(() => {
+    if (user) {
+      loadProfile();
+    }
+  }, [user, loadProfile]);
 
   return { username, data, loading, error, fetchProfile };
 }

@@ -37,7 +37,7 @@ export async function refreshLeetCode() {
   return res.data;
 }
 
-export async function refreshCodeforces() {
-  const res = await API.post('/refresh/codeforces');
+export async function refreshHackerRank() {
+  const res = await API.post('/refresh/hackerrank');
   return res.data;
 }

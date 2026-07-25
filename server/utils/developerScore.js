@@ -1,14 +1,14 @@
-function calculateDeveloperScore({ github, leetcode, codeforces }) {
+function calculateDeveloperScore({ github, leetcode, hackerrank }) {
   const githubScore = calculateGithubScore(github);
   const leetcodeScore = calculateLeetcodeScore(leetcode);
-  const codeforcesScore = calculateCodeforcesScore(codeforces);
-  const consistencyScore = calculateConsistencyScore(github, leetcode, codeforces);
+  const hackerrankScore = calculateHackerRankScore(hackerrank);
+  const consistencyScore = calculateConsistencyScore(github, leetcode, hackerrank);
   const projectScore = calculateProjectScore(github);
 
   const total = Math.round(
     githubScore * 0.30 +
     leetcodeScore * 0.30 +
-    codeforcesScore * 0.15 +
+    hackerrankScore * 0.15 +
     consistencyScore * 0.15 +
     projectScore * 0.10
   );
@@ -79,35 +79,37 @@ function calculateLeetcodeScore(data) {
   return Math.min(100, score);
 }
 
-function calculateCodeforcesScore(data) {
+function calculateHackerRankScore(data) {
   if (!data) return 0;
 
   let score = 0;
 
-  const rating = data.rating || 0;
-  if (rating >= 1900) score += 40;
-  else if (rating >= 1600) score += 32;
-  else if (rating >= 1400) score += 24;
-  else if (rating >= 1200) score += 16;
-  else if (rating >= 1000) score += 8;
+  const solved = data.solved || 0;
+  if (solved >= 200) score += 30;
+  else if (solved >= 100) score += 24;
+  else if (solved >= 50) score += 16;
+  else if (solved >= 20) score += 8;
 
-  const contests = data.contests || 0;
-  if (contests >= 30) score += 30;
-  else if (contests >= 20) score += 24;
-  else if (contests >= 10) score += 16;
-  else if (contests >= 5) score += 8;
+  const hard = data.hard || 0;
+  if (hard >= 30) score += 25;
+  else if (hard >= 15) score += 20;
+  else if (hard >= 8) score += 14;
+  else if (hard >= 3) score += 7;
 
-  const maxRating = data.maxRating || 0;
-  if (maxRating >= 1900) score += 30;
-  else if (maxRating >= 1600) score += 24;
-  else if (maxRating >= 1400) score += 18;
-  else if (maxRating >= 1200) score += 12;
-  else if (maxRating >= 1000) score += 6;
+  const badge = data.hackerBadge || 'None';
+  const badgeScores = { DIAMOND: 25, PLATINUM: 22, GOLD: 18, SILVER: 12, BRONZE: 6 };
+  score += badgeScores[badge] || 0;
+
+  const hr = data.hackerRank || 0;
+  if (hr >= 2000) score += 20;
+  else if (hr >= 1500) score += 15;
+  else if (hr >= 1000) score += 10;
+  else if (hr >= 500) score += 5;
 
   return Math.min(100, score);
 }
 
-function calculateConsistencyScore(github, leetcode, codeforces) {
+function calculateConsistencyScore(github, leetcode, hackerrank) {
   let activePlatforms = 0;
   let totalScore = 0;
 
@@ -129,12 +131,12 @@ function calculateConsistencyScore(github, leetcode, codeforces) {
     else totalScore += 25;
   }
 
-  if (codeforces && codeforces.contests > 0) {
+  if (hackerrank && hackerrank.solved > 0) {
     activePlatforms++;
-    const contests = codeforces.contests;
-    if (contests >= 20) totalScore += 100;
-    else if (contests >= 10) totalScore += 75;
-    else if (contests >= 5) totalScore += 50;
+    const solved = hackerrank.solved;
+    if (solved >= 150) totalScore += 100;
+    else if (solved >= 80) totalScore += 75;
+    else if (solved >= 40) totalScore += 50;
     else totalScore += 25;
   }
 
