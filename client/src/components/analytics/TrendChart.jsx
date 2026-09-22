@@ -22,12 +22,12 @@ function TrendSkeleton() {
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload) return null;
   return (
-    <div className="bg-white border border-slate-200 rounded-lg shadow-lg px-3 py-2 text-xs">
-      <p className="font-medium text-slate-900 mb-1">{label}</p>
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg px-3 py-2 text-xs">
+      <p className="font-medium text-slate-900 dark:text-slate-100 mb-1">{label}</p>
       {payload.map((entry) => (
-        <p key={entry.name} className="text-slate-600">
+        <p key={entry.name} className="text-slate-600 dark:text-slate-400">
           <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: entry.color }} />
-          {entry.name}: <span className="font-medium text-slate-900">{entry.value}</span>
+          {entry.name}: <span className="font-medium text-slate-900 dark:text-slate-100">{entry.value}</span>
         </p>
       ))}
     </div>

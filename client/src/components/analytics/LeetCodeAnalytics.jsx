@@ -22,12 +22,12 @@ const DIFF_COLORS = { Easy: '#10B981', Medium: '#F59E0B', Hard: '#EF4444' };
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload) return null;
   return (
-    <div className="bg-white border border-slate-200 rounded-lg shadow-lg px-3 py-2 text-xs">
-      <p className="font-medium text-slate-900 mb-1">{label}</p>
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg px-3 py-2 text-xs">
+      <p className="font-medium text-slate-900 dark:text-slate-100 mb-1">{label}</p>
       {payload.map((entry) => (
-        <p key={entry.name} className="text-slate-600">
+        <p key={entry.name} className="text-slate-600 dark:text-slate-400">
           <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: entry.color }} />
-          {entry.name}: <span className="font-medium text-slate-900">{entry.value}</span>
+          {entry.name}: <span className="font-medium text-slate-900 dark:text-slate-100">{entry.value}</span>
         </p>
       ))}
     </div>
@@ -42,11 +42,11 @@ function SectionSkeleton() {
         <Skeleton className="h-5 w-40" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
           <Skeleton className="h-4 w-32 mb-4" />
           <Skeleton className="h-[220px] w-full" />
         </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
           <Skeleton className="h-4 w-32 mb-4" />
           <Skeleton className="h-[220px] w-full" />
         </div>
@@ -100,7 +100,7 @@ export default function LeetCodeAnalytics({ data, loading }) {
             <polyline points="8 6 2 12 8 18" />
           </svg>
         </div>
-        <h2 className="text-lg font-semibold text-slate-900">LeetCode Analytics</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">LeetCode Analytics</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -129,7 +129,7 @@ export default function LeetCodeAnalytics({ data, loading }) {
                   iconType="circle"
                   iconSize={8}
                   wrapperStyle={{ fontSize: 12 }}
-                  formatter={(val) => <span className="text-slate-600">{val}</span>}
+                  formatter={(val) => <span className="text-slate-600 dark:text-slate-400">{val}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -150,8 +150,8 @@ export default function LeetCodeAnalytics({ data, loading }) {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold text-slate-900">{acceptanceRate}%</span>
-                <span className="text-xs text-slate-500">Accuracy</span>
+                <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">{acceptanceRate}%</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">Accuracy</span>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, RefreshCw, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../notifications/NotificationBell';
+import ThemeToggle from '../ui/ThemeToggle';
 
 export default function TopNavbar() {
   const { user, logout } = useAuth();
@@ -49,6 +50,9 @@ export default function TopNavbar() {
         >
           <RefreshCw className="w-[18px] h-[18px]" />
         </button>
+
+        {/* Theme toggle */}
+        <ThemeToggle compact />
 
         {/* Notifications — full component */}
         <NotificationBell />

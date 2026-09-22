@@ -2,15 +2,41 @@ const axios = require('axios');
 
 const HACKERRANK_API = 'https://www.hackerrank.com/rest';
 
+const HACKERRANK_ERRORS = {
+  BLOCKED: 'HackerRate API blocked (403)',
+  NOT_FOUND: 'HackerRank user not found',
+  UNAVAILABLE: 'HackerRank API unavailable',
+};
+
 async function fetchHackerRankData(username) {
-  const [trackerRes, badgesRes] = await Promise.all([
-    axios.get(`${HACKERRANK_API}/contests/master/tracker/${username}`, { timeout: 8000 }),
-    axios.get(`${HACKERRANK_API}/badges/${username}`, { timeout: 8000 }).catch(() => ({ data: { models: [] } })),
-  ]);
+  let trackerRes;
+  try {
+    trackerRes = await axios.get(`${HACKERRANK_API}/contests/master/tracker/${username}`, { timeout: 8000 });
+  } catch (err) {
+    if (err.response) {
+      const status = err.response.status;
+      if (status === 403) throw new Error(HACKERRANK_ERRORS.BLOCKED);
+      if (status === 404) throw new Error(HACKERRANK_ERRORS.NOT_FOUND);
+    }
+    if (err.code === 'ECONNABORTED' || err.code === 'ETIMEDOUT') {
+      throw new Error(HACKERRANK_ERRORS.UNAVAILABLE);
+    }
+    if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
+      throw new Error(HACKERRANK_ERRORS.UNAVAILABLE);
+    }
+    throw new Error(HACKERRANK_ERRORS.UNAVAILABLE);
+  }
 
   const profile = trackerRes.data;
   if (!profile || !profile.name) {
-    throw new Error('HackerRank user not found');
+    throw new Error(HACKERRANK_ERRORS.NOT_FOUND);
+  }
+
+  let badgesRes;
+  try {
+    badgesRes = await axios.get(`${HACKERRANK_API}/badges/${username}`, { timeout: 8000 });
+  } catch {
+    badgesRes = { data: { models: [] } };
   }
 
   const languageStats = extractLanguageStats(profile);
@@ -69,4 +95,4 @@ function extractProblemsSolved(profile) {
   return { easy, medium, hard, total };
 }
 
-module.exports = { fetchHackerRankData };
+module.exports = { fetchHackerRankData, HACKERRANK_ERRORS };

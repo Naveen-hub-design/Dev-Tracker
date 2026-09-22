@@ -31,7 +31,7 @@ function GitHubAchievements({ data }) {
       <Card>
         <div className="flex items-center justify-between mb-5">
           <SectionHeader title="Achievements" subtitle="GitHub milestones unlocked" />
-          <span className="text-xs font-bold text-slate-900 bg-slate-100 rounded-full px-2.5 py-1">
+          <span className="text-xs font-bold text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-700 rounded-full px-2.5 py-1">
             {count} / {ACHIEVEMENTS_DEF.length}
           </span>
         </div>
@@ -52,16 +52,16 @@ function GitHubAchievements({ data }) {
                 variants={item}
                 className={`relative flex items-center gap-3 p-3 rounded-xl border transition-all ${
                   a.unlocked
-                    ? 'bg-white border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5'
-                    : 'bg-slate-50/60 border-slate-100 opacity-50'
+                    ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-0.5'
+                    : 'bg-slate-50/60 dark:bg-slate-800/60 border-slate-100 dark:border-slate-800 opacity-50'
                 }`}
               >
                 <div className={`p-2 rounded-lg ring-1 ${ring} ${bg}`}>
                   <a.Icon className={`w-4 h-4 ${color}`} />
                 </div>
                 <div className="min-w-0">
-                  <p className={`text-sm font-semibold ${a.unlocked ? 'text-slate-800' : 'text-slate-400'}`}>{a.label}</p>
-                  <p className="text-[10px] text-slate-400">{a.desc}</p>
+                  <p className={`text-sm font-semibold ${a.unlocked ? 'text-slate-800 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500'}`}>{a.label}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500">{a.desc}</p>
                 </div>
               </motion.div>
             );

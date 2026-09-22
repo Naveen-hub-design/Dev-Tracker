@@ -5,6 +5,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
   body {
     @apply bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100;
     transition: background-color 0.3s ease, color 0.3s ease;

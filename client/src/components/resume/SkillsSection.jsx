@@ -42,29 +42,29 @@ function SkillCategory({ category, config, skills, onAdd, onRemove }) {
   };
 
   return (
-    <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-100">
+    <div className="p-4 rounded-xl bg-slate-50/80 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700">
       <div className="flex items-center gap-2 mb-3">
         <Icon className={`w-4 h-4 text-${color}-500`} />
-        <span className="text-sm font-semibold text-slate-700">{label}</span>
-        <span className="text-[10px] text-slate-400 ml-auto">{skills.length} items</span>
+        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</span>
+        <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-auto">{skills.length} items</span>
       </div>
       <div className="flex flex-wrap gap-1.5 mb-3">
         {skills.map((s) => (
           <SkillTag key={s} skill={s} color={color} onRemove={(sk) => onRemove(category, skills.filter((x) => x !== sk))} />
         ))}
-        {skills.length === 0 && <p className="text-xs text-slate-400">No items — add below</p>}
+        {skills.length === 0 && <p className="text-xs text-slate-400 dark:text-slate-500">No items — add below</p>}
       </div>
       <div className="flex gap-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-          className="flex-1 h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+          className="flex-1 h-8 px-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
           placeholder={`Add ${label.toLowerCase()}...`}
         />
         <button
           onClick={handleAdd}
-          className="h-8 px-2.5 rounded-lg bg-slate-900 text-white text-xs font-medium hover:bg-slate-800 transition-colors flex items-center gap-1"
+          className="h-8 px-2.5 rounded-lg bg-slate-900 dark:bg-slate-700 text-white text-xs font-medium hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors flex items-center gap-1"
         >
           <Plus className="w-3 h-3" /> Add
         </button>

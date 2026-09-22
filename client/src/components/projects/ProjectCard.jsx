@@ -22,7 +22,7 @@ function StatusBadge({ status }) {
 
 function TechChip({ name }) {
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-medium text-slate-600">
+    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-600 dark:text-slate-400">
       {name}
     </span>
   );
@@ -34,7 +34,7 @@ function ProjectCard({ project, onClick }) {
 
   return (
     <motion.div
-      className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-200 hover:-translate-y-1 cursor-pointer group"
+      className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 hover:-translate-y-1 cursor-pointer group"
       onClick={() => onClick?.(project)}
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -42,20 +42,20 @@ function ProjectCard({ project, onClick }) {
       whileHover={{ scale: 1.01 }}
       layout
     >
-      <div className="h-36 bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300" />
-        <span className="text-4xl font-bold text-slate-200 group-hover:text-slate-300 transition-colors select-none">
+      <div className="h-36 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 dark:from-blue-500/10 dark:to-purple-500/10 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300" />
+        <span className="text-4xl font-bold text-slate-200 dark:text-slate-700 group-hover:text-slate-300 dark:group-hover:text-slate-600 transition-colors select-none">
           {project.name?.charAt(0)}
         </span>
       </div>
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-sm font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             {project.name}
           </h3>
           <StatusBadge status={project.status} />
         </div>
-        <p className="text-xs text-slate-500 line-clamp-2 mb-3 leading-relaxed">
+        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-3 leading-relaxed">
           {project.description}
         </p>
         <div className="flex flex-wrap gap-1 mb-3">
@@ -66,14 +66,14 @@ function ProjectCard({ project, onClick }) {
             <span className="text-[10px] text-slate-400 self-center ml-1">+{project.techStack.length - 4}</span>
           )}
         </div>
-        <div className="flex items-center gap-2 text-[11px] text-slate-400 mb-3">
+        <div className="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 mb-3">
           <span>Updated {project.updatedAt ? new Date(project.updatedAt).toLocaleDateString() : '—'}</span>
         </div>
         <div className="mb-3">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[11px] font-medium text-slate-500">{pct}% complete</span>
+            <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{pct}% complete</span>
           </div>
-          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <motion.div
               className={`h-full rounded-full ${barColor}`}
               initial={{ width: 0 }}
@@ -83,14 +83,14 @@ function ProjectCard({ project, onClick }) {
             />
           </div>
         </div>
-        <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+        <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
           {project.githubUrl && (
             <a
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <Github className="w-3 h-3" />
               Code
@@ -102,7 +102,7 @@ function ProjectCard({ project, onClick }) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-emerald-600 hover:bg-emerald-50 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
             >
               <ExternalLink className="w-3 h-3" />
               Live
@@ -110,7 +110,7 @@ function ProjectCard({ project, onClick }) {
           )}
           <button
             onClick={(e) => { e.stopPropagation(); onClick?.(project); }}
-            className="ml-auto flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-blue-600 hover:bg-blue-50 transition-colors"
+            className="ml-auto flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
           >
             <Eye className="w-3 h-3" />
             Details

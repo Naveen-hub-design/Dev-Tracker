@@ -7,6 +7,7 @@ export function useHackerRank() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [stale, setStale] = useState(false);
 
   const normalizeData = (raw) => {
     if (!raw) return null;
@@ -32,6 +33,7 @@ export function useHackerRank() {
 
     setLoading(true);
     setError(null);
+    setStale(false);
     try {
       const profile = await getProfile();
       if (profile.hackerRankData) {
@@ -42,17 +44,32 @@ export function useHackerRank() {
       if (profile.hackerRankUsername) {
         try {
           const fresh = await refreshHackerRank();
-          setData(normalizeData(fresh));
+          if (fresh._stale) {
+            setData(normalizeData(fresh));
+            setStale(true);
+            setError('HackerRank API is temporarily unavailable. Showing cached data.');
+          } else {
+            setData(normalizeData(fresh));
+          }
           setLoading(false);
           return;
-        } catch {
-          // fall through
+        } catch (err) {
+          const status = err.response?.status;
+          const body = err.response?.data;
+          if (status === 503 && body?._stale) {
+            setData(normalizeData(body));
+            setStale(true);
+            setError('HackerRank API is temporarily unavailable. Showing cached data.');
+          } else if (status === 503) {
+            setError('HackerRank API is temporarily unavailable. Please try again later.');
+          } else {
+            setError('Failed to load HackerRank data.');
+          }
         }
       }
     } catch {
-      // fall through
+      setError('Failed to load profile data.');
     }
-    setData(null);
     setLoading(false);
   }, [user]);
 
@@ -64,5 +81,5 @@ export function useHackerRank() {
     await loadProfile();
   }, [loadProfile]);
 
-  return { data, loading, error, refetch };
+  return { data, loading, error, stale, refetch };
 }

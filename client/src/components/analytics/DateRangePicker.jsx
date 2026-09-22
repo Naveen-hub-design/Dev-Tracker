@@ -27,7 +27,7 @@ export default function DateRangePicker({ value, onChange }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-2 h-9 px-3 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
+        className="inline-flex items-center gap-2 h-9 px-3 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
       >
         <Calendar className="w-4 h-4 text-slate-400" />
         <span className="hidden sm:inline">{current.label}</span>
@@ -35,7 +35,7 @@ export default function DateRangePicker({ value, onChange }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-1.5 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50 py-1.5 animate-in fade-in slide-in-from-top-2">
           {presets.map((preset) => (
             <button
               key={preset.value}
@@ -45,8 +45,8 @@ export default function DateRangePicker({ value, onChange }) {
               }}
               className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                 value === preset.value
-                  ? 'bg-blue-50 text-blue-700 font-medium'
-                  : 'text-slate-700 hover:bg-slate-50'
+                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
             >
               {preset.label}

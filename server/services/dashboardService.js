@@ -1,7 +1,7 @@
 const axios = require('axios');
 const User = require('../models/User');
 const { calculateJobMatch } = require('../services/jobMatchService');
-const { fetchHackerRankData } = require('../services/hackerRankService');
+const { fetchHackerRankData, HACKERRANK_ERRORS } = require('../services/hackerRankService');
 
 const GITHUB_API = 'https://api.github.com';
 const LEETCODE_GRAPHQL = 'https://leetcode.com/graphql';
@@ -228,8 +228,12 @@ async function resolveHackerRankData(user) {
       const fresh = await fetchHackerRankData(user.hackerRankUsername);
       await User.findOneAndUpdate({ _id: user._id }, { hackerRankData: fresh });
       return normalizeHackerRankData(fresh);
-    } catch {
-      // fall through
+    } catch (err) {
+      console.warn(`Dashboard: HackerRank fetch failed for ${user.hackerRankUsername}: ${err.message}`);
+      if (user.hackerRankData) {
+        return normalizeHackerRankData(user.hackerRankData);
+      }
+      return null;
     }
   }
   return null;

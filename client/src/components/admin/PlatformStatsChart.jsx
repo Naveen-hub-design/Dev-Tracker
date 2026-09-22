@@ -7,8 +7,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-3 text-xs">
-      <p className="font-semibold text-slate-700 mb-1">{label}</p>
+    <div className="bg-white dark:bg-slate-900 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-3 text-xs">
+      <p className="font-semibold text-slate-700 dark:text-slate-300 mb-1">{label}</p>
       {payload.map((p) => (
         <p key={p.name} style={{ color: p.color }} className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
@@ -25,7 +25,7 @@ function PlatformStatsChart({ data }) {
       <Card className="p-5">
         <div className="flex items-center gap-2 mb-4">
           <BarChart3 className="w-4 h-4 text-violet-500" />
-          <h3 className="text-sm font-bold text-slate-900">Platform Activity</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Platform Activity</h3>
         </div>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">

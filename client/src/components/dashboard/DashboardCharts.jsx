@@ -26,11 +26,11 @@ function ChartSkeleton({ title }) {
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-slate-200 rounded-lg shadow-lg px-3 py-2 text-xs">
-      <p className="font-medium text-slate-900 mb-1">{label}</p>
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg px-3 py-2 text-xs">
+      <p className="font-medium text-slate-900 dark:text-slate-100 mb-1">{label}</p>
       {payload.map((entry) => (
-        <p key={entry.name} className="text-slate-600">
-          {entry.name}: <span className="font-medium text-slate-900">{entry.value}</span>
+        <p key={entry.name} className="text-slate-600 dark:text-slate-400">
+          {entry.name}: <span className="font-medium text-slate-900 dark:text-slate-100">{entry.value}</span>
         </p>
       ))}
     </div>
@@ -49,7 +49,7 @@ function LanguagePieChart({ data }) {
   if (chartData.length === 0) {
     return (
       <Card>
-        <h3 className="text-sm font-semibold text-slate-900 mb-3">Languages</h3>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Languages</h3>
         <EmptyState icon={PieIcon} title="No language data" description="GitHub languages will appear here." />
       </Card>
     );
@@ -57,7 +57,7 @@ function LanguagePieChart({ data }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-semibold text-slate-900 mb-3">Language Distribution</h3>
+      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Language Distribution</h3>
       <div className="h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -74,7 +74,7 @@ function LanguagePieChart({ data }) {
         {chartData.map((entry, i) => (
           <div key={entry.name} className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: LANG_COLORS[i % LANG_COLORS.length] }} />
-            <span className="text-[11px] text-slate-600">{entry.name}</span>
+            <span className="text-[11px] text-slate-600 dark:text-slate-400">{entry.name}</span>
           </div>
         ))}
       </div>
@@ -95,7 +95,7 @@ function DifficultyBarChart({ data }) {
   if (chartData.length === 0) {
     return (
       <Card>
-        <h3 className="text-sm font-semibold text-slate-900 mb-3">Problem Difficulty</h3>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Problem Difficulty</h3>
         <EmptyState icon={PieIcon} title="No difficulty data" description="LeetCode data will appear here." />
       </Card>
     );
@@ -103,7 +103,7 @@ function DifficultyBarChart({ data }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-semibold text-slate-900 mb-3">Problem Difficulty</h3>
+      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Problem Difficulty</h3>
       <div className="h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
@@ -138,7 +138,7 @@ function WeeklyActivityChart({ data }) {
   if (chartData.length === 0) {
     return (
       <Card>
-        <h3 className="text-sm font-semibold text-slate-900 mb-3">Weekly Activity</h3>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Weekly Activity</h3>
         <EmptyState icon={PieIcon} title="No activity data" description="GitHub activity will appear here." />
       </Card>
     );
@@ -146,7 +146,7 @@ function WeeklyActivityChart({ data }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-semibold text-slate-900 mb-3">Weekly Activity</h3>
+      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Weekly Activity</h3>
       <div className="h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
@@ -178,7 +178,7 @@ function WeeklyProgressChart({ data }) {
   if (chartData.length === 0) {
     return (
       <Card>
-        <h3 className="text-sm font-semibold text-slate-900 mb-3">Weekly Progress</h3>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Weekly Progress</h3>
         <EmptyState icon={PieIcon} title="No progress data" description="LeetCode weekly data will appear here." />
       </Card>
     );
@@ -186,7 +186,7 @@ function WeeklyProgressChart({ data }) {
 
   return (
     <Card>
-      <h3 className="text-sm font-semibold text-slate-900 mb-3">Weekly Progress</h3>
+      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Weekly Progress</h3>
       <div className="h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>

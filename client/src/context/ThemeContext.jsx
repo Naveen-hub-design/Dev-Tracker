@@ -11,10 +11,10 @@ function getSystemTheme() {
 
 function getStoredTheme() {
   try {
-    return localStorage.getItem(STORAGE_KEY) || 'system';
-  } catch {
-    return 'system';
-  }
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
+  } catch { /* ignore */ }
+  return 'system';
 }
 
 function resolveTheme(mode) {
@@ -22,15 +22,26 @@ function resolveTheme(mode) {
   return mode;
 }
 
+function applyThemeClass(resolved) {
+  const root = document.documentElement;
+  root.classList.remove('light', 'dark');
+  root.classList.add(resolved);
+}
+
 export function ThemeProvider({ children }) {
   const [mode, setMode] = useState(getStoredTheme);
   const [resolved, setResolved] = useState(() => resolveTheme(getStoredTheme()));
 
   useEffect(() => {
+    applyThemeClass(resolved);
+  }, [resolved]);
+
+  useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = () => {
       if (mode === 'system') {
-        setResolved(mq.matches ? 'dark' : 'light');
+        const next = mq.matches ? 'dark' : 'light';
+        setResolved(next);
       }
     };
     mq.addEventListener('change', handler);
@@ -38,15 +49,11 @@ export function ThemeProvider({ children }) {
   }, [mode]);
 
   useEffect(() => {
-    setResolved(resolveTheme(mode));
+    const next = resolveTheme(mode);
+    setResolved(next);
+    applyThemeClass(next);
     try { localStorage.setItem(STORAGE_KEY, mode); } catch { /* ignore */ }
   }, [mode]);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(resolved);
-  }, [resolved]);
 
   const setTheme = useCallback((newMode) => {
     setMode(newMode);

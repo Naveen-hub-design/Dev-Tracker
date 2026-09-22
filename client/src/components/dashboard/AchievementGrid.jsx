@@ -38,19 +38,19 @@ function AchievementCard({ achievement, unlocked }) {
   return (
     <div className={`relative p-3 rounded-xl border transition-all duration-200 ${
       unlocked
-        ? 'bg-white border-slate-200 shadow-sm hover:shadow-md'
-        : 'bg-slate-50 border-slate-100 opacity-60'
+        ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md'
+        : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 opacity-60'
     }`}>
       <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-2 ${
-        unlocked ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-400'
+        unlocked ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500'
       }`}>
         {unlocked ? <achievement.Icon className="w-4.5 h-4.5" /> : <Lock className="w-4 h-4" />}
       </div>
-      <p className={`text-xs font-semibold ${unlocked ? 'text-slate-900' : 'text-slate-500'}`}>{achievement.title}</p>
-      <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">{achievement.desc}</p>
+      <p className={`text-xs font-semibold ${unlocked ? 'text-slate-900 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400'}`}>{achievement.title}</p>
+      <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-tight">{achievement.desc}</p>
       {unlocked && (
         <div className="absolute top-2 right-2">
-          <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">Unlocked</span>
+          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded-full">Unlocked</span>
         </div>
       )}
     </div>
@@ -69,8 +69,8 @@ function AchievementGrid({ dashboard, loading }) {
     <FadeIn>
       <Card>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-slate-900">Achievements</h3>
-          <span className="text-[11px] text-slate-500 font-medium">{unlocked.size}/{ACHIEVEMENTS.length} unlocked</span>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Achievements</h3>
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{unlocked.size}/{ACHIEVEMENTS.length} unlocked</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {ACHIEVEMENTS.map((ach) => (
