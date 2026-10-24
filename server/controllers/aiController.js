@@ -62,7 +62,59 @@ const scanResumeATS = async (req, res) => {
   }
 };
 
+const {
+  startMockInterview,
+  evaluateMockInterviewAnswer,
+  generateInterviewReport,
+} = require('../services/aiService');
+
+const startInterview = async (req, res) => {
+  try {
+    const { role = 'frontend', level = 'mid' } = req.body;
+    const userContext = await buildUserContext(req.user);
+    const result = await startMockInterview({ role, level, userContext });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Error starting interview' });
+  }
+};
+
+const evaluateAnswer = async (req, res) => {
+  try {
+    const { role, level, questionNumber, question, answer, history } = req.body;
+    if (!answer || !answer.trim()) {
+      return res.status(400).json({ message: 'Answer is required' });
+    }
+
+    const result = await evaluateMockInterviewAnswer({
+      role,
+      level,
+      questionNumber: Number(questionNumber) || 1,
+      question,
+      answer,
+      history: history || [],
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Error evaluating interview answer' });
+  }
+};
+
+const finishInterview = async (req, res) => {
+  try {
+    const { role, level, exchanges = [] } = req.body;
+    const result = generateInterviewReport({ role, level, exchanges });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Error generating interview report' });
+  }
+};
+
 module.exports = {
   chatWithAI,
   scanResumeATS,
+  startInterview,
+  evaluateAnswer,
+  finishInterview,
 };

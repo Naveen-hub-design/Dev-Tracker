@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCareerAssistant } from '../hooks/useCareerAssistant';
 import {
   ChatMessage, ChatInput, ChatSidebar, SuggestionBar,
-  TypingIndicator, WelcomeCard, ATSScanner,
+  TypingIndicator, WelcomeCard, ATSScanner, MockInterviewSimulator,
 } from '../components/career';
-import { MessageSquare, FileSearch, Sparkles } from 'lucide-react';
+import { MessageSquare, FileSearch, Sparkles, Award } from 'lucide-react';
 
 export default function CareerAssistantPage() {
-  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'ats'
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'ats' | 'interview'
 
   const {
     messages, isTyping, sendMessage, scrollRef, SUGGESTIONS,
@@ -26,7 +26,7 @@ export default function CareerAssistantPage() {
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col bg-slate-50/50 dark:bg-slate-950 -m-6 lg:-m-8 transition-colors">
       {/* Tab Switcher Header */}
-      <div className="px-4 lg:px-6 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md flex items-center justify-between z-10 shrink-0">
+      <div className="px-4 lg:px-6 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 z-10 shrink-0">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xs">
             <Sparkles className="w-4 h-4" />
@@ -36,7 +36,7 @@ export default function CareerAssistantPage() {
               DevTrack AI Intelligence
             </h1>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Live Career Guidance & ATS Resume Matching
+              Live Career Guidance, ATS Resume Matching & FAANG Mock Interviews
             </p>
           </div>
         </div>
@@ -64,7 +64,18 @@ export default function CareerAssistantPage() {
           >
             <FileSearch className="w-3.5 h-3.5" />
             <span>Resume ATS Matcher</span>
-            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse ml-0.5" />
+          </button>
+          <button
+            onClick={() => setActiveTab('interview')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeTab === 'interview'
+                ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            <Award className="w-3.5 h-3.5" />
+            <span>Mock Interview</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-0.5" />
           </button>
         </div>
       </div>
@@ -91,7 +102,7 @@ export default function CareerAssistantPage() {
 
             <ChatSidebar onSend={sendMessage} />
           </div>
-        ) : (
+        ) : activeTab === 'ats' ? (
           <div className="h-full overflow-y-auto p-4 lg:p-8 max-w-5xl mx-auto">
             <ATSScanner
               onScan={runATSScan}
@@ -100,6 +111,10 @@ export default function CareerAssistantPage() {
               error={atsError}
               onClear={clearATSResult}
             />
+          </div>
+        ) : (
+          <div className="h-full overflow-y-auto p-4 lg:p-8 max-w-5xl mx-auto">
+            <MockInterviewSimulator />
           </div>
         )}
       </div>

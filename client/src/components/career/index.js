@@ -5,3 +5,4 @@ export { default as SuggestionBar } from './SuggestionBar';
 export { default as TypingIndicator } from './TypingIndicator';
 export { default as WelcomeCard } from './WelcomeCard';
 export { default as ATSScanner } from './ATSScanner';
+export { default as MockInterviewSimulator } from './MockInterviewSimulator';
