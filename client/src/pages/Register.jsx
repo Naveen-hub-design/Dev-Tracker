@@ -2,105 +2,209 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
-import ThemeToggle from '../components/ui/ThemeToggle';
-import { BarChart3 } from 'lucide-react';
+import { Code2, Eye, EyeOff, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
     try {
       const data = await registerUser(name, email, password);
       login(data);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 transition-colors">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
+    <div className="min-h-screen w-full bg-[#08090d] text-slate-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden select-none font-sans">
+      {/* ================= Atmospheric Ambient Lighting (Linear/Vercel Obsidian & Indigo) ================= */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/[0.18] rounded-full blur-[140px]" />
+        <div className="absolute top-1/4 -right-36 w-[500px] h-[500px] bg-purple-600/[0.12] rounded-full blur-[160px]" />
+        <div className="absolute -bottom-20 left-1/4 w-[500px] h-[400px] bg-cyan-500/[0.08] rounded-full blur-[140px]" />
+
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: `radial-gradient(circle, #818cf8 1px, transparent 1px)`,
+            backgroundSize: '28px 28px',
+          }}
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#08090d]" />
       </div>
-      <div className="w-full max-w-md">
+
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        {/* Brand Logo & Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <BarChart3 className="w-8 h-8 text-blue-500" />
-            <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">DevTrack</span>
-          </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Create your account</p>
+          <Link to="/" className="inline-flex items-center justify-center gap-2.5 mb-3 group">
+            <div className="relative">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 opacity-60 blur-sm group-hover:opacity-100 transition-opacity" />
+              <div className="relative w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 border border-white/20">
+                <Code2 className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="text-left">
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold tracking-tight text-white font-sans">DevTrack</span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
+                  OBSIDIAN
+                </span>
+              </div>
+            </div>
+          </Link>
+          <h1 className="text-2xl font-extrabold tracking-tight text-white">Create your account</h1>
+          <p className="text-xs text-slate-400 mt-1">Start tracking your developer portfolio today</p>
         </div>
-        <form onSubmit={handleSubmit} className="card space-y-4">
+
+        {/* Main Card */}
+        <div className="relative rounded-2xl bg-[#0f111a]/85 backdrop-blur-2xl border border-indigo-500/20 shadow-[0_0_60px_-15px_rgba(99,102,241,0.25)] p-6 sm:p-8 overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent pointer-events-none" />
+
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg">{error}</div>
+            <div className="mb-4 flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-300 text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
+              <span>{error}</span>
+            </div>
           )}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="input-field w-full"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input-field w-full"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input-field w-full"
-              minLength={6}
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="input-field w-full"
-              minLength={6}
-              required
-            />
-          </div>
-          <button type="submit" className="btn-primary w-full" disabled={loading}>
-            {loading ? 'Creating account...' : 'Create Account'}
-          </button>
-          <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Full name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="John Doe"
+                required
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090e]/80 border border-indigo-500/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all shadow-inner"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Email address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                required
+                autoComplete="email"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090e]/80 border border-indigo-500/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all shadow-inner"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Min. 6 characters"
+                  required
+                  minLength={6}
+                  autoComplete="new-password"
+                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-[#08090e]/80 border border-indigo-500/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all font-mono shadow-inner"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-300 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Confirm password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter password"
+                required
+                minLength={6}
+                autoComplete="new-password"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090e]/80 border border-indigo-500/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all font-mono shadow-inner"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !name || !email || !password || !confirmPassword}
+              className="w-full mt-2 py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:from-indigo-400 hover:to-purple-500 active:scale-[0.99] transition-all shadow-lg shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-indigo-400/30"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Creating account...</span>
+                </>
+              ) : (
+                <>
+                  <span>Create Account</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Sign in footer */}
+          <p className="text-center text-xs text-slate-400 mt-6 pt-5 border-t border-indigo-500/15">
             Already have an account?{' '}
-            <Link to="/login" className="text-blue-500 hover:underline dark:text-blue-400">Sign in</Link>
+            <Link
+              to="/login"
+              className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+            >
+              Sign in
+            </Link>
           </p>
-        </form>
+        </div>
+
+        {/* Bottom subtle legal */}
+        <div className="flex items-center justify-center gap-4 mt-6 text-[11px] text-slate-500">
+          <span>Protected by DevTrack</span>
+          <span>•</span>
+          <Link to="/" className="hover:text-slate-400 transition-colors">Terms of Service</Link>
+          <span>•</span>
+          <Link to="/" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
+        </div>
       </div>
     </div>
   );

@@ -1,37 +1,27 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { loginUser } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
-import ThemeToggle from '../components/ui/ThemeToggle';
-import AnimatedBackground from '../components/auth/AnimatedBackground';
-import HeroSection from '../components/auth/HeroSection';
-import LoginCard from '../components/auth/LoginCard';
+import { Code2, Eye, EyeOff, Loader2, AlertCircle, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [socialNotice, setSocialNotice] = useState('');
+
   const { login } = useAuth();
   const navigate = useNavigate();
-  const pageRef = useRef(null);
 
-  const handleMouseMove = useCallback((e) => {
-    if (!pageRef.current) return;
-    const rect = pageRef.current.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  }, []);
-
-  useEffect(() => {
-    const el = pageRef.current;
-    if (!el) return;
-    el.addEventListener('mousemove', handleMouseMove);
-    return () => el.removeEventListener('mousemove', handleMouseMove);
-  }, [handleMouseMove]);
-
-  const handleSubmit = useCallback(async ({ email, password }) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email || !password) return;
     setError('');
     setLoading(true);
+
     try {
       const data = await loginUser(email, password);
       login(data);
@@ -41,93 +31,225 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
-  }, [login, navigate]);
+  };
 
-  const handleSocialLogin = useCallback((provider) => {
-    setError(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login is coming soon.`);
-  }, []);
+  const handleSocialClick = (provider) => {
+    setSocialNotice(`Connect ${provider} in Settings after signing in.`);
+    setTimeout(() => setSocialNotice(''), 4000);
+  };
 
   return (
-    <div
-      ref={pageRef}
-      className="h-screen w-screen overflow-hidden bg-slate-950 flex flex-col lg:flex-row"
-    >
-      {/* Theme toggle — fixed */}
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle />
+    <div className="min-h-screen w-full bg-[#08090d] text-slate-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden select-none font-sans">
+      {/* ================= Atmospheric Ambient Lighting (Linear/Vercel Obsidian & Indigo) ================= */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Top Center Electric Indigo Radial Bloom */}
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/[0.18] rounded-full blur-[140px]" />
+        {/* Left Violet Ambient Halo */}
+        <div className="absolute top-1/4 -left-36 w-[500px] h-[500px] bg-purple-600/[0.12] rounded-full blur-[160px]" />
+        {/* Bottom Right Azure Accent */}
+        <div className="absolute -bottom-20 right-1/4 w-[500px] h-[400px] bg-cyan-500/[0.08] rounded-full blur-[140px]" />
+
+        {/* High-Precision Micro Dot Matrix */}
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: `radial-gradient(circle, #818cf8 1px, transparent 1px)`,
+            backgroundSize: '28px 28px',
+          }}
+        />
+
+        {/* Top Vignette Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#08090d]" />
       </div>
 
-      {/* ============ LEFT HERO (60%) ============ */}
-      <div className="hidden lg:flex lg:w-[60%] h-full relative">
-        <AnimatedBackground mouseX={mousePos.x} mouseY={mousePos.y} />
-        <HeroSection mouseX={mousePos.x} mouseY={mousePos.y} />
-      </div>
-
-      {/* ============ RIGHT LOGIN (40%) ============ */}
-      <div className="flex-1 lg:w-[40%] h-full relative flex flex-col">
-        {/* Login side background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-[#0c1021] dark:via-slate-950 dark:to-[#0c1021]">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/[0.03] rounded-full blur-[80px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/[0.03] rounded-full blur-[60px] pointer-events-none" />
-        </div>
-
-        {/* Mobile hero */}
-        <div className="lg:hidden relative z-10 shrink-0">
-          <div className="relative overflow-hidden py-10 px-6 text-center bg-gradient-to-br from-slate-900 via-[#0c1021] to-slate-900">
-            <div className="absolute inset-0 opacity-40">
-              <div className="absolute top-6 left-10 w-24 h-24 bg-blue-500/20 rounded-full blur-[50px]" />
-              <div className="absolute bottom-4 right-10 w-20 h-20 bg-purple-500/20 rounded-full blur-[40px]" />
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        {/* Brand Logo & Header */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center justify-center gap-2.5 mb-3 group">
+            <div className="relative">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 opacity-60 blur-sm group-hover:opacity-100 transition-opacity" />
+              <div className="relative w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 border border-white/20">
+                <Code2 className="w-5 h-5 text-white" />
+              </div>
             </div>
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="relative z-10">
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <span className="text-lg font-bold text-white tracking-tight">DevTrack</span>
+            <div className="text-left">
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold tracking-tight text-white font-sans">DevTrack</span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
+                  OBSIDIAN
+                </span>
               </div>
-              <h2 className="text-lg font-bold text-white mb-0.5">
-                Your Developer <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Productivity Hub</span>
-              </h2>
-              <p className="text-xs text-slate-400">Track code. Build projects. Get hired.</p>
-            </motion.div>
+            </div>
+          </Link>
+          <h1 className="text-2xl font-extrabold tracking-tight text-white">Welcome back</h1>
+          <p className="text-xs text-slate-400 mt-1">Sign in to your developer command center</p>
+        </div>
+
+        {/* ================= Main Obsidian Glass Card ================= */}
+        <div className="relative rounded-2xl bg-[#0f111a]/85 backdrop-blur-2xl border border-indigo-500/20 shadow-[0_0_60px_-15px_rgba(99,102,241,0.25)] p-6 sm:p-8 overflow-hidden">
+          {/* Subtle Top-Border Radiant Edge Highlight */}
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent pointer-events-none" />
+
+          {error && (
+            <div className="mb-4 flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-300 text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {socialNotice && (
+            <div className="mb-4 flex items-center gap-2 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-xs">
+              <Sparkles className="w-4 h-4 shrink-0 text-indigo-400" />
+              <span>{socialNotice}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Email address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                required
+                autoComplete="email"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090e]/80 border border-indigo-500/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all shadow-inner"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-slate-300">Password</label>
+                <button
+                  type="button"
+                  onClick={() => setSocialNotice('Password reset link will be sent to your email.')}
+                  className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+                >
+                  Forgot password?
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  required
+                  autoComplete="current-password"
+                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-[#08090e]/80 border border-indigo-500/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all font-mono shadow-inner"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-300 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex items-center gap-2 text-xs text-slate-400 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-indigo-500/30 text-indigo-600 focus:ring-indigo-500/30 bg-[#08090e] cursor-pointer"
+                />
+                <span>Remember me for 30 days</span>
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !email || !password}
+              className="w-full mt-2 py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:from-indigo-400 hover:to-purple-500 active:scale-[0.99] transition-all shadow-lg shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-indigo-400/30"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Authenticating...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Social login divider */}
+          <div className="relative my-6 flex items-center gap-3">
+            <div className="flex-1 h-px bg-indigo-500/15" />
+            <span className="text-[10px] text-slate-400 uppercase tracking-widest font-mono">
+              or continue with
+            </span>
+            <div className="flex-1 h-px bg-indigo-500/15" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => handleSocialClick('GitHub')}
+              className="py-2.5 px-3 rounded-xl border border-indigo-500/20 bg-[#08090e]/80 hover:bg-indigo-950/30 hover:border-indigo-500/40 text-xs font-medium text-slate-300 hover:text-white flex items-center justify-center gap-2 transition-all shadow-sm"
+            >
+              <svg className="w-4 h-4 fill-current text-slate-300" viewBox="0 0 24 24">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+              </svg>
+              <span>GitHub</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSocialClick('Google')}
+              className="py-2.5 px-3 rounded-xl border border-indigo-500/20 bg-[#08090e]/80 hover:bg-indigo-950/30 hover:border-indigo-500/40 text-xs font-medium text-slate-300 hover:text-white flex items-center justify-center gap-2 transition-all shadow-sm"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  fill="#34A853"
+                />
+                <path
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  fill="#FBBC05"
+                />
+                <path
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  fill="#EA4335"
+                />
+              </svg>
+              <span>Google</span>
+            </button>
           </div>
         </div>
 
-        {/* Login form container */}
-        <div className="flex-1 relative z-10 flex items-center justify-center px-6 py-8 lg:py-0">
-          <div className="w-full max-w-[400px]">
-            <LoginCard
-              onSubmit={handleSubmit}
-              onSocialLogin={handleSocialLogin}
-              loading={loading}
-              error={error}
-            />
+        {/* Create account footer */}
+        <p className="text-center text-xs text-slate-400 mt-6">
+          Don't have an account?{' '}
+          <Link
+            to="/register"
+            className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+          >
+            Create free developer account →
+          </Link>
+        </p>
 
-            {/* Footer */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 0.5 }}
-              className="mt-6 text-center"
-            >
-              <p className="text-[13px] text-slate-500 dark:text-slate-400">
-                Don't have an account?{' '}
-                <Link to="/register" className="font-semibold text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
-                  Create Account
-                </Link>
-              </p>
-              <div className="flex items-center justify-center gap-3 mt-3">
-                <button className="text-[11px] text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Privacy Policy</button>
-                <span className="text-slate-300 dark:text-slate-700">·</span>
-                <button className="text-[11px] text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Terms</button>
-                <span className="text-slate-300 dark:text-slate-700">·</span>
-                <button className="text-[11px] text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Support</button>
-              </div>
-              <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-2">Version 1.0</p>
-            </motion.div>
-          </div>
+        {/* Bottom subtle legal */}
+        <div className="flex items-center justify-center gap-4 mt-6 text-[11px] text-slate-500">
+          <span>Protected by DevTrack</span>
+          <span>•</span>
+          <Link to="/" className="hover:text-slate-400 transition-colors">Terms of Service</Link>
+          <span>•</span>
+          <Link to="/" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
         </div>
       </div>
     </div>
