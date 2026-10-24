@@ -15,6 +15,7 @@ export function useGitHub() {
     if (!raw) return null;
     if (raw.profile) {
       return {
+        ...raw,
         username: raw.profile.username,
         avatar: raw.profile.avatar,
         public_repos: raw.profile.public_repos,
@@ -24,6 +25,12 @@ export function useGitHub() {
         languages: raw.languages,
         commitActivity: raw.commitActivity,
         profile: raw.profile,
+        totalStars: raw.totalStars || (raw.repos || []).reduce((a, r) => a + (r.stars || 0), 0),
+        totalForks: raw.totalForks || (raw.repos || []).reduce((a, r) => a + (r.forks || 0), 0),
+        totalOpenIssues: raw.totalOpenIssues || 0,
+        prCount: raw.prCount || 0,
+        rateLimit: raw.rateLimit || null,
+        commitVelocity: raw.commitVelocity || null,
       };
     }
     return raw;

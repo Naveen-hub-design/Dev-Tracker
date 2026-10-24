@@ -46,7 +46,10 @@ function ResumeTemplate({ resume, template }) {
   const isDark = template === 'dark';
 
   return (
-    <div className={`w-full min-h-[800px] text-[11px] leading-relaxed ${isDark ? 'bg-gray-900 text-gray-100' : 'bg-white text-slate-800'} shadow-lg`}>
+    <div
+      id="devtrack-resume-pdf-target"
+      className={`w-full min-h-[800px] text-[11px] leading-relaxed ${isDark ? 'bg-gray-900 text-gray-100' : 'bg-white text-slate-800'} shadow-lg`}
+    >
       {/* Header */}
       <div className={`${t.headerBg} ${t.headerText} p-6`}>
         <h1 className="text-xl font-bold">{p.name || 'Your Name'}</h1>

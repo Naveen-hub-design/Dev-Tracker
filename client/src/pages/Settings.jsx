@@ -211,6 +211,8 @@ export default function Settings() {
   const saved = useMemo(() => loadSettings(), []);
 
   const [github, setGithub] = useState('');
+  const [githubToken, setGithubToken] = useState('');
+  const [showToken, setShowToken] = useState(false);
   const [leetcode, setLeetcode] = useState('');
   const [hackerRank, setHackerRank] = useState('');
   const [codeforces, setCodeforces] = useState('');
@@ -245,20 +247,26 @@ export default function Settings() {
   const handleSaveUsernames = useCallback(async () => {
     setSaving('usernames');
     try {
-      const data = await updateUsernames({
+      const payload = {
         githubUsername: github,
         leetcodeUsername: leetcode,
         hackerRankUsername: hackerRank,
         codeforcesUsername: codeforces,
-      });
+      };
+      if (githubToken.trim()) {
+        payload.githubToken = githubToken.trim();
+      }
+      const data = await updateUsernames(payload);
       updateUser(data);
-      toast.success('Platform usernames saved');
+      setGithubToken('');
+      await loadProfile();
+      toast.success('Platform credentials saved');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to save');
     } finally {
       setSaving('');
     }
-  }, [github, leetcode, hackerRank, codeforces, updateUser, toast]);
+  }, [github, githubToken, leetcode, hackerRank, codeforces, updateUser, loadProfile, toast]);
 
   const handleRefresh = useCallback(async (source) => {
     setRefreshing(source);
@@ -382,6 +390,66 @@ export default function Settings() {
             ) : (
               <p className="text-xs text-slate-400 dark:text-slate-500 text-center py-4">Enter your GitHub username and save to connect.</p>
             )}
+
+            {/* Personal Access Token (PAT) Sync */}
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-1.5">
+                  <Key className="w-3.5 h-3.5 text-blue-500" />
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                    Access Token (PAT)
+                  </span>
+                </div>
+                {profileData?.hasGitHubToken ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400">
+                    <ShieldCheck className="w-3 h-3" /> 5,000/hr Synced
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400">
+                    60/hr limit
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-2 leading-relaxed">
+                Connect your token for deep repository analytics and higher rate limits.
+              </p>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type={showToken ? 'text' : 'password'}
+                    value={githubToken}
+                    onChange={(e) => setGithubToken(e.target.value)}
+                    placeholder={profileData?.hasGitHubToken ? '•••••••••••••••• (Token active)' : 'ghp_xxxxxxxxxxxxxxxx'}
+                    className="w-full px-3 py-1.5 pr-8 text-xs rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowToken(!showToken)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    tabIndex={-1}
+                  >
+                    {showToken ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSaveUsernames}
+                  disabled={saving === 'usernames' || !githubToken.trim()}
+                  loading={saving === 'usernames'}
+                >
+                  Save
+                </Button>
+              </div>
+              <a
+                href="https://github.com/settings/tokens/new?scopes=repo,read:user&description=DevTrack%20Sync"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[10px] text-blue-600 dark:text-blue-400 hover:underline mt-2 font-medium"
+              >
+                <ExternalLink className="w-3 h-3" /> Generate token on GitHub
+              </a>
+            </div>
           </PlatformCard>
 
           <PlatformCard

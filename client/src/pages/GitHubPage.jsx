@@ -10,6 +10,7 @@ import {
   CommitChart,
   ContributionCalendar,
   GitHubAchievements,
+  GitHubVelocityCard,
 } from '../components/github';
 
 function GitHubSkeleton() {
@@ -80,6 +81,10 @@ export default function GitHubPage() {
           <CommitChart commitActivity={data.commitActivity} />
         </section>
       </div>
+
+      <section aria-label="Engineering velocity and API quota">
+        <GitHubVelocityCard data={data} />
+      </section>
 
       <section aria-label="Contribution calendar">
         <ContributionCalendar commitActivity={data.commitActivity} />

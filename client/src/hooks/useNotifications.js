@@ -1,4 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { fetchUpcomingContests } from '../api/contests';
+import { fetchDailyChallenge } from '../api/dailyChallenge';
 
 const NOTIFICATION_TYPES = {
   GITHUB_SYNCED: 'github_synced',
@@ -8,6 +10,8 @@ const NOTIFICATION_TYPES = {
   WEEKLY_REMINDER: 'weekly_reminder',
   SYSTEM_MESSAGE: 'system_message',
   ERROR: 'error',
+  CONTEST_ALERT: 'contest_alert',
+  STREAK_ALERT: 'streak_alert',
 };
 
 const TYPE_META = {
@@ -18,6 +22,8 @@ const TYPE_META = {
   [NOTIFICATION_TYPES.WEEKLY_REMINDER]: { icon: 'Clock', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/30', label: 'Reminder' },
   [NOTIFICATION_TYPES.SYSTEM_MESSAGE]: { icon: 'Info', color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-50 dark:bg-indigo-900/30', label: 'System' },
   [NOTIFICATION_TYPES.ERROR]: { icon: 'AlertTriangle', color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/30', label: 'Error' },
+  [NOTIFICATION_TYPES.CONTEST_ALERT]: { icon: 'Calendar', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-900/30', label: 'Contest' },
+  [NOTIFICATION_TYPES.STREAK_ALERT]: { icon: 'Flame', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/30', label: 'Streak' },
 };
 
 function timeAgo(dateStr) {
@@ -32,8 +38,37 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+/**
+ * Play a gentle synthesized chime via Web Audio API
+ */
+export function playNotificationChime() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12); // A5
+
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.35);
+  } catch {
+    // AudioContext blocked or not supported
+  }
+}
+
 const STORAGE_KEY = 'devtrack_notifications';
 const ACTIVITIES_KEY = 'devtrack_activities';
+const DESKTOP_PERM_KEY = 'devtrack_desktop_alerts_enabled';
 
 function generateId() {
   return `n_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -65,79 +100,23 @@ const SEED_NOTIFICATIONS = [
     id: 'n_seed_1',
     type: NOTIFICATION_TYPES.GITHUB_SYNCED,
     title: 'GitHub Synced',
-    description: 'Successfully synced 12 new commits from devtracker repo.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+    description: 'Successfully synced your latest commits and repository contributions.',
+    timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
     read: false,
   },
   {
     id: 'n_seed_2',
-    type: NOTIFICATION_TYPES.LEETCODE_SYNCED,
-    title: 'LeetCode Synced',
-    description: '3 new problems solved this week. Keep it up!',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-    read: false,
-  },
-  {
-    id: 'n_seed_3',
     type: NOTIFICATION_TYPES.ACHIEVEMENT_UNLOCKED,
     title: 'Achievement Unlocked',
-    description: 'You earned the "7-Day Streak" badge for consistent activity.',
+    description: 'You earned the "Consistency Champion" badge for regular commits.',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
     read: false,
-  },
-  {
-    id: 'n_seed_4',
-    type: NOTIFICATION_TYPES.GOAL_COMPLETED,
-    title: 'Goal Completed',
-    description: 'Weekly target of 10 problems has been achieved.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-    read: true,
-  },
-  {
-    id: 'n_seed_5',
-    type: NOTIFICATION_TYPES.WEEKLY_REMINDER,
-    title: 'Weekly Reminder',
-    description: 'Your weekly activity report is ready. Check your dashboard for insights.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
-    read: true,
-  },
-  {
-    id: 'n_seed_6',
-    type: NOTIFICATION_TYPES.SYSTEM_MESSAGE,
-    title: 'System Update',
-    description: 'DevTrack has been upgraded to v2.1. New portfolio export feature available.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    read: true,
-  },
-  {
-    id: 'n_seed_7',
-    type: NOTIFICATION_TYPES.GITHUB_SYNCED,
-    title: 'GitHub Synced',
-    description: 'Pull request #42 merged into main branch.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
-    read: true,
-  },
-  {
-    id: 'n_seed_8',
-    type: NOTIFICATION_TYPES.ACHIEVEMENT_UNLOCKED,
-    title: 'Achievement Unlocked',
-    description: 'You earned the "Code Warrior" badge for solving 100+ problems.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-    read: true,
   },
 ];
 
 const SEED_ACTIVITIES = [
-  { id: 'a_seed_1', type: 'github', title: 'Pushed 3 commits', description: 'feat: add dark mode toggle to settings', timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString() },
-  { id: 'a_seed_2', type: 'leetcode', title: 'Solved: Two Sum', description: 'Completed in 12 minutes — Python3', timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString() },
-  { id: 'a_seed_3', type: 'github', title: 'Opened PR #45', description: 'Refactor: unified data layer', timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString() },
-  { id: 'a_seed_4', type: 'project', title: 'Project updated', description: 'DevTrack — added certificate management module', timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString() },
-  { id: 'a_seed_5', type: 'achievement', title: 'Badge earned: 7-Day Streak', description: 'Maintained consistent activity for 7 consecutive days', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString() },
-  { id: 'a_seed_6', type: 'leetcode', title: 'Solved: Valid Parentheses', description: 'Completed in 8 minutes — Python3', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() },
-  { id: 'a_seed_7', type: 'project', title: 'Created project', description: 'DevTracker — developer productivity dashboard', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString() },
-  { id: 'a_seed_8', type: 'github', title: 'Merged PR #42', description: 'Fix: resolve authentication token refresh issue', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() },
-  { id: 'a_seed_9', type: 'achievement', title: 'Badge earned: Code Warrior', description: 'Solved 100+ LeetCode problems total', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString() },
-  { id: 'a_seed_10', type: 'leetcode', title: 'Solved: Merge Two Sorted Lists', description: 'Completed in 6 minutes — Python3', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString() },
+  { id: 'a_seed_1', type: 'github', title: 'Pushed commits', description: 'Updated project repositories', timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString() },
+  { id: 'a_seed_2', type: 'leetcode', title: 'Daily Challenge', description: 'Completed daily coding challenge', timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString() },
 ];
 
 export default function useNotifications() {
@@ -154,6 +133,11 @@ export default function useNotifications() {
   });
 
   const [filter, setFilter] = useState('all');
+  const [desktopEnabled, setDesktopEnabled] = useState(() => {
+    return localStorage.getItem(DESKTOP_PERM_KEY) === 'true' && typeof Notification !== 'undefined' && Notification.permission === 'granted';
+  });
+
+  const checkedLiveRef = useRef(false);
 
   useEffect(() => {
     saveToStorage(STORAGE_KEY, notifications);
@@ -163,6 +147,106 @@ export default function useNotifications() {
     saveToStorage(ACTIVITIES_KEY, activities);
   }, [activities]);
 
+  const sendDesktopAlert = useCallback((title, body) => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      try {
+        new Notification(title, {
+          body,
+          icon: '/favicon.ico',
+        });
+        playNotificationChime();
+      } catch {
+        // Notification failed
+      }
+    }
+  }, []);
+
+  const requestDesktopPermission = useCallback(async () => {
+    if (typeof Notification === 'undefined') return false;
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        setDesktopEnabled(true);
+        localStorage.setItem(DESKTOP_PERM_KEY, 'true');
+        sendDesktopAlert('DevTrack Alerts Enabled', 'You will now receive notifications for upcoming contests and daily streaks!');
+        return true;
+      }
+    } catch {
+      // Permission request error
+    }
+    return false;
+  }, [sendDesktopAlert]);
+
+  // Live polling for upcoming contests & LeetCode streak reminders
+  useEffect(() => {
+    if (checkedLiveRef.current) return;
+    checkedLiveRef.current = true;
+
+    async function checkLiveAlerts() {
+      try {
+        // 1. Check Contests
+        const contestData = await fetchUpcomingContests('all');
+        const upcoming = (contestData.contests || []).slice(0, 3);
+        const now = Date.now();
+
+        upcoming.forEach((c) => {
+          const diffMs = new Date(c.startTime).getTime() - now;
+          const diffHrs = Math.round(diffMs / (1000 * 60 * 60));
+
+          // If contest starts in less than 36 hours
+          if (diffMs > 0 && diffHrs <= 36) {
+            const contestNoticeId = `contest_${c.id}`;
+            setNotifications((prev) => {
+              if (prev.some((n) => n.id === contestNoticeId)) return prev;
+              const title = `Contest in ${diffHrs}h: ${c.name}`;
+              const description = `Live on ${c.platform.toUpperCase()} in ${diffHrs} hour${diffHrs > 1 ? 's' : ''}. Don't forget to register!`;
+
+              if (desktopEnabled && diffHrs <= 2) {
+                sendDesktopAlert(`[CONTEST ALERT] ${c.name}`, `Starting soon on ${c.platform.toUpperCase()}!`);
+              }
+
+              return [
+                {
+                  id: contestNoticeId,
+                  type: NOTIFICATION_TYPES.CONTEST_ALERT,
+                  title,
+                  description,
+                  timestamp: new Date().toISOString(),
+                  read: false,
+                },
+                ...prev,
+              ];
+            });
+          }
+        });
+
+        // 2. Check LeetCode Daily Challenge
+        const dailyData = await fetchDailyChallenge();
+        if (dailyData?.problem && dailyData.streak && !dailyData.streak.solvedToday) {
+          const streakNoticeId = `streak_${dailyData.problem.date}`;
+          setNotifications((prev) => {
+            if (prev.some((n) => n.id === streakNoticeId)) return prev;
+            return [
+              {
+                id: streakNoticeId,
+                type: NOTIFICATION_TYPES.STREAK_ALERT,
+                title: '🔥 Daily Challenge Streak at Risk',
+                description: `Today's problem: "${dailyData.problem.title}" (${dailyData.problem.difficulty}). Solve it today to keep your streak alive!`,
+                timestamp: new Date().toISOString(),
+                read: false,
+              },
+              ...prev,
+            ];
+          });
+        }
+      } catch {
+        // Live alert check failed silently
+      }
+    }
+
+    checkLiveAlerts();
+  }, [desktopEnabled, sendDesktopAlert]);
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const filteredNotifications = filter === 'all'
@@ -170,9 +254,17 @@ export default function useNotifications() {
     : notifications.filter((n) => {
         if (filter === 'github') return n.type === NOTIFICATION_TYPES.GITHUB_SYNCED;
         if (filter === 'leetcode') return n.type === NOTIFICATION_TYPES.LEETCODE_SYNCED;
+        if (filter === 'contests') return n.type === NOTIFICATION_TYPES.CONTEST_ALERT;
         if (filter === 'achievements') return n.type === NOTIFICATION_TYPES.ACHIEVEMENT_UNLOCKED;
         if (filter === 'goals') return n.type === NOTIFICATION_TYPES.GOAL_COMPLETED;
-        if (filter === 'system') return n.type === NOTIFICATION_TYPES.SYSTEM_MESSAGE || n.type === NOTIFICATION_TYPES.WEEKLY_REMINDER || n.type === NOTIFICATION_TYPES.ERROR;
+        if (filter === 'system') {
+          return (
+            n.type === NOTIFICATION_TYPES.SYSTEM_MESSAGE ||
+            n.type === NOTIFICATION_TYPES.WEEKLY_REMINDER ||
+            n.type === NOTIFICATION_TYPES.STREAK_ALERT ||
+            n.type === NOTIFICATION_TYPES.ERROR
+          );
+        }
         return true;
       });
 
@@ -218,19 +310,6 @@ export default function useNotifications() {
     ]);
   }, []);
 
-  const addActivity = useCallback((type, title, description) => {
-    setActivities((prev) => [
-      {
-        id: generateActivityId(),
-        type,
-        title,
-        description,
-        timestamp: new Date().toISOString(),
-      },
-      ...prev,
-    ]);
-  }, []);
-
   return {
     notifications,
     filteredNotifications,
@@ -239,12 +318,13 @@ export default function useNotifications() {
     unreadCount,
     filter,
     setFilter,
+    desktopEnabled,
+    requestDesktopPermission,
     markAsRead,
     markAllRead,
     deleteNotification,
     clearAll,
     addNotification,
-    addActivity,
     timeAgo,
     NOTIFICATION_TYPES,
     TYPE_META,

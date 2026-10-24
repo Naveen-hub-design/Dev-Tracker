@@ -6,12 +6,13 @@ const { fetchCodeforcesData, getDemoData: getCodeforcesDemo } = require('../serv
 
 const updateUsernames = async (req, res, next) => {
   try {
-    const { githubUsername, leetcodeUsername, hackerRankUsername, codeforcesUsername } = req.body;
+    const { githubUsername, leetcodeUsername, hackerRankUsername, codeforcesUsername, githubToken } = req.body;
     const update = {};
     if (githubUsername !== undefined) update.githubUsername = githubUsername;
     if (leetcodeUsername !== undefined) update.leetcodeUsername = leetcodeUsername;
     if (hackerRankUsername !== undefined) update.hackerRankUsername = hackerRankUsername;
     if (codeforcesUsername !== undefined) update.codeforcesUsername = codeforcesUsername;
+    if (githubToken !== undefined) update.githubToken = typeof githubToken === 'string' ? githubToken.trim() : '';
 
     const user = await User.findOneAndUpdate({ _id: req.user._id }, update);
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -23,6 +24,7 @@ const updateUsernames = async (req, res, next) => {
       leetcodeUsername: updated.leetcodeUsername || '',
       hackerRankUsername: updated.hackerRankUsername || '',
       codeforcesUsername: updated.codeforcesUsername || '',
+      hasGitHubToken: Boolean(updated.githubToken && updated.githubToken.trim()),
     });
   } catch (error) {
     next(error);
@@ -36,7 +38,7 @@ const refreshGitHub = async (req, res, next) => {
     if (!user.githubUsername) return res.status(400).json({ message: 'No GitHub username set' });
 
     try {
-      const githubData = await fetchGitHubData(user.githubUsername);
+      const githubData = await fetchGitHubData(user.githubUsername, user.githubToken);
       await User.findOneAndUpdate({ _id: req.user._id }, { githubData });
       return res.json(githubData);
     } catch (apiError) {
@@ -122,8 +124,11 @@ const refreshCodeforces = async (req, res, next) => {
 const getProfile = async (req, res) => {
   const user = await User.findById(req.user._id);
   if (!user) return res.status(404).json({ message: 'User not found' });
-  const { password, ...profile } = user;
-  res.json(profile);
+  const { password, githubToken, ...profile } = user;
+  res.json({
+    ...profile,
+    hasGitHubToken: Boolean(githubToken && githubToken.trim()),
+  });
 };
 
 module.exports = {

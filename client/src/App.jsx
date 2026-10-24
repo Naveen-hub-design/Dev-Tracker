@@ -24,6 +24,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const PublicProfilePage = lazy(() => import('./pages/PublicProfilePage'));
 const ContestCalendarPage = lazy(() => import('./pages/ContestCalendarPage'));
+const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 
 function LoadingScreen() {
   return (
@@ -90,6 +91,7 @@ export default function App() {
             <Route path="/hackerrank" element={<HackerRankPage />} />
             <Route path="/codeforces" element={<CodeforcesPage />} />
             <Route path="/contests" element={<ContestCalendarPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/jobmatch" element={<JobMatchPage />} />
             <Route path="/jobreadiness" element={<JobReadinessPage />} />
             <Route path="/resume" element={<ResumePage />} />

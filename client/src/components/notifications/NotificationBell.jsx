@@ -1,20 +1,21 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Check, Trash2, X, Settings, Filter } from 'lucide-react';
+import { Bell, Check, Trash2, X, Settings, Filter, BellRing } from 'lucide-react';
 import {
-  Github, Code2, Trophy, Target, Clock, Info, AlertTriangle
+  Github, Code2, Trophy, Target, Clock, Info, AlertTriangle, Calendar, Flame
 } from 'lucide-react';
 import useNotifications from '../../hooks/useNotifications';
 
 const ICON_MAP = {
-  Github, Code2, Trophy, Target, Clock, Info, AlertTriangle,
+  Github, Code2, Trophy, Target, Clock, Info, AlertTriangle, Calendar, Flame,
 };
 
 const FILTER_TABS = [
   { key: 'all', label: 'All' },
+  { key: 'contests', label: 'Contests' },
   { key: 'github', label: 'GitHub' },
   { key: 'leetcode', label: 'LeetCode' },
-  { key: 'achievements', label: 'Achievements' },
+  { key: 'achievements', label: 'Badges' },
   { key: 'goals', label: 'Goals' },
   { key: 'system', label: 'System' },
 ];
@@ -83,7 +84,9 @@ function NotificationItem({ notification, onRead, onDelete, timeAgo, TYPE_META }
 
 export default function NotificationBell() {
   const {
+    notifications,
     filteredNotifications, unreadCount, filter, setFilter,
+    desktopEnabled, requestDesktopPermission,
     markAsRead, markAllRead, deleteNotification, clearAll, timeAgo, TYPE_META,
   } = useNotifications();
 
@@ -204,6 +207,27 @@ export default function NotificationBell() {
                 </button>
               ))}
             </div>
+
+            {/* Desktop Notification Banner */}
+            {!desktopEnabled && typeof window !== 'undefined' && 'Notification' in window && (
+              <div className="mx-3 my-2 p-2.5 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-violet-500/10 dark:from-blue-950/40 dark:to-indigo-950/40 border border-blue-200 dark:border-blue-900/50 rounded-xl flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center shrink-0">
+                    <BellRing className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <p className="text-[11px] font-medium text-slate-700 dark:text-slate-300 truncate">
+                    Contest & streak desktop alerts
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={requestDesktopPermission}
+                  className="px-2.5 py-1 text-[10px] font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors shrink-0"
+                >
+                  Enable
+                </button>
+              </div>
+            )}
 
             {/* Notification list */}
             <div className="max-h-[400px] overflow-y-auto px-2 py-2 space-y-0.5 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">

@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Binary,
   Calendar,
+  Trophy,
 } from 'lucide-react';
 
 const navItems = [
@@ -29,6 +30,7 @@ const navItems = [
   { path: '/hackerrank', label: 'HackerRank', icon: Shield },
   { path: '/codeforces', label: 'Codeforces', icon: Binary },
   { path: '/contests', label: 'Contests', icon: Calendar },
+  { path: '/leaderboard', label: 'Leaderboard', icon: Trophy },
   { path: '/projects', label: 'Projects', icon: FolderKanban },
   { path: '/jobmatch', label: 'Job Match', icon: Briefcase },
   { path: '/jobreadiness', label: 'Job Readiness', icon: ClipboardCheck },

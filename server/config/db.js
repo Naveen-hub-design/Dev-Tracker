@@ -128,6 +128,7 @@ const migrateColumns = [
   'ALTER TABLE users ADD COLUMN hackerRankData TEXT',
   'ALTER TABLE users ADD COLUMN codeforcesUsername TEXT DEFAULT \'\'',
   'ALTER TABLE users ADD COLUMN codeforcesData TEXT',
+  'ALTER TABLE users ADD COLUMN githubToken TEXT DEFAULT \'\'',
 ];
 migrateColumns.forEach((sql) => {
   try { db.exec(sql); } catch { /* column already exists */ }

@@ -15,3 +15,4 @@ export { default as LanguagePieChart } from './LanguagePieChart';
 export { default as CommitChart } from './CommitChart';
 export { default as ContributionCalendar } from './ContributionCalendar';
 export { default as GitHubAchievements } from './GitHubAchievements';
+export { default as GitHubVelocityCard } from './GitHubVelocityCard';

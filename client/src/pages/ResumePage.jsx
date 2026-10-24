@@ -13,7 +13,8 @@ import {
   AchievementSection,
   ExperienceSection,
 } from '../components/resume';
-import { Download, Printer, FileText, Sparkles } from 'lucide-react';
+import { Download, Printer, FileText, Sparkles, CheckCircle2 } from 'lucide-react';
+import { downloadResumePDF } from '../utils/resumePdfExport';
 
 const TEMPLATES = [
   { id: 'modern', label: 'Modern', color: 'bg-blue-600' },
@@ -48,6 +49,19 @@ export default function ResumePage() {
   } = useResume();
 
   const [activeTab, setActiveTab] = useState('personal');
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    try {
+      setIsExportingPDF(true);
+      await downloadResumePDF(resume, activeTemplate);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to export PDF. You can also use Print -> Save as PDF.');
+    } finally {
+      setIsExportingPDF(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -73,15 +87,25 @@ export default function ResumePage() {
       actions={
         <div className="flex items-center gap-2">
           <Button
-            onClick={() => navigate('/career')}
+            onClick={handleDownloadPDF}
             variant="primary"
             size="sm"
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+            loading={isExportingPDF}
+            className="bg-blue-600 hover:bg-blue-500 text-white shadow-xs"
+          >
+            <Download className="w-4 h-4 mr-1.5" />
+            Download PDF
+          </Button>
+          <Button
+            onClick={() => navigate('/career')}
+            variant="secondary"
+            size="sm"
+            className="border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400"
           >
             <Sparkles className="w-4 h-4 mr-1.5" />
-            Scan ATS Match
+            Scan ATS
           </Button>
-          <Button onClick={handlePrint} variant="secondary" size="sm">
+          <Button onClick={handlePrint} variant="outline" size="sm">
             <Printer className="w-4 h-4 mr-1.5" />
             Print
           </Button>
