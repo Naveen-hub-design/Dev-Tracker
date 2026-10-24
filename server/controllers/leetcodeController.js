@@ -85,4 +85,37 @@ const getLeetCodeProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { getLeetCodeProfile };
+const dailyStreakService = require('../services/dailyStreakService');
+
+const getDailyChallenge = async (req, res, next) => {
+  try {
+    const userId = req.user ? req.user._id : null;
+    const overview = await dailyStreakService.getDailyOverview(userId);
+    res.json({
+      success: true,
+      ...overview,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const toggleDailySolve = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const notes = req.body.notes || '';
+    const updated = await dailyStreakService.toggleDailySolve(userId, { notes });
+    res.json({
+      success: true,
+      ...updated,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  getLeetCodeProfile,
+  getDailyChallenge,
+  toggleDailySolve,
+};

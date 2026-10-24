@@ -17,6 +17,7 @@ import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
 import ContributionHeatmap from '../components/dashboard/ContributionHeatmap';
 import StreakOverview from '../components/dashboard/StreakOverview';
 import WeeklyRecommendations from '../components/dashboard/WeeklyRecommendations';
+import DailyChallengeWidget from '../components/leetcode/DailyChallengeWidget';
 
 function ErrorState({ error, onRetry }) {
   return (
@@ -102,6 +103,8 @@ export default function Dashboard() {
       <DashboardHero score={dashboard?.developerScore} loading={loading} />
 
       <QuickStats dashboard={dashboard} loading={loading} />
+
+      <DailyChallengeWidget />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <GitHubSection data={dashboard?.github} loading={loading} />

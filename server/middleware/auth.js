@@ -21,4 +21,20 @@ const auth = async (req, res, next) => {
   }
 };
 
-module.exports = { auth };
+const optionalAuth = async (req, res, next) => {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'devtrack_jwt_secret_key');
+      const user = await User.findById(decoded.id);
+      if (user) {
+        req.user = user;
+      }
+    } catch {
+      // Ignore token failure for optional auth
+    }
+  }
+  next();
+};
+
+module.exports = { auth, optionalAuth };

@@ -13,6 +13,7 @@ import {
   LCRecentProblems,
   LCAchievements,
   LCPageSkeleton,
+  DailyChallengeWidget,
 } from '../components/leetcode';
 
 export default function LeetCodePage() {
@@ -49,6 +50,10 @@ export default function LeetCodePage() {
     <PageContainer title="LeetCode Analytics" subtitle="Premium coding analytics dashboard">
       <section aria-label="Profile">
         <LCProfileHero data={data} onRefresh={() => fetchProfile(data.username)} loading={loading} />
+      </section>
+
+      <section aria-label="Daily challenge">
+        <DailyChallengeWidget />
       </section>
 
       <section aria-label="Solved problems">

@@ -104,6 +104,23 @@ db.exec(`
     updatedAt TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (userId) REFERENCES users(_id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS daily_streaks (
+    _id TEXT PRIMARY KEY,
+    userId TEXT NOT NULL,
+    date TEXT NOT NULL,
+    problemId TEXT NOT NULL,
+    problemTitle TEXT DEFAULT '',
+    problemDifficulty TEXT DEFAULT '',
+    problemUrl TEXT DEFAULT '',
+    solved INTEGER DEFAULT 1,
+    notes TEXT DEFAULT '',
+    solvedAt TEXT DEFAULT (datetime('now')),
+    createdAt TEXT DEFAULT (datetime('now')),
+    updatedAt TEXT DEFAULT (datetime('now')),
+    UNIQUE(userId, date),
+    FOREIGN KEY (userId) REFERENCES users(_id) ON DELETE CASCADE
+  );
 `);
 
 const migrateColumns = [
@@ -146,7 +163,7 @@ function parseRow(row, tableName) {
   return parsed;
 }
 
-const VALID_TABLES = ['users', 'projects', 'certificates', 'goals', 'resumes'];
+const VALID_TABLES = ['users', 'projects', 'certificates', 'goals', 'resumes', 'daily_streaks'];
 
 const getCollection = (name) => {
   if (!VALID_TABLES.includes(name)) {
