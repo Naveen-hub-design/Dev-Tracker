@@ -111,10 +111,26 @@ const finishInterview = async (req, res) => {
   }
 };
 
+const { reviewCodeSolution } = require('../services/aiService');
+
+const reviewCode = async (req, res) => {
+  try {
+    const { code, language = 'javascript', problemTitle = 'Algorithm Challenge', testInput = '' } = req.body;
+    if (!code || !code.trim()) {
+      return res.status(400).json({ message: 'Code is required for review' });
+    }
+    const result = await reviewCodeSolution({ code, language, problemTitle, testInput });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Error reviewing code solution' });
+  }
+};
+
 module.exports = {
   chatWithAI,
   scanResumeATS,
   startInterview,
   evaluateAnswer,
   finishInterview,
+  reviewCode,
 };

@@ -21,6 +21,7 @@ import {
   Binary,
   Calendar,
   Trophy,
+  Terminal,
 } from 'lucide-react';
 
 const navItems = [
@@ -29,10 +30,12 @@ const navItems = [
   { path: '/leetcode', label: 'LeetCode', icon: Code2 },
   { path: '/hackerrank', label: 'HackerRank', icon: Shield },
   { path: '/codeforces', label: 'Codeforces', icon: Binary },
+  { path: '/playground', label: 'Playground', icon: Terminal },
   { path: '/contests', label: 'Contests', icon: Calendar },
   { path: '/leaderboard', label: 'Leaderboard', icon: Trophy },
+  { path: '/applications', label: 'Applications', icon: Briefcase },
   { path: '/projects', label: 'Projects', icon: FolderKanban },
-  { path: '/jobmatch', label: 'Job Match', icon: Briefcase },
+  { path: '/jobmatch', label: 'Job Match', icon: FileText },
   { path: '/jobreadiness', label: 'Job Readiness', icon: ClipboardCheck },
   { path: '/resume', label: 'Resume', icon: FileText },
   { path: '/portfolio', label: 'Portfolio', icon: Globe },

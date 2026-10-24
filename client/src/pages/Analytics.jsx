@@ -10,6 +10,7 @@ import {
   RadarSkills,
   AchievementsTimeline,
   RecommendationPanel,
+  UnifiedActivityHeatmap,
 } from '../components/analytics';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import Button from '../components/ui/Button';
@@ -77,6 +78,8 @@ export default function Analytics() {
       <OverviewCards dashboard={dashboard} loading={loading} />
 
       <TrendChart data={analyticsData?.timeSeries || []} loading={loading} />
+
+      <UnifiedActivityHeatmap dashboard={dashboard} />
 
       <GitHubAnalytics
         data={dashboard}

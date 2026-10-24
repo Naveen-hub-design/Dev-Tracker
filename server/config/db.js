@@ -121,6 +121,26 @@ db.exec(`
     UNIQUE(userId, date),
     FOREIGN KEY (userId) REFERENCES users(_id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS applications (
+    _id TEXT PRIMARY KEY,
+    userId TEXT NOT NULL,
+    company TEXT NOT NULL,
+    role TEXT NOT NULL,
+    location TEXT DEFAULT '',
+    status TEXT DEFAULT 'applied',
+    salary TEXT DEFAULT '',
+    jobUrl TEXT DEFAULT '',
+    jobDescription TEXT DEFAULT '',
+    atsScore INTEGER DEFAULT 0,
+    appliedDate TEXT DEFAULT (datetime('now')),
+    interviewDate TEXT DEFAULT '',
+    notes TEXT DEFAULT '',
+    contacts TEXT DEFAULT '[]',
+    createdAt TEXT DEFAULT (datetime('now')),
+    updatedAt TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (userId) REFERENCES users(_id) ON DELETE CASCADE
+  );
 `);
 
 const migrateColumns = [
@@ -144,6 +164,7 @@ const JSON_FIELDS = {
   certificates: [],
   goals: ['history'],
   resumes: ['personal', 'education', 'skills', 'experience', 'projects', 'achievements', 'codingProfiles'],
+  applications: ['contacts'],
 };
 
 function parseRow(row, tableName) {

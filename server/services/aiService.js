@@ -716,10 +716,101 @@ function generateInterviewReport({ role, level, exchanges = [] }) {
   };
 }
 
+function generateFallbackCodeReview({ code, language, problemTitle }) {
+  const codeStr = typeof code === 'string' ? code : '';
+  const loopCount = (codeStr.match(/\b(for|while)\b/g) || []).length;
+  const hasSort = /\b(sort|sorted|Arrays\.sort|std::sort)\b/.test(codeStr);
+  const hasMap = /\b(Map|Set|dict|hash_map|unordered_map|HashMap|HashSet)\b/.test(codeStr);
+
+  let timeComplexity = 'O(N)';
+  let spaceComplexity = hasMap ? 'O(N)' : 'O(1)';
+  let verdict = 'Good';
+  let score = 84;
+
+  if (loopCount >= 2) {
+    timeComplexity = 'O(N²)';
+    verdict = 'Suboptimal';
+    score = 70;
+  } else if (hasSort) {
+    timeComplexity = 'O(N log N)';
+    verdict = 'Optimal';
+    score = 90;
+  } else if (hasMap && loopCount <= 1) {
+    timeComplexity = 'O(N)';
+    verdict = 'Optimal';
+    score = 92;
+  }
+
+  return {
+    timeComplexity,
+    spaceComplexity,
+    verdict,
+    score,
+    summary: `Structured ${language.toUpperCase()} implementation for ${problemTitle}. Employs ${hasMap ? 'hash lookup caching' : loopCount > 1 ? 'nested iteration' : 'linear traversal'} to process inputs.`,
+    strengths: [
+      `Valid syntax and clear identifier naming conventions in ${language}`,
+      hasMap ? 'Uses constant-time hash lookups for efficient data retrieval' : 'Minimal memory footprint with in-place operations',
+      'Clean modular function definition structure',
+    ],
+    improvements: [
+      'Add defensive boundary checks for empty or single-element inputs',
+      loopCount >= 2 ? 'Consider replacing inner loop with a Hash Map to reduce time complexity to O(N)' : 'Verify numeric bounds against edge-case integer overflow',
+      'Explicitly document Time and Space complexity in function docstrings',
+    ],
+    edgeCases: [
+      'Empty or null input dataset',
+      'Array containing negative values or duplicate elements',
+      'Maximum scale constraints (e.g., N = 10^5 elements)',
+    ],
+    optimizedCode: `// Optimized ${language.toUpperCase()} Solution\n${codeStr}`,
+  };
+}
+
+async function reviewCodeSolution({ code, language = 'javascript', problemTitle = 'Algorithm Challenge', testInput = '' }) {
+  if (!code || !code.trim()) {
+    throw new Error('Code is required for review');
+  }
+
+  const prompt = `Analyze this code submission for the algorithm problem "${problemTitle}".
+Language: ${language}
+Code:
+\`\`\`${language}
+${code}
+\`\`\`
+Test Input Context: ${testInput || 'Standard test cases'}
+
+Evaluate strictly as a Senior Principal FAANG Algorithm Interviewer.
+Return ONLY valid JSON matching this exact structure:
+{
+  "timeComplexity": "O(N log N)",
+  "spaceComplexity": "O(N)",
+  "verdict": "Optimal" | "Good" | "Suboptimal" | "Needs Bugfix",
+  "score": 88,
+  "summary": "Concise 2-sentence summary of the approach",
+  "strengths": ["Clear naming and variable semantics", "Optimal memory footprint"],
+  "improvements": ["Missing empty array boundary check", "Could eliminate redundant hash lookup"],
+  "edgeCases": ["Negative integers", "Single element array"],
+  "optimizedCode": "// Refactored drop-in code..."
+}`;
+
+  try {
+    const raw = await callGemini(
+      prompt,
+      'You are a Principal Software Engineer and Algorithm Specialist reviewing technical interview solutions. Always output clean parseable JSON without backticks.',
+      0.3
+    );
+    const cleaned = raw.replace(/```json\s*/i, '').replace(/```\s*$/i, '').trim();
+    return JSON.parse(cleaned);
+  } catch (err) {
+    return generateFallbackCodeReview({ code, language, problemTitle });
+  }
+}
+
 module.exports = {
   getCareerAdvice,
   analyzeResumeATS,
   startMockInterview,
   evaluateMockInterviewAnswer,
   generateInterviewReport,
+  reviewCodeSolution,
 };

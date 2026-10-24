@@ -49,6 +49,7 @@ app.use('/api/badge', require('./routes/badge'));
 app.use('/api/public', require('./routes/publicProfile'));
 app.use('/api/contests', require('./routes/contests'));
 app.use('/api/leaderboard', require('./routes/leaderboard'));
+app.use('/api/applications', require('./routes/applications'));
 
 // Health check
 app.get('/api/health', (req, res) => {
