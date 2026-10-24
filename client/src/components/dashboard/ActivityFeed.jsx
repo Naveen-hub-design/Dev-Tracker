@@ -3,12 +3,13 @@ import Card from '../ui/Card';
 import FadeIn from './FadeIn';
 import EmptyState from '../ui/EmptyState';
 import { Skeleton } from '../ui/LoadingSkeleton';
-import { GitCommit, Code, GitBranch, Clock, ArrowUpRight } from 'lucide-react';
+import { GitCommit, Code, GitBranch, Clock, ArrowUpRight, Trophy } from 'lucide-react';
 
 const TYPE_CONFIG = {
   github: { icon: GitCommit, color: 'text-blue-500', bg: 'bg-blue-50' },
   leetcode: { icon: Code, color: 'text-emerald-500', bg: 'bg-emerald-50' },
   hackerrank: { icon: GitBranch, color: 'text-green-500', bg: 'bg-green-50' },
+  codeforces: { icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/40' },
   default: { icon: ArrowUpRight, color: 'text-slate-500', bg: 'bg-slate-50' },
 };
 

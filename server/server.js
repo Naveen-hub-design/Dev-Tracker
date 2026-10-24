@@ -44,6 +44,7 @@ app.use('/api/certificates', require('./routes/certificates'));
 app.use('/api/goals', require('./routes/goals'));
 app.use('/api/resume', require('./routes/resume'));
 app.use('/api/ai', require('./routes/ai'));
+app.use('/api/codeforces', require('./routes/codeforces'));
 
 // Health check
 app.get('/api/health', (req, res) => {

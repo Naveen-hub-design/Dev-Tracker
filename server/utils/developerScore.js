@@ -1,17 +1,31 @@
-function calculateDeveloperScore({ github, leetcode, hackerrank }) {
+function calculateDeveloperScore({ github, leetcode, hackerrank, codeforces }) {
   const githubScore = calculateGithubScore(github);
   const leetcodeScore = calculateLeetcodeScore(leetcode);
   const hackerrankScore = calculateHackerRankScore(hackerrank);
-  const consistencyScore = calculateConsistencyScore(github, leetcode, hackerrank);
+  const codeforcesScore = calculateCodeforcesScore(codeforces);
+  const consistencyScore = calculateConsistencyScore(github, leetcode, hackerrank, codeforces);
   const projectScore = calculateProjectScore(github);
 
-  const total = Math.round(
-    githubScore * 0.30 +
-    leetcodeScore * 0.30 +
-    hackerrankScore * 0.15 +
-    consistencyScore * 0.15 +
-    projectScore * 0.10
-  );
+  let total;
+  if (codeforces && (codeforces.profile?.rating > 0 || codeforces.stats?.totalSolved > 0)) {
+    // When Codeforces is active, balance CP between LeetCode, Codeforces, and HackerRank
+    total = Math.round(
+      githubScore * 0.25 +
+      leetcodeScore * 0.25 +
+      codeforcesScore * 0.15 +
+      hackerrankScore * 0.10 +
+      consistencyScore * 0.15 +
+      projectScore * 0.10
+    );
+  } else {
+    total = Math.round(
+      githubScore * 0.30 +
+      leetcodeScore * 0.30 +
+      hackerrankScore * 0.15 +
+      consistencyScore * 0.15 +
+      projectScore * 0.10
+    );
+  }
 
   return Math.min(100, Math.max(0, total));
 }
@@ -109,7 +123,45 @@ function calculateHackerRankScore(data) {
   return Math.min(100, score);
 }
 
-function calculateConsistencyScore(github, leetcode, hackerrank) {
+function calculateCodeforcesScore(data) {
+  if (!data) return 0;
+
+  let score = 0;
+
+  // Rating scoring (up to 35 pts)
+  const rating = data.profile?.rating || 0;
+  if (rating >= 1900) score += 35;
+  else if (rating >= 1600) score += 30;
+  else if (rating >= 1400) score += 22;
+  else if (rating >= 1200) score += 15;
+  else if (rating > 0) score += 8;
+
+  // Problem solving volume (up to 30 pts)
+  const solved = data.stats?.totalSolved || data.solved || 0;
+  if (solved >= 200) score += 30;
+  else if (solved >= 100) score += 24;
+  else if (solved >= 50) score += 16;
+  else if (solved >= 20) score += 10;
+  else if (solved >= 5) score += 5;
+
+  // Contest experience (up to 20 pts)
+  const contests = data.stats?.contestsCount || data.ratingHistory?.length || 0;
+  if (contests >= 15) score += 20;
+  else if (contests >= 8) score += 15;
+  else if (contests >= 3) score += 10;
+  else if (contests >= 1) score += 5;
+
+  // Hard/High-rated problems (up to 15 pts)
+  const diffs = data.difficultyDistribution || [];
+  const hardProblems = diffs.filter((d) => ['1700-1900', '2000+'].includes(d.range)).reduce((sum, d) => sum + (d.count || 0), 0);
+  if (hardProblems >= 20) score += 15;
+  else if (hardProblems >= 10) score += 10;
+  else if (hardProblems >= 3) score += 6;
+
+  return Math.min(100, score);
+}
+
+function calculateConsistencyScore(github, leetcode, hackerrank, codeforces) {
   let activePlatforms = 0;
   let totalScore = 0;
 
@@ -137,6 +189,15 @@ function calculateConsistencyScore(github, leetcode, hackerrank) {
     if (solved >= 150) totalScore += 100;
     else if (solved >= 80) totalScore += 75;
     else if (solved >= 40) totalScore += 50;
+    else totalScore += 25;
+  }
+
+  if (codeforces && ((codeforces.stats?.totalSolved || 0) > 0 || (codeforces.profile?.rating || 0) > 0)) {
+    activePlatforms++;
+    const solved = codeforces.stats?.totalSolved || 0;
+    if (solved >= 100 || (codeforces.profile?.rating || 0) >= 1600) totalScore += 100;
+    else if (solved >= 50 || (codeforces.profile?.rating || 0) >= 1400) totalScore += 75;
+    else if (solved >= 20 || (codeforces.profile?.rating || 0) >= 1200) totalScore += 50;
     else totalScore += 25;
   }
 

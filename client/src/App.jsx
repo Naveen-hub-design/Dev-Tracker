@@ -8,6 +8,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const LeetCodePage = lazy(() => import('./pages/LeetCodePage'));
 const GitHubPage = lazy(() => import('./pages/GitHubPage'));
 const HackerRankPage = lazy(() => import('./pages/HackerRankPage'));
+const CodeforcesPage = lazy(() => import('./pages/CodeforcesPage'));
 const JobMatchPage = lazy(() => import('./pages/JobMatchPage'));
 const JobReadinessPage = lazy(() => import('./pages/JobReadinessPage'));
 const Analytics = lazy(() => import('./pages/Analytics'));
@@ -81,6 +82,7 @@ export default function App() {
             <Route path="/github" element={<GitHubPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/hackerrank" element={<HackerRankPage />} />
+            <Route path="/codeforces" element={<CodeforcesPage />} />
             <Route path="/jobmatch" element={<JobMatchPage />} />
             <Route path="/jobreadiness" element={<JobReadinessPage />} />
             <Route path="/resume" element={<ResumePage />} />

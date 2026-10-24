@@ -53,6 +53,7 @@ function PortfolioPreview({ portfolio, theme, darkMode }) {
     }
     if (cp.leetcode?.username) items.push({ label: 'LC Solved', value: cp.leetcode.solved, Icon: Code2 });
     if (cp.hackerrank?.username) items.push({ label: 'HR Solved', value: cp.hackerrank.solved, Icon: Shield });
+    if (cp.codeforces?.username) items.push({ label: 'CF Rating', value: cp.codeforces.rating || cp.codeforces.solved, Icon: Trophy });
     return items;
   }, [cp]);
 

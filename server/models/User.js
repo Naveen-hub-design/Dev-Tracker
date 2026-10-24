@@ -19,6 +19,23 @@ const User = {
   async findOneAndUpdate(query, update) {
     return await getCollection('users').findOneAndUpdate(query, update);
   },
+
+  async findByIdentifier(identifier) {
+    if (!identifier) return null;
+    const clean = identifier.trim();
+    const { db } = require('../config/db');
+    const row = db.prepare(`
+      SELECT _id FROM users
+      WHERE githubUsername = ? COLLATE NOCASE
+         OR leetcodeUsername = ? COLLATE NOCASE
+         OR codeforcesUsername = ? COLLATE NOCASE
+         OR name = ? COLLATE NOCASE
+         OR _id = ?
+      LIMIT 1
+    `).get(clean, clean, clean, clean, clean);
+    if (!row) return null;
+    return await getCollection('users').findById(row._id);
+  },
 };
 
 module.exports = User;

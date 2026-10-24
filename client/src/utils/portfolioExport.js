@@ -66,6 +66,7 @@ export function generatePortfolioHTML(portfolio, theme, darkMode) {
   if (cp.github?.username) statsItems.push({ label: 'Commits', value: cp.github.commits, sub: 'GitHub' });
   if (cp.leetcode?.username) statsItems.push({ label: 'Solved', value: cp.leetcode.solved, sub: 'LeetCode' });
   if (cp.hackerrank?.username) statsItems.push({ label: 'Solved', value: cp.hackerrank.solved, sub: 'HackerRank' });
+  if (cp.codeforces?.username) statsItems.push({ label: 'Rating', value: cp.codeforces.rating || cp.codeforces.solved, sub: 'Codeforces' });
 
   const statsHTML = statsItems.length ? `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">

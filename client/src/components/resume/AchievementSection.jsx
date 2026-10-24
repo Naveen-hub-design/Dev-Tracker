@@ -24,7 +24,7 @@ function AchievementSection({ achievements, codingProfiles }) {
           );
         })}
       </div>
-      <div className="grid grid-cols-3 gap-3 mt-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
         {cp.github?.username && (
           <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100 text-center">
             <p className="text-lg font-bold text-slate-900">{cp.github.commits}</p>
@@ -41,6 +41,12 @@ function AchievementSection({ achievements, codingProfiles }) {
           <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100 text-center">
             <p className="text-lg font-bold text-slate-900">{cp.hackerrank.solved}</p>
             <p className="text-[10px] text-slate-400">HR Problems</p>
+          </div>
+        )}
+        {cp.codeforces?.username && (
+          <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100 text-center">
+            <p className="text-lg font-bold text-slate-900">{cp.codeforces.rating || cp.codeforces.solved}</p>
+            <p className="text-[10px] text-slate-400">CF Rating</p>
           </div>
         )}
       </div>

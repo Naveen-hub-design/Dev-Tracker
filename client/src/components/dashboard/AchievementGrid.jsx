@@ -6,8 +6,8 @@ import { Trophy, Flame, Star, Code, GitBranch, Target, Award, Lock, Zap } from '
 
 const ACHIEVEMENTS = [
   { id: 'first-commit', title: 'First Commit', desc: 'Pushed your first commit', Icon: GitBranch, check: (d) => (d?.github?.commits || 0) > 0 },
-  { id: 'problem-solver', title: 'Problem Solver', desc: 'Solved 50+ problems', Icon: Code, check: (d) => ((d?.leetcode?.solved || 0) + (d?.hackerrank?.solved || 0)) >= 50 },
-  { id: 'century-club', title: 'Century Club', desc: 'Solved 100+ problems', Icon: Trophy, check: (d) => ((d?.leetcode?.solved || 0) + (d?.hackerrank?.solved || 0)) >= 100 },
+  { id: 'problem-solver', title: 'Problem Solver', desc: 'Solved 50+ problems', Icon: Code, check: (d) => ((d?.leetcode?.solved || 0) + (d?.hackerrank?.solved || 0) + (d?.codeforces?.stats?.totalSolved || d?.codeforces?.solved || 0)) >= 50 },
+  { id: 'century-club', title: 'Century Club', desc: 'Solved 100+ problems', Icon: Trophy, check: (d) => ((d?.leetcode?.solved || 0) + (d?.hackerrank?.solved || 0) + (d?.codeforces?.stats?.totalSolved || d?.codeforces?.solved || 0)) >= 100 },
   { id: 'star-collector', title: 'Star Collector', desc: 'Earned 50+ stars', Icon: Star, check: (d) => (d?.github?.stars || 0) >= 50 },
   { id: 'streak-master', title: 'Streak Master', desc: '7+ day coding streak', Icon: Flame, check: (d) => {
     const a = d?.github?._raw?.commitActivity;
@@ -16,6 +16,7 @@ const ACHIEVEMENTS = [
     for (let i = a.length - 1; i >= 0; i--) { if (a[i] > 0) c++; else break; }
     return c >= 7;
   }},
+  { id: 'cf-specialist', title: 'Codeforces Specialist', desc: '1400+ rating or 25+ CF solved', Icon: Trophy, check: (d) => ((d?.codeforces?.profile?.rating || 0) >= 1400 || (d?.codeforces?.stats?.totalSolved || 0) >= 25) },
   { id: 'hard-hitter', title: 'Hard Hitter', desc: 'Solved 10+ hard problems', Icon: Zap, check: (d) => (d?.leetcode?.hard || 0) >= 10 },
   { id: 'repo-owner', title: 'Repo Owner', desc: 'Created 10+ repositories', Icon: Target, check: (d) => (d?.github?.repositories || 0) >= 10 },
   { id: 'polyglot', title: 'Polyglot', desc: 'Used 3+ programming languages', Icon: Award, check: (d) => Object.keys(d?.github?.languages || {}).length >= 3 },

@@ -2,14 +2,16 @@ const User = require('../models/User');
 const { fetchGitHubData, getDemoData } = require('../services/githubService');
 const { fetchLeetCodeData } = require('../services/leetcodeService');
 const { fetchHackerRankData, HACKERRANK_ERRORS } = require('../services/hackerRankService');
+const { fetchCodeforcesData, getDemoData: getCodeforcesDemo } = require('../services/codeforcesService');
 
 const updateUsernames = async (req, res, next) => {
   try {
-    const { githubUsername, leetcodeUsername, hackerRankUsername } = req.body;
+    const { githubUsername, leetcodeUsername, hackerRankUsername, codeforcesUsername } = req.body;
     const update = {};
     if (githubUsername !== undefined) update.githubUsername = githubUsername;
     if (leetcodeUsername !== undefined) update.leetcodeUsername = leetcodeUsername;
     if (hackerRankUsername !== undefined) update.hackerRankUsername = hackerRankUsername;
+    if (codeforcesUsername !== undefined) update.codeforcesUsername = codeforcesUsername;
 
     const user = await User.findOneAndUpdate({ _id: req.user._id }, update);
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -20,6 +22,7 @@ const updateUsernames = async (req, res, next) => {
       githubUsername: updated.githubUsername || '',
       leetcodeUsername: updated.leetcodeUsername || '',
       hackerRankUsername: updated.hackerRankUsername || '',
+      codeforcesUsername: updated.codeforcesUsername || '',
     });
   } catch (error) {
     next(error);
@@ -89,6 +92,33 @@ const refreshHackerRank = async (req, res, next) => {
   }
 };
 
+const refreshCodeforces = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user.codeforcesUsername) return res.status(400).json({ message: 'No Codeforces handle set' });
+
+    try {
+      const codeforcesData = await fetchCodeforcesData(user.codeforcesUsername);
+      await User.findOneAndUpdate({ _id: req.user._id }, { codeforcesData });
+      return res.json(codeforcesData);
+    } catch (apiError) {
+      console.warn(`Codeforces API error for ${user.codeforcesUsername}: ${apiError.message}`);
+      if (apiError.message.includes('not found')) {
+        return res.status(404).json({ message: 'Codeforces handle not found' });
+      }
+      if (user.codeforcesData) {
+        return res.json({ ...user.codeforcesData, _stale: true });
+      }
+      const demo = getCodeforcesDemo();
+      await User.findOneAndUpdate({ _id: req.user._id }, { codeforcesData: demo });
+      return res.json(demo);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getProfile = async (req, res) => {
   const user = await User.findById(req.user._id);
   if (!user) return res.status(404).json({ message: 'User not found' });
@@ -96,4 +126,11 @@ const getProfile = async (req, res) => {
   res.json(profile);
 };
 
-module.exports = { updateUsernames, refreshGitHub, refreshLeetCode, refreshHackerRank, getProfile };
+module.exports = {
+  updateUsernames,
+  refreshGitHub,
+  refreshLeetCode,
+  refreshHackerRank,
+  refreshCodeforces,
+  getProfile,
+};

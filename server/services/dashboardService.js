@@ -2,6 +2,7 @@ const axios = require('axios');
 const User = require('../models/User');
 const { calculateJobMatch } = require('../services/jobMatchService');
 const { fetchHackerRankData, HACKERRANK_ERRORS } = require('../services/hackerRankService');
+const { fetchCodeforcesData } = require('../services/codeforcesService');
 
 const GITHUB_API = 'https://api.github.com';
 const LEETCODE_GRAPHQL = 'https://leetcode.com/graphql';
@@ -15,23 +16,25 @@ async function getDashboardData(userId) {
   const user = await User.findById(userId);
   if (!user) throw new Error('User not found');
 
-  const [github, leetcode, hackerrank] = await Promise.all([
+  const [github, leetcode, hackerrank, codeforces] = await Promise.all([
     resolveGithubData(user),
     resolveLeetcodeData(user),
     resolveHackerRankData(user),
+    resolveCodeforcesData(user),
   ]);
 
-  const { developerScore, recommendations, jobMatch } = calculateJobMatch({ github, leetcode, hackerrank });
+  const { developerScore, recommendations, jobMatch } = calculateJobMatch({ github, leetcode, hackerrank, codeforces });
 
-  const weeklyGoal = computeWeeklyGoal(github, leetcode);
+  const weeklyGoal = computeWeeklyGoal(github, leetcode, codeforces);
 
-  const recentActivity = mergeRecentActivity(github, leetcode);
+  const recentActivity = mergeRecentActivity(github, leetcode, codeforces);
 
   return {
     developerScore,
     github,
     leetcode,
     hackerrank,
+    codeforces,
     weeklyGoal,
     jobMatch,
     recentActivity,
@@ -254,7 +257,38 @@ function normalizeHackerRankData(raw) {
   };
 }
 
-function computeWeeklyGoal(github, leetcode) {
+async function resolveCodeforcesData(user) {
+  if (user.codeforcesData) {
+    return normalizeCodeforcesData(user.codeforcesData);
+  }
+  if (user.codeforcesUsername) {
+    try {
+      const fresh = await fetchCodeforcesData(user.codeforcesUsername);
+      await User.findOneAndUpdate({ _id: user._id }, { codeforcesData: fresh });
+      return normalizeCodeforcesData(fresh);
+    } catch (err) {
+      console.warn(`Dashboard: Codeforces fetch failed for ${user.codeforcesUsername}: ${err.message}`);
+      if (user.codeforcesData) {
+        return normalizeCodeforcesData(user.codeforcesData);
+      }
+      return null;
+    }
+  }
+  return null;
+}
+
+function normalizeCodeforcesData(raw) {
+  if (!raw) return null;
+  return {
+    ...raw,
+    solved: raw.stats?.totalSolved || 0,
+    rating: raw.profile?.rating || 0,
+    rank: raw.profile?.rank || 'unranked',
+    _raw: raw,
+  };
+}
+
+function computeWeeklyGoal(github, leetcode, codeforces) {
   let completed = 0;
   let target = 25;
 
@@ -266,7 +300,11 @@ function computeWeeklyGoal(github, leetcode) {
   if (leetcode) {
     const weekly = leetcode._raw?.weeklyProgress || [];
     completed += weekly.slice(-4).reduce((a, b) => a + b, 0);
-    completed = Math.min(completed, 25);
+  }
+
+  if (codeforces?.stats?.totalSolved) {
+    // Add contribution from codeforces activity
+    completed += Math.min(5, Math.round(codeforces.stats.totalSolved / 20));
   }
 
   completed = Math.min(completed, target);
@@ -278,7 +316,7 @@ function computeWeeklyGoal(github, leetcode) {
   };
 }
 
-function mergeRecentActivity(github, leetcode) {
+function mergeRecentActivity(github, leetcode, codeforces) {
   const activities = [];
 
   if (github?._raw?.repos) {
@@ -302,6 +340,24 @@ function mergeRecentActivity(github, leetcode) {
         description: `Total solved: ${leetcode.solved}`,
       });
     }
+  }
+
+  if (codeforces?.ratingHistory?.length) {
+    const latestContest = codeforces.ratingHistory[codeforces.ratingHistory.length - 1];
+    activities.push({
+      time: latestContest.date || new Date().toISOString(),
+      type: 'codeforces',
+      title: `Codeforces: ${latestContest.contestName}`,
+      description: `Rank #${latestContest.rank} (Rating: ${latestContest.newRating})`,
+    });
+  } else if (codeforces?.recentSolved?.length) {
+    const latestSolved = codeforces.recentSolved[0];
+    activities.push({
+      time: new Date().toISOString(),
+      type: 'codeforces',
+      title: `Solved Codeforces: ${latestSolved.name}`,
+      description: `Rating: ${latestSolved.rating} • [${(latestSolved.tags || []).slice(0, 2).join(', ')}]`,
+    });
   }
 
   activities.sort((a, b) => new Date(b.time) - new Date(a.time));

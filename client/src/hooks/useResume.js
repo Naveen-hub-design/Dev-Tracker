@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useGitHub } from './useGitHub';
 import { useLeetCode } from './useLeetCode';
 import { useHackerRank } from './useHackerRank';
+import { useCodeforces } from './useCodeforces';
 import { useProjects } from './useProjects';
 import { fetchResume, saveResume } from '../api/resume';
 
@@ -31,6 +32,7 @@ const DEFAULT_RESUME = {
     github: { username: '', stars: 0, repos: 0, commits: 0 },
     leetcode: { username: '', solved: 0, easy: 0, medium: 0, hard: 0 },
     hackerrank: { username: '', solved: 0, badge: '' },
+    codeforces: { username: '', rating: 0, rank: '', solved: 0 },
   },
   achievements: [],
   experience: [
@@ -99,6 +101,7 @@ export function useResume() {
   const { data: ghData, loading: ghLoading } = useGitHub();
   const { data: lcData, loading: lcLoading } = useLeetCode();
   const { data: hrData, loading: hrLoading } = useHackerRank();
+  const { data: cfData, loading: cfLoading } = useCodeforces();
   const { allProjects, loading: projectsLoading } = useProjects();
 
   const [resume, setResume] = useState(DEFAULT_RESUME);
@@ -106,7 +109,7 @@ export function useResume() {
   const [dbLoaded, setDbLoaded] = useState(false);
   const saveTimeoutRef = useRef(null);
 
-  const loading = (ghLoading || lcLoading || hrLoading || projectsLoading) && !dbLoaded;
+  const loading = (ghLoading || lcLoading || hrLoading || cfLoading || projectsLoading) && !dbLoaded;
 
   // Load from backend SQLite database first
   useEffect(() => {
@@ -194,6 +197,12 @@ export function useResume() {
           solved: hrData?.totalSolved || hrData?.problemsSolved?.total || 0,
           badge: hrData?.hackerBadge || '',
         },
+        codeforces: {
+          username: cfData?.profile?.handle || user?.codeforcesUsername || prev.codingProfiles?.codeforces?.username || '',
+          rating: cfData?.profile?.rating || 0,
+          rank: cfData?.profile?.rank || 'unranked',
+          solved: cfData?.stats?.totalSolved || 0,
+        },
       };
 
       const achievements = prev.achievements?.length ? prev.achievements : [];
@@ -201,9 +210,12 @@ export function useResume() {
         const stars = codingProfiles.github.stars;
         const lcSolved = codingProfiles.leetcode.solved;
         const hrSolved = codingProfiles.hackerrank.solved;
+        const cfSolved = codingProfiles.codeforces.solved;
         if (stars >= 10) achievements.push(`${stars} GitHub Stars`);
         if (lcSolved >= 50) achievements.push(`${lcSolved} LeetCode Problems Solved`);
         if (hrSolved >= 50) achievements.push(`${hrSolved} HackerRank Problems Solved`);
+        if (cfSolved >= 30) achievements.push(`${cfSolved} Codeforces Problems Solved`);
+        if (codingProfiles.codeforces.rating >= 1200) achievements.push(`Codeforces ${codingProfiles.codeforces.rank} (${codingProfiles.codeforces.rating})`);
         if (ghData?.totalCommits >= 200) achievements.push(`${ghData.totalCommits} GitHub Commits`);
         achievements.push('DevTrack Certified Developer');
       }

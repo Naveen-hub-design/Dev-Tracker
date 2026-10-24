@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useGitHub } from './useGitHub';
 import { useLeetCode } from './useLeetCode';
 import { useHackerRank } from './useHackerRank';
+import { useCodeforces } from './useCodeforces';
 import { useProjects } from './useProjects';
 
 const DEFAULT_PORTFOLIO = {
@@ -13,6 +14,7 @@ const DEFAULT_PORTFOLIO = {
     github: { username: '', stars: 0, repos: 0, commits: 0, followers: 0 },
     leetcode: { username: '', solved: 0, easy: 0, medium: 0, hard: 0 },
     hackerrank: { username: '', solved: 0, badge: '' },
+    codeforces: { username: '', rating: 0, rank: '', solved: 0 },
   },
   achievements: [],
 };
@@ -58,19 +60,20 @@ export function usePortfolio() {
   const { data: gh, loading: ghL } = useGitHub();
   const { data: lc, loading: lcL } = useLeetCode();
   const { data: hr, loading: hrL } = useHackerRank();
+  const { data: cf, loading: cfL } = useCodeforces();
   const { allProjects, loading: pL } = useProjects();
   const [portfolio, setPortfolio] = useState(DEFAULT_PORTFOLIO);
   const [theme, setTheme] = useState('modern');
   const [darkMode, setDarkMode] = useState(false);
-  const loading = ghL || lcL || hrL || pL;
+  const loading = ghL || lcL || hrL || cfL || pL;
 
   useEffect(() => {
-    if (!user && !gh && !lc) return;
+    if (!user && !gh && !lc && !cf) return;
     const personal = {
-      name: user?.name || gh?.profile?.name || lc?.username || '',
+      name: user?.name || gh?.profile?.name || lc?.username || cf?.profile?.handle || '',
       title: 'Full Stack Developer', email: user?.email || '', location: '',
       linkedin: '', github: gh?.username || '', portfolio: '', bio: '',
-      avatar: gh?.avatar || gh?.profile?.avatar || '',
+      avatar: gh?.avatar || gh?.profile?.avatar || cf?.profile?.avatar || '',
     };
     const skills = deriveSkills(gh?.languages, gh?.repos);
     const projects = (allProjects || []).filter((x) => x.status !== 'archived').slice(0, 6).map((x) => ({
@@ -82,15 +85,23 @@ export function usePortfolio() {
       github: { username: gh?.username || '', stars, repos: gh?.public_repos || 0, commits: gh?.totalCommits || 0, followers: gh?.followers || 0 },
       leetcode: { username: lc?.username || '', solved: lc?.total || 0, easy: lc?.easy || 0, medium: lc?.medium || 0, hard: lc?.hard || 0 },
       hackerrank: { username: hr?.username || '', solved: hr?.totalSolved || 0, badge: hr?.hackerBadge || '' },
+      codeforces: {
+        username: cf?.profile?.handle || user?.codeforcesUsername || '',
+        rating: cf?.profile?.rating || 0,
+        rank: cf?.profile?.rank || 'unranked',
+        solved: cf?.stats?.totalSolved || 0,
+      },
     };
     const achievements = [];
     if (stars >= 10) achievements.push(`${stars} GitHub Stars`);
     if (codingProfiles.leetcode.solved >= 50) achievements.push(`${codingProfiles.leetcode.solved} LeetCode Problems Solved`);
     if (codingProfiles.hackerrank.solved >= 50) achievements.push(`${codingProfiles.hackerrank.solved} HackerRank Problems Solved`);
+    if (codingProfiles.codeforces.solved >= 30) achievements.push(`${codingProfiles.codeforces.solved} Codeforces Problems Solved`);
+    if (codingProfiles.codeforces.rating >= 1200) achievements.push(`Codeforces ${codingProfiles.codeforces.rank} (${codingProfiles.codeforces.rating})`);
     if (gh?.totalCommits >= 100) achievements.push(`${gh.totalCommits} GitHub Commits`);
     achievements.push('DevTrack Certified Developer');
     setPortfolio((prev) => ({ ...prev, personal, skills, projects, codingProfiles, achievements }));
-  }, [user, gh, lc, hr, allProjects]);
+  }, [user, gh, lc, hr, cf, allProjects]);
 
   const updatePersonal = useCallback((field, value) => {
     setPortfolio((prev) => ({ ...prev, personal: { ...prev.personal, [field]: value } }));

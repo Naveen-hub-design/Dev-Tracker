@@ -109,6 +109,8 @@ db.exec(`
 const migrateColumns = [
   'ALTER TABLE users ADD COLUMN hackerRankUsername TEXT DEFAULT \'\'',
   'ALTER TABLE users ADD COLUMN hackerRankData TEXT',
+  'ALTER TABLE users ADD COLUMN codeforcesUsername TEXT DEFAULT \'\'',
+  'ALTER TABLE users ADD COLUMN codeforcesData TEXT',
 ];
 migrateColumns.forEach((sql) => {
   try { db.exec(sql); } catch { /* column already exists */ }
@@ -119,7 +121,7 @@ function generateId() {
 }
 
 const JSON_FIELDS = {
-  users: ['githubData', 'leetcodeData', 'hackerRankData'],
+  users: ['githubData', 'leetcodeData', 'hackerRankData', 'codeforcesData'],
   projects: ['techStack', 'features', 'challenges', 'futureImprovements', 'contributors', 'milestones'],
   certificates: [],
   goals: ['history'],

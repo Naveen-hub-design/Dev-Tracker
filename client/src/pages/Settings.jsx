@@ -9,6 +9,7 @@ import {
   refreshLeetCode,
   refreshHackerRank,
 } from '../api/profile';
+import { refreshCodeforces } from '../api/codeforces';
 import PageContainer from '../components/ui/PageContainer';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -20,7 +21,7 @@ import {
   Github, Code, Shield, RefreshCw, Save, LogOut, AlertTriangle,
   Users, FolderGit2, GitCommit, Trophy, CheckCircle2, Zap,
   Globe, Bell, BellOff, Lock, Key, Eye, EyeOff, ChevronRight,
-  Trash2, Download, Clock, ShieldCheck,
+  Trash2, Download, Clock, ShieldCheck, Binary,
 } from 'lucide-react';
 
 const LANGUAGES = [
@@ -210,6 +211,7 @@ export default function Settings() {
   const [github, setGithub] = useState('');
   const [leetcode, setLeetcode] = useState('');
   const [hackerRank, setHackerRank] = useState('');
+  const [codeforces, setCodeforces] = useState('');
   const [profileData, setProfileData] = useState(null);
   const [saving, setSaving] = useState('');
   const [refreshing, setRefreshing] = useState('');
@@ -233,6 +235,7 @@ export default function Settings() {
       setGithub(data.githubUsername || '');
       setLeetcode(data.leetcodeUsername || '');
       setHackerRank(data.hackerRankUsername || '');
+      setCodeforces(data.codeforcesUsername || '');
     } catch { /* ignore */ }
   }, []);
 
@@ -243,6 +246,7 @@ export default function Settings() {
         githubUsername: github,
         leetcodeUsername: leetcode,
         hackerRankUsername: hackerRank,
+        codeforcesUsername: codeforces,
       });
       updateUser(data);
       toast.success('Platform usernames saved');
@@ -251,7 +255,7 @@ export default function Settings() {
     } finally {
       setSaving('');
     }
-  }, [github, leetcode, hackerRank, updateUser, toast]);
+  }, [github, leetcode, hackerRank, codeforces, updateUser, toast]);
 
   const handleRefresh = useCallback(async (source) => {
     setRefreshing(source);
@@ -259,6 +263,7 @@ export default function Settings() {
       if (source === 'github') await refreshGitHub();
       else if (source === 'leetcode') await refreshLeetCode();
       else if (source === 'hackerrank') await refreshHackerRank();
+      else if (source === 'codeforces') await refreshCodeforces();
       await loadProfile();
       toast.success(`${source.charAt(0).toUpperCase() + source.slice(1)} data refreshed`);
     } catch (err) {
@@ -285,6 +290,7 @@ export default function Settings() {
   const ghData = useMemo(() => profileData?.githubData, [profileData]);
   const lcData = useMemo(() => profileData?.leetcodeData, [profileData]);
   const hrData = useMemo(() => profileData?.hackerRankData, [profileData]);
+  const cfData = useMemo(() => profileData?.codeforcesData, [profileData]);
 
   const initials = useMemo(() => {
     const n = user?.name || '';
@@ -294,6 +300,7 @@ export default function Settings() {
   const ghLastSync = ghData?.fetchedAt ? formatDate(ghData.fetchedAt) : null;
   const lcLastSync = lcData?.fetchedAt ? formatDate(lcData.fetchedAt) : null;
   const hrLastSync = hrData?.fetchedAt ? formatDate(hrData.fetchedAt) : null;
+  const cfLastSync = cfData?.fetchedAt ? formatDate(cfData.fetchedAt) : null;
 
   if (!user) return null;
 
@@ -437,6 +444,41 @@ export default function Settings() {
                 <p className="text-xs text-slate-400 dark:text-slate-500 mb-1">HackerRank integration is temporarily unavailable.</p>
                 <p className="text-[10px] text-slate-300 dark:text-slate-600">The HackerRank API is currently restricted. We're working on a workaround.</p>
               </div>
+            )}
+          </PlatformCard>
+
+          <PlatformCard
+            icon={Binary} iconBg="bg-indigo-600" title="Codeforces"
+            username={codeforces} onUsernameChange={setCodeforces} placeholder="e.g. tourist"
+            connected={!!profileData?.codeforcesUsername} refreshing={refreshing === 'codeforces'}
+            onRefresh={() => handleRefresh('codeforces')} onSave={handleSaveUsernames}
+            saving={saving === 'usernames'} lastSynced={cfLastSync}
+          >
+            {cfData ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <StatBadge
+                    label={(cfData.profile?.rank || 'Ranked').toUpperCase()}
+                    color="purple"
+                    dot
+                  />
+                  <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                    Rating: {cfData.profile?.rating || 0}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                  <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{cfData.stats?.totalSolved || 0}</span>
+                    <span className="text-[10px] text-slate-400 block">Solved</span>
+                  </div>
+                  <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{cfData.stats?.contestsCount || 0}</span>
+                    <span className="text-[10px] text-slate-400 block">Contests</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 dark:text-slate-500 text-center py-4">Enter your Codeforces handle and save to connect.</p>
             )}
           </PlatformCard>
         </div>

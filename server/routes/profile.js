@@ -6,6 +6,7 @@ const {
   refreshGitHub,
   refreshLeetCode,
   refreshHackerRank,
+  refreshCodeforces,
   getProfile,
 } = require('../controllers/profileController');
 
@@ -14,5 +15,6 @@ router.put('/usernames', auth, updateUsernames);
 router.post('/refresh/github', auth, refreshGitHub);
 router.post('/refresh/leetcode', auth, refreshLeetCode);
 router.post('/refresh/hackerrank', auth, refreshHackerRank);
+router.post('/refresh/codeforces', auth, refreshCodeforces);
 
 module.exports = router;

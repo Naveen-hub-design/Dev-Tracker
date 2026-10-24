@@ -1,14 +1,14 @@
 const { calculateDeveloperScore } = require('../utils/developerScore');
 
-function calculateJobMatch({ github, leetcode, hackerrank }) {
-  const developerScore = calculateDeveloperScore({ github, leetcode, hackerrank });
-  const recommendations = generateRecommendations({ github, leetcode, hackerrank });
-  const jobMatch = computeJobMatch(github, leetcode, hackerrank);
+function calculateJobMatch({ github, leetcode, hackerrank, codeforces }) {
+  const developerScore = calculateDeveloperScore({ github, leetcode, hackerrank, codeforces });
+  const recommendations = generateRecommendations({ github, leetcode, hackerrank, codeforces });
+  const jobMatch = computeJobMatch(github, leetcode, hackerrank, codeforces);
 
   return { developerScore, recommendations, jobMatch };
 }
 
-function computeJobMatch(github, leetcode, hackerrank) {
+function computeJobMatch(github, leetcode, hackerrank, codeforces) {
   let score = 0;
 
   if (leetcode) {
@@ -16,6 +16,17 @@ function computeJobMatch(github, leetcode, hackerrank) {
     else if (leetcode.solved > 50) score += 9;
     if (leetcode.hard > 10) score += 12;
     else if (leetcode.hard > 5) score += 6;
+  }
+
+  if (codeforces) {
+    const rating = codeforces.profile?.rating || 0;
+    const cfSolved = codeforces.stats?.totalSolved || 0;
+    if (rating >= 1600) score += 20; // Expert+ (High-tier Product Companies)
+    else if (rating >= 1400) score += 14; // Specialist
+    else if (rating >= 1200) score += 8; // Pupil
+
+    if (cfSolved > 100) score += 10;
+    else if (cfSolved > 50) score += 5;
   }
 
   if (github) {
@@ -45,8 +56,33 @@ function computeJobMatch(github, leetcode, hackerrank) {
   return { score, companyLevel };
 }
 
-function generateRecommendations({ github, leetcode, hackerrank }) {
+function generateRecommendations({ github, leetcode, hackerrank, codeforces }) {
   const recs = [];
+
+  if (codeforces) {
+    const rating = codeforces.profile?.rating || 0;
+    const contests = codeforces.stats?.contestsCount || 0;
+    if (rating < 1400 && rating > 0) {
+      recs.push({
+        title: 'Reach Codeforces Specialist (1400+)',
+        description: `Current rating: ${rating}. Practice Div. 3 & Div. 2 rounds to achieve cyan specialist badge.`,
+        priority: 'high',
+      });
+    }
+    if (contests < 5) {
+      recs.push({
+        title: 'Compete in Codeforces contests',
+        description: `You have completed ${contests} contests. Regular participation boosts speed and problem-solving.`,
+        priority: 'medium',
+      });
+    }
+  } else {
+    recs.push({
+      title: 'Connect Codeforces',
+      description: 'Link Codeforces to demonstrate contest ratings and competitive programming prowess.',
+      priority: 'low',
+    });
+  }
 
   if (leetcode) {
     if (leetcode.hard < 20) {
