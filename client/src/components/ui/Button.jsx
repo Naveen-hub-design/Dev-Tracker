@@ -2,22 +2,24 @@ import { forwardRef } from 'react';
 
 const variants = {
   primary:
-    'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-sm',
+    'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20 active:scale-[0.98]',
   secondary:
-    'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 active:bg-slate-100 shadow-sm dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700 dark:active:bg-slate-600',
+    'bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 active:bg-slate-100 shadow-xs dark:bg-slate-900 dark:text-slate-200 dark:border-slate-800 dark:hover:bg-slate-800/80 active:scale-[0.98]',
   ghost:
-    'text-slate-600 hover:bg-slate-100 active:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800 dark:active:bg-slate-700',
+    'text-slate-600 hover:bg-slate-100 active:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800/80 dark:active:bg-slate-700 active:scale-[0.98]',
   danger:
-    'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm',
+    'bg-gradient-to-r from-rose-600 to-red-600 text-white hover:from-rose-700 hover:to-red-700 shadow-md shadow-rose-500/20 active:scale-[0.98]',
+  outline:
+    'border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 active:scale-[0.98]',
   link:
     'text-blue-600 hover:text-blue-700 underline-offset-2 hover:underline p-0 h-auto dark:text-blue-400 dark:hover:text-blue-300',
 };
 
 const sizes = {
-  sm: 'h-8 px-3 text-xs gap-1.5 rounded-lg',
-  md: 'h-9 px-4 text-sm gap-2 rounded-lg',
-  lg: 'h-11 px-6 text-sm gap-2 rounded-xl',
-  icon: 'h-9 w-9 rounded-lg justify-center',
+  sm: 'h-8 px-3 text-xs gap-1.5 rounded-xl',
+  md: 'h-9 px-4 text-sm gap-2 rounded-xl',
+  lg: 'h-11 px-6 text-sm gap-2 rounded-2xl',
+  icon: 'h-9 w-9 rounded-xl justify-center',
   'icon-sm': 'h-8 w-8 rounded-lg justify-center',
 };
 
@@ -30,12 +32,12 @@ const Button = forwardRef(function Button(
       ref={ref}
       disabled={disabled || loading}
       className={`
-        inline-flex items-center justify-center font-medium
+        inline-flex items-center justify-center font-semibold
         transition-all duration-150 ease-in-out
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900
         disabled:opacity-50 disabled:cursor-not-allowed
-        ${variants[variant]}
-        ${sizes[size]}
+        ${variants[variant] || variants.primary}
+        ${sizes[size] || sizes.md}
         ${className}
       `.trim()}
       {...props}
