@@ -47,6 +47,7 @@ app.use('/api/ai', require('./routes/ai'));
 app.use('/api/codeforces', require('./routes/codeforces'));
 app.use('/api/badge', require('./routes/badge'));
 app.use('/api/public', require('./routes/publicProfile'));
+app.use('/api/contests', require('./routes/contests'));
 
 // Health check
 app.get('/api/health', (req, res) => {
