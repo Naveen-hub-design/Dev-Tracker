@@ -12,6 +12,8 @@ import {
 import { refreshCodeforces } from '../api/codeforces';
 import PageContainer from '../components/ui/PageContainer';
 import Card from '../components/ui/Card';
+import { Link } from 'react-router-dom';
+import BadgeModal from '../components/badge/BadgeModal';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import SectionHeader from '../components/ui/SectionHeader';
@@ -21,7 +23,7 @@ import {
   Github, Code, Shield, RefreshCw, Save, LogOut, AlertTriangle,
   Users, FolderGit2, GitCommit, Trophy, CheckCircle2, Zap,
   Globe, Bell, BellOff, Lock, Key, Eye, EyeOff, ChevronRight,
-  Trash2, Download, Clock, ShieldCheck, Binary,
+  Trash2, Download, Clock, ShieldCheck, Binary, Sparkles, ExternalLink,
 } from 'lucide-react';
 
 const LANGUAGES = [
@@ -219,6 +221,7 @@ export default function Settings() {
   const [notifications, setNotifications] = useState(saved.notifications !== false);
   const [autoSync, setAutoSync] = useState(saved.autoSync !== false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [badgeModalOpen, setBadgeModalOpen] = useState(false);
 
   useEffect(() => {
     if (user?._id) loadProfile();
@@ -506,6 +509,41 @@ export default function Settings() {
         </div>
       </Card>
 
+      {/* Public Showcase & Badges */}
+      <Card>
+        <SectionHeader title="Public Showcase & README Badges" subtitle="Share your verified developer profile and embed live stats" />
+        <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Your Shareable Showcase URL</p>
+            <p className="text-xs text-blue-600 dark:text-blue-400 font-mono mt-0.5 break-all">
+              {window.location.origin}/u/{user.githubUsername || user.codeforcesUsername || user.leetcodeUsername || user.name || 'developer'}
+            </p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+              Anyone can view your verified stats, scores, and projects without an account.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setBadgeModalOpen(true)}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+              README Badge
+            </Button>
+            <Link
+              to={`/u/${encodeURIComponent(user.githubUsername || user.codeforcesUsername || user.leetcodeUsername || user.name || 'developer')}`}
+              target="_blank"
+            >
+              <Button variant="primary" size="sm">
+                <ExternalLink className="w-3.5 h-3.5" />
+                View Showcase
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </Card>
+
       {/* Change Password */}
       <ChangePasswordSection toast={toast} />
 
@@ -561,6 +599,12 @@ export default function Settings() {
           )}
         </div>
       </Card>
+
+      <BadgeModal
+        isOpen={badgeModalOpen}
+        onClose={() => setBadgeModalOpen(false)}
+        username={user.githubUsername || user.codeforcesUsername || user.leetcodeUsername || user.name || 'developer'}
+      />
     </PageContainer>
   );
 }

@@ -22,6 +22,7 @@ const AdminPage = lazy(() => import('./pages/AdminPage'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
+const PublicProfilePage = lazy(() => import('./pages/PublicProfilePage'));
 
 function LoadingScreen() {
   return (
@@ -65,6 +66,8 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/u/:identifier" element={<PublicProfilePage />} />
+            <Route path="/profile/:identifier" element={<PublicProfilePage />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </Suspense>
@@ -76,6 +79,8 @@ export default function App() {
     <ErrorBoundary>
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
+          <Route path="/u/:identifier" element={<PublicProfilePage />} />
+          <Route path="/profile/:identifier" element={<PublicProfilePage />} />
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/leetcode" element={<LeetCodePage />} />

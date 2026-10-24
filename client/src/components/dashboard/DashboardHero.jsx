@@ -1,9 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 import Card from '../ui/Card';
 import FadeIn from './FadeIn';
 import AnimatedNumber from './AnimatedNumber';
-import { RefreshCw } from 'lucide-react';
+import BadgeModal from '../badge/BadgeModal';
+import { RefreshCw, Sparkles, ExternalLink, Share2 } from 'lucide-react';
+import Button from '../ui/Button';
 
 function getLevel(score) {
   if (score >= 80) return { label: 'Master', dot: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50 ring-emerald-600/10' };
@@ -29,31 +32,50 @@ function formatSyncTime() {
 
 export default function DashboardHero({ score = 0, loading }) {
   const { user } = useAuth();
+  const [badgeModalOpen, setBadgeModalOpen] = useState(false);
+
   const level = useMemo(() => getLevel(score), [score]);
   const motivation = useMemo(() => getMotivation(score), [score]);
 
+  const primaryHandle = user?.githubUsername || user?.codeforcesUsername || user?.leetcodeUsername || user?.name || 'developer';
+
   return (
-    <FadeIn>
-      <Card className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/40 dark:from-blue-900/20 dark:via-slate-900 dark:to-indigo-900/20 pointer-events-none" />
-        <div className="relative">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Welcome back,</p>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">
-                {user?.name || 'Developer'}
-              </h1>
+    <>
+      <FadeIn>
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/40 dark:from-blue-900/20 dark:via-slate-900 dark:to-indigo-900/20 pointer-events-none" />
+          <div className="relative">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Welcome back,</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                  {user?.name || 'Developer'}
+                </h1>
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 ring-inset ${level.bg} ${level.text}`}>
+                  <span className={`w-2 h-2 rounded-full ${level.dot}`} />
+                  {level.label}
+                </span>
+
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setBadgeModalOpen(true)}
+                  className="text-xs"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                  README Badge
+                </Button>
+
+                <Link to={`/u/${encodeURIComponent(primaryHandle)}`}>
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Public Showcase
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 ring-inset ${level.bg} ${level.text}`}>
-                <span className={`w-2 h-2 rounded-full ${level.dot}`} />
-                {level.label}
-              </span>
-              <span className="text-xs text-slate-400 dark:text-slate-500 hidden sm:inline">
-                Synced {formatSyncTime()}
-              </span>
-            </div>
-          </div>
 
           <div className="mt-5">
             <div className="flex items-center justify-between mb-2">
@@ -77,5 +99,11 @@ export default function DashboardHero({ score = 0, loading }) {
         </div>
       </Card>
     </FadeIn>
+    <BadgeModal
+      isOpen={badgeModalOpen}
+      onClose={() => setBadgeModalOpen(false)}
+      username={primaryHandle}
+    />
+  </>
   );
 }
