@@ -4,3 +4,4 @@ export { default as ChatSidebar } from './ChatSidebar';
 export { default as SuggestionBar } from './SuggestionBar';
 export { default as TypingIndicator } from './TypingIndicator';
 export { default as WelcomeCard } from './WelcomeCard';
+export { default as ATSScanner } from './ATSScanner';

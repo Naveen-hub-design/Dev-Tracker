@@ -1,49 +1,63 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-
-const STORAGE_KEY = 'devtrack_certificates';
+import {
+  fetchCertificates,
+  addCertificate,
+  editCertificate,
+  removeCertificate,
+} from '../api/certificates';
 
 const CATEGORIES = ['AWS', 'Google', 'Microsoft', 'Coursera', 'Udemy', 'NPTEL', 'Other'];
 
-const DEMO_CERTS = [
-  { id: '1', name: 'AWS Cloud Practitioner', organization: 'AWS', category: 'AWS', issueDate: '2025-06-15', expiryDate: '2028-06-15', credentialId: 'AWS-CP-2025-XXXXX', verifyUrl: 'https://aws.amazon.com/verification', image: null, notes: 'Foundational cloud knowledge certification.' },
-  { id: '2', name: 'Google Data Analytics', organization: 'Google', category: 'Google', issueDate: '2025-09-20', expiryDate: '', credentialId: 'GDA-2025-YYYYY', verifyUrl: 'https://coursera.org/verify', image: null, notes: 'Professional data analytics specialization.' },
-  { id: '3', name: 'Python for Everybody', organization: 'Coursera', category: 'Coursera', issueDate: '2025-03-10', expiryDate: '', credentialId: 'PFE-2025-ZZZZZ', verifyUrl: 'https://coursera.org/verify', image: null, notes: 'University of Michigan Python specialization.' },
-  { id: '4', name: 'React - The Complete Guide', organization: 'Udemy', category: 'Udemy', issueDate: '2025-01-05', expiryDate: '', credentialId: 'UDM-REACT-001', verifyUrl: 'https://udemy.com/certificate', image: null, notes: 'Comprehensive React course by Maximilian.' },
-];
-
-function loadCerts() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch { /* ignore */ }
-  return DEMO_CERTS;
-}
-
-function saveCerts(certs) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(certs));
-}
-
 export function useCertificates() {
-  const [certs, setCerts] = useState(loadCerts);
+  const [certs, setCerts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [showUpload, setShowUpload] = useState(false);
 
-  useEffect(() => { saveCerts(certs); }, [certs]);
-
-  const addCert = useCallback((cert) => {
-    const newCert = { ...cert, id: Date.now().toString() };
-    setCerts((prev) => [newCert, ...prev]);
-    setShowUpload(false);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchCertificates();
+      setCerts(data);
+    } catch (err) {
+      console.error('Failed to load certificates:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const updateCert = useCallback((id, updates) => {
-    setCerts((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const addCert = useCallback(async (cert) => {
+    try {
+      const created = await addCertificate(cert);
+      setCerts((prev) => [created, ...prev]);
+      setShowUpload(false);
+    } catch (err) {
+      console.error('Failed to add certificate:', err);
+    }
   }, []);
 
-  const deleteCert = useCallback((id) => {
-    setCerts((prev) => prev.filter((c) => c.id !== id));
+  const updateCert = useCallback(async (id, updates) => {
+    try {
+      const updated = await editCertificate(id, updates);
+      setCerts((prev) => prev.map((c) => (c.id === id || c._id === id ? { ...c, ...updated } : c)));
+    } catch (err) {
+      console.error('Failed to update certificate:', err);
+    }
+  }, []);
+
+  const deleteCert = useCallback(async (id) => {
+    try {
+      await removeCertificate(id);
+      setCerts((prev) => prev.filter((c) => c.id !== id && c._id !== id));
+    } catch (err) {
+      console.error('Failed to delete certificate:', err);
+    }
   }, []);
 
   const filtered = useMemo(() => {
@@ -77,9 +91,22 @@ export function useCertificates() {
   }), [certs]);
 
   return {
-    certs: filtered, allCerts: certs, stats, search, setSearch,
-    categoryFilter, setCategoryFilter, sortBy, setSortBy,
-    showUpload, setShowUpload, addCert, updateCert, deleteCert,
+    certs: filtered,
+    allCerts: certs,
+    loading,
+    stats,
+    search,
+    setSearch,
+    categoryFilter,
+    setCategoryFilter,
+    sortBy,
+    setSortBy,
+    showUpload,
+    setShowUpload,
+    addCert,
+    updateCert,
+    deleteCert,
     CATEGORIES,
+    refetch: load,
   };
 }

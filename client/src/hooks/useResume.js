@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useGitHub } from './useGitHub';
 import { useLeetCode } from './useLeetCode';
 import { useHackerRank } from './useHackerRank';
 import { useProjects } from './useProjects';
+import { fetchResume, saveResume } from '../api/resume';
 
 const DEFAULT_RESUME = {
   personal: {
@@ -102,132 +103,217 @@ export function useResume() {
 
   const [resume, setResume] = useState(DEFAULT_RESUME);
   const [activeTemplate, setActiveTemplate] = useState('modern');
+  const [dbLoaded, setDbLoaded] = useState(false);
+  const saveTimeoutRef = useRef(null);
 
-  const loading = ghLoading || lcLoading || hrLoading || projectsLoading;
+  const loading = (ghLoading || lcLoading || hrLoading || projectsLoading) && !dbLoaded;
 
+  // Load from backend SQLite database first
+  useEffect(() => {
+    let isMounted = true;
+    async function loadSavedResume() {
+      try {
+        const saved = await fetchResume();
+        if (saved && isMounted) {
+          setResume((prev) => ({
+            ...prev,
+            personal: saved.personal || prev.personal,
+            education: saved.education?.length ? saved.education : prev.education,
+            skills: saved.skills?.languages?.length ? saved.skills : prev.skills,
+            experience: saved.experience?.length ? saved.experience : prev.experience,
+            projects: saved.projects?.length ? saved.projects : prev.projects,
+            achievements: saved.achievements?.length ? saved.achievements : prev.achievements,
+            codingProfiles: saved.codingProfiles || prev.codingProfiles,
+          }));
+          if (saved.activeTemplate) {
+            setActiveTemplate(saved.activeTemplate);
+          }
+          setDbLoaded(true);
+        }
+      } catch (err) {
+        console.error('Error loading resume:', err);
+      } finally {
+        if (isMounted) setDbLoaded(true);
+      }
+    }
+
+    loadSavedResume();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Derive initial values if personal or skills are empty
   useEffect(() => {
     if (!user && !ghData && !lcData) return;
 
-    const personal = {
-      name: user?.name || ghData?.profile?.name || lcData?.username || '',
-      email: user?.email || '',
-      phone: '',
-      location: '',
-      linkedin: '',
-      github: ghData?.username || '',
-      portfolio: '',
-      summary: '',
-    };
+    setResume((prev) => {
+      // Don't overwrite if user has already customized personal or skills
+      const personal = {
+        name: prev.personal.name || user?.name || ghData?.profile?.name || lcData?.username || '',
+        email: prev.personal.email || user?.email || '',
+        phone: prev.personal.phone || '',
+        location: prev.personal.location || '',
+        linkedin: prev.personal.linkedin || '',
+        github: prev.personal.github || ghData?.username || '',
+        portfolio: prev.personal.portfolio || '',
+        summary: prev.personal.summary || '',
+      };
 
-    const skills = deriveSkillsFromLanguages(ghData?.languages, ghData?.repos);
+      const skills = (prev.skills.languages?.length || prev.skills.frameworks?.length)
+        ? prev.skills
+        : deriveSkillsFromLanguages(ghData?.languages, ghData?.repos);
 
-    const projects = (allProjects || [])
-      .filter((p) => p.status !== 'archived')
-      .slice(0, 4)
-      .map((p) => ({
-        name: p.name,
-        description: p.description,
-        technologies: p.techStack || [],
-        githubUrl: p.githubUrl || '',
-        liveUrl: p.liveUrl || '',
-      }));
+      const projects = prev.projects?.length
+        ? prev.projects
+        : (allProjects || [])
+            .filter((p) => p.status !== 'archived')
+            .slice(0, 4)
+            .map((p) => ({
+              name: p.name,
+              description: p.description,
+              technologies: p.techStack || [],
+              githubUrl: p.githubUrl || '',
+              liveUrl: p.liveUrl || '',
+            }));
 
-    const codingProfiles = {
-      github: {
-        username: ghData?.username || '',
-        stars: (ghData?.repos || []).reduce((a, r) => a + (r.stars || 0), 0),
-        repos: ghData?.public_repos || 0,
-        commits: ghData?.totalCommits || 0,
-      },
-      leetcode: {
-        username: lcData?.username || '',
-        solved: lcData?.total || 0,
-        easy: lcData?.easy || 0,
-        medium: lcData?.medium || 0,
-        hard: lcData?.hard || 0,
-      },
-      hackerrank: {
-        username: hrData?.username || '',
-        solved: hrData?.totalSolved || hrData?.problemsSolved?.total || 0,
-        badge: hrData?.hackerBadge || '',
-      },
-    };
+      const codingProfiles = {
+        github: {
+          username: ghData?.username || prev.codingProfiles?.github?.username || '',
+          stars: (ghData?.repos || []).reduce((a, r) => a + (r.stars || 0), 0),
+          repos: ghData?.public_repos || 0,
+          commits: ghData?.totalCommits || 0,
+        },
+        leetcode: {
+          username: lcData?.username || prev.codingProfiles?.leetcode?.username || '',
+          solved: lcData?.total || 0,
+          easy: lcData?.easy || 0,
+          medium: lcData?.medium || 0,
+          hard: lcData?.hard || 0,
+        },
+        hackerrank: {
+          username: hrData?.username || prev.codingProfiles?.hackerrank?.username || '',
+          solved: hrData?.totalSolved || hrData?.problemsSolved?.total || 0,
+          badge: hrData?.hackerBadge || '',
+        },
+      };
 
-    const stars = codingProfiles.github.stars;
-    const lcSolved = codingProfiles.leetcode.solved;
-    const hrSolved = codingProfiles.hackerrank.solved;
-    const achievements = [];
-    if (stars >= 50) achievements.push(`${stars} GitHub Stars`);
-    else if (stars >= 10) achievements.push(`${stars} GitHub Stars`);
-    if (lcSolved >= 100) achievements.push(`${lcSolved} LeetCode Problems Solved`);
-    else if (lcSolved >= 50) achievements.push(`${lcSolved} LeetCode Problems Solved`);
-    if (hrSolved >= 50) achievements.push(`${hrSolved} HackerRank Problems Solved`);
-    if (ghData?.totalCommits >= 200) achievements.push(`${ghData.totalCommits} GitHub Commits`);
-    achievements.push('DevTrack Certified Developer');
+      const achievements = prev.achievements?.length ? prev.achievements : [];
+      if (achievements.length === 0) {
+        const stars = codingProfiles.github.stars;
+        const lcSolved = codingProfiles.leetcode.solved;
+        const hrSolved = codingProfiles.hackerrank.solved;
+        if (stars >= 10) achievements.push(`${stars} GitHub Stars`);
+        if (lcSolved >= 50) achievements.push(`${lcSolved} LeetCode Problems Solved`);
+        if (hrSolved >= 50) achievements.push(`${hrSolved} HackerRank Problems Solved`);
+        if (ghData?.totalCommits >= 200) achievements.push(`${ghData.totalCommits} GitHub Commits`);
+        achievements.push('DevTrack Certified Developer');
+      }
 
-    setResume((prev) => ({
-      ...prev,
-      personal,
-      skills,
-      projects,
-      codingProfiles,
-      achievements,
-    }));
+      return {
+        ...prev,
+        personal,
+        skills,
+        projects,
+        codingProfiles,
+        achievements,
+      };
+    });
   }, [user, ghData, lcData, hrData, allProjects]);
 
-  const updatePersonal = useCallback((field, value) => {
-    setResume((prev) => ({ ...prev, personal: { ...prev.personal, [field]: value } }));
+  // Persist resume changes to SQLite backend with debounce
+  const triggerAutoSave = useCallback((updatedResume, template) => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      saveResume({
+        ...updatedResume,
+        activeTemplate: template,
+      }).catch((err) => console.error('Failed to auto-save resume:', err));
+    }, 1000);
   }, []);
+
+  const updatePersonal = useCallback((field, value) => {
+    setResume((prev) => {
+      const next = { ...prev, personal: { ...prev.personal, [field]: value } };
+      triggerAutoSave(next, activeTemplate);
+      return next;
+    });
+  }, [activeTemplate, triggerAutoSave]);
 
   const updateEducation = useCallback((index, field, value) => {
     setResume((prev) => {
       const edu = [...prev.education];
       edu[index] = { ...edu[index], [field]: value };
-      return { ...prev, education: edu };
+      const next = { ...prev, education: edu };
+      triggerAutoSave(next, activeTemplate);
+      return next;
     });
-  }, []);
+  }, [activeTemplate, triggerAutoSave]);
 
   const addEducation = useCallback(() => {
-    setResume((prev) => ({
-      ...prev,
-      education: [...prev.education, { college: '', degree: '', cgpa: '', year: '' }],
-    }));
-  }, []);
+    setResume((prev) => {
+      const next = {
+        ...prev,
+        education: [...prev.education, { college: '', degree: '', cgpa: '', year: '' }],
+      };
+      triggerAutoSave(next, activeTemplate);
+      return next;
+    });
+  }, [activeTemplate, triggerAutoSave]);
 
   const removeEducation = useCallback((index) => {
-    setResume((prev) => ({
-      ...prev,
-      education: prev.education.filter((_, i) => i !== index),
-    }));
-  }, []);
+    setResume((prev) => {
+      const next = {
+        ...prev,
+        education: prev.education.filter((_, i) => i !== index),
+      };
+      triggerAutoSave(next, activeTemplate);
+      return next;
+    });
+  }, [activeTemplate, triggerAutoSave]);
 
   const updateSkills = useCallback((category, skills) => {
-    setResume((prev) => ({ ...prev, skills: { ...prev.skills, [category]: skills } }));
-  }, []);
+    setResume((prev) => {
+      const next = { ...prev, skills: { ...prev.skills, [category]: skills } };
+      triggerAutoSave(next, activeTemplate);
+      return next;
+    });
+  }, [activeTemplate, triggerAutoSave]);
 
   const updateExperience = useCallback((index, field, value) => {
     setResume((prev) => {
       const exp = [...prev.experience];
       exp[index] = { ...exp[index], [field]: value };
-      return { ...prev, experience: exp };
+      const next = { ...prev, experience: exp };
+      triggerAutoSave(next, activeTemplate);
+      return next;
     });
-  }, []);
+  }, [activeTemplate, triggerAutoSave]);
 
   const addExperience = useCallback(() => {
-    setResume((prev) => ({
-      ...prev,
-      experience: [...prev.experience, { company: '', role: '', duration: '', description: '' }],
-    }));
-  }, []);
+    setResume((prev) => {
+      const next = {
+        ...prev,
+        experience: [...prev.experience, { company: '', role: '', duration: '', description: '' }],
+      };
+      triggerAutoSave(next, activeTemplate);
+      return next;
+    });
+  }, [activeTemplate, triggerAutoSave]);
 
   const removeExperience = useCallback((index) => {
-    setResume((prev) => ({
-      ...prev,
-      experience: prev.experience.filter((_, i) => i !== index),
-    }));
-  }, []);
+    setResume((prev) => {
+      const next = {
+        ...prev,
+        experience: prev.experience.filter((_, i) => i !== index),
+      };
+      triggerAutoSave(next, activeTemplate);
+      return next;
+    });
+  }, [activeTemplate, triggerAutoSave]);
 
-  const setTemplate = useCallback((t) => setActiveTemplate(t), []);
+  const setTemplate = useCallback((t) => {
+    setActiveTemplate(t);
+    triggerAutoSave(resume, t);
+  }, [resume, triggerAutoSave]);
 
   const handlePrint = useCallback(() => {
     window.print();

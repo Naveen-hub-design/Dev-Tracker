@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useResume } from '../hooks/useResume';
 import PageContainer from '../components/ui/PageContainer';
 import Button from '../components/ui/Button';
@@ -12,7 +13,7 @@ import {
   AchievementSection,
   ExperienceSection,
 } from '../components/resume';
-import { Download, Printer, FileText } from 'lucide-react';
+import { Download, Printer, FileText, Sparkles } from 'lucide-react';
 
 const TEMPLATES = [
   { id: 'modern', label: 'Modern', color: 'bg-blue-600' },
@@ -38,6 +39,7 @@ function ResumeSkeleton() {
 }
 
 export default function ResumePage() {
+  const navigate = useNavigate();
   const {
     resume, activeTemplate, loading,
     updatePersonal, updateEducation, addEducation, removeEducation,
@@ -70,6 +72,15 @@ export default function ResumePage() {
       subtitle="Build an ATS-friendly resume with live preview"
       actions={
         <div className="flex items-center gap-2">
+          <Button
+            onClick={() => navigate('/career')}
+            variant="primary"
+            size="sm"
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+          >
+            <Sparkles className="w-4 h-4 mr-1.5" />
+            Scan ATS Match
+          </Button>
           <Button onClick={handlePrint} variant="secondary" size="sm">
             <Printer className="w-4 h-4 mr-1.5" />
             Print

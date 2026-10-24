@@ -39,6 +39,11 @@ app.use('/api/github', require('./routes/github'));
 app.use('/api/leetcode', require('./routes/leetcode'));
 app.use('/api/jobmatch', require('./routes/jobmatch'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/projects', require('./routes/projects'));
+app.use('/api/certificates', require('./routes/certificates'));
+app.use('/api/goals', require('./routes/goals'));
+app.use('/api/resume', require('./routes/resume'));
+app.use('/api/ai', require('./routes/ai'));
 
 // Health check
 app.get('/api/health', (req, res) => {

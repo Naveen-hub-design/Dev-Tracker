@@ -1,6 +1,28 @@
+import axios from 'axios';
+
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api/projects`
+    : '/api/projects',
+});
+
+API.interceptors.request.use((req) => {
+  const user = localStorage.getItem('devtrack_user');
+  if (user) {
+    try {
+      const parsed = JSON.parse(user);
+      if (parsed.token) {
+        req.headers.Authorization = `Bearer ${parsed.token}`;
+      }
+    } catch { /* ignore */ }
+  }
+  return req;
+});
+
 const DEMO_PROJECTS = [
   {
-    id: 1,
+    _id: '1',
+    id: '1',
     name: 'DevTrack Dashboard',
     description: 'Full-stack developer productivity dashboard with GitHub, LeetCode, and HackerRank integrations. Real-time analytics, job match scoring, and achievement tracking.',
     image: null,
@@ -12,7 +34,7 @@ const DEMO_PROJECTS = [
     githubUrl: 'https://github.com/Naveen-hub-design/Dev-Tracker',
     liveUrl: null,
     features: ['Authentication', 'Dashboard Analytics', 'Multi-platform Integration', 'Job Match Scoring'],
-    challenges: ['HackerRank API blocks server-side requests', 'CORS configuration for multiple origins'],
+    challenges: ['HackerRank API rate limiting', 'CORS configuration for multiple origins'],
     futureImprovements: ['Real-time WebSocket updates', 'Mobile app version', 'Team collaboration features'],
     contributors: ['Naveen'],
     milestones: [
@@ -25,7 +47,8 @@ const DEMO_PROJECTS = [
     ],
   },
   {
-    id: 2,
+    _id: '2',
+    id: '2',
     name: 'E-Commerce Platform',
     description: 'Full-featured e-commerce platform with product catalog, cart management, secure checkout, and admin dashboard for inventory management.',
     image: null,
@@ -47,123 +70,46 @@ const DEMO_PROJECTS = [
       { date: '2026-07-18', label: 'Admin Dashboard' },
     ],
   },
-  {
-    id: 3,
-    name: 'DSA Solutions Repository',
-    description: 'Comprehensive collection of Data Structures and Algorithms solutions with complexity analysis, visual explanations, and test cases.',
-    image: null,
-    status: 'in_progress',
-    techStack: ['Python', 'JavaScript', 'C++'],
-    startDate: '2025-08-10',
-    updatedAt: '2026-07-22',
-    completion: 65,
-    githubUrl: 'https://github.com/Naveen-hub-design/dsa-solutions',
-    liveUrl: null,
-    features: ['200+ Solutions', 'Complexity Analysis', 'Visual Explanations', 'Test Cases'],
-    challenges: ['Maintaining consistency across languages', 'Creating clear explanations'],
-    futureImprovements: ['Interactive visualizations', 'Difficulty-based progression', 'Mock interview mode'],
-    contributors: ['Naveen'],
-    milestones: [
-      { date: '2025-08-10', label: 'Repository Created' },
-      { date: '2025-12-01', label: '100 Solutions Milestone' },
-      { date: '2026-06-15', label: 'Language Expansion' },
-    ],
-  },
-  {
-    id: 4,
-    name: 'Portfolio Website',
-    description: 'Personal portfolio showcasing projects, skills, and blog posts with modern design, dark mode, and responsive layout.',
-    image: null,
-    status: 'completed',
-    techStack: ['HTML', 'CSS', 'JavaScript', 'Netlify'],
-    startDate: '2025-06-01',
-    updatedAt: '2026-04-10',
-    completion: 100,
-    githubUrl: 'https://github.com/Naveen-hub-design/portfolio-site',
-    liveUrl: 'https://naveen-dev.com',
-    features: ['Responsive Design', 'Dark Mode', 'Blog System', 'Contact Form'],
-    challenges: ['Cross-browser compatibility', 'Performance optimization'],
-    futureImprovements: ['MDX blog support', 'RSS feed', 'Analytics integration'],
-    contributors: ['Naveen'],
-    milestones: [
-      { date: '2025-06-01', label: 'Project Started' },
-      { date: '2025-07-15', label: 'Design Complete' },
-      { date: '2025-08-01', label: 'Deployed' },
-    ],
-  },
-  {
-    id: 5,
-    name: 'Node.js API Boilerplate',
-    description: 'Production-ready Node.js REST API boilerplate with authentication, rate limiting, logging, Docker support, and CI/CD pipeline.',
-    image: null,
-    status: 'completed',
-    techStack: ['Node.js', 'Express', 'Docker', 'PostgreSQL', 'Redis'],
-    startDate: '2025-09-20',
-    updatedAt: '2026-02-15',
-    completion: 100,
-    githubUrl: 'https://github.com/Naveen-hub-design/node-api-boilerplate',
-    liveUrl: null,
-    features: ['JWT Auth', 'Rate Limiting', 'Docker Setup', 'CI/CD Pipeline'],
-    challenges: ['Docker multi-stage build optimization', 'Testing environment parity'],
-    futureImprovements: ['GraphQL support', 'Microservice templates', 'OpenAPI documentation'],
-    contributors: ['Naveen'],
-    milestones: [
-      { date: '2025-09-20', label: 'Project Started' },
-      { date: '2025-10-15', label: 'Core Features' },
-      { date: '2025-12-01', label: 'Docker + CI/CD' },
-    ],
-  },
-  {
-    id: 6,
-    name: 'Task Management App',
-    description: 'Kanban-style task management application with drag-and-drop, team collaboration, labels, and real-time updates.',
-    image: null,
-    status: 'planned',
-    techStack: ['React', 'TypeScript', 'Supabase', 'DnD Kit'],
-    startDate: '2026-08-01',
-    updatedAt: '2026-07-10',
-    completion: 15,
-    githubUrl: null,
-    liveUrl: null,
-    features: ['Kanban Board', 'Drag & Drop', 'Team Workspaces', 'Real-time Sync'],
-    challenges: ['Real-time conflict resolution', 'Offline support'],
-    futureImprovements: ['AI task prioritization', 'Calendar integration', 'Mobile app'],
-    contributors: ['Naveen'],
-    milestones: [
-      { date: '2026-07-10', label: 'Planning Complete' },
-      { date: '2026-08-01', label: 'Development Start' },
-    ],
-  },
-  {
-    id: 7,
-    name: 'AI Chat Interface',
-    description: 'Chat interface for interacting with language models with streaming responses, conversation history, and markdown rendering.',
-    image: null,
-    status: 'archived',
-    techStack: ['React', 'OpenAI API', 'WebSocket', 'Tailwind CSS'],
-    startDate: '2025-10-05',
-    updatedAt: '2026-01-20',
-    completion: 80,
-    githubUrl: null,
-    liveUrl: null,
-    features: ['Streaming Responses', 'Conversation History', 'Markdown Rendering', 'Code Highlighting'],
-    challenges: ['WebSocket reconnection handling', 'Token management'],
-    futureImprovements: ['Multi-model support', 'File upload', 'Voice input'],
-    contributors: ['Naveen'],
-    milestones: [
-      { date: '2025-10-05', label: 'Project Started' },
-      { date: '2025-11-20', label: 'Core Chat Working' },
-      { date: '2026-01-20', label: 'Archived' },
-    ],
-  },
 ];
 
 export async function fetchProjects() {
-  await new Promise((r) => setTimeout(r, 300));
-  return DEMO_PROJECTS;
+  try {
+    const res = await API.get('/');
+    const data = res.data;
+    if (Array.isArray(data) && data.length > 0) {
+      // Ensure each project has both id and _id
+      return data.map((p) => ({ ...p, id: p.id || p._id }));
+    }
+    return DEMO_PROJECTS;
+  } catch (err) {
+    console.warn('Using cached projects fallback:', err.message);
+    return DEMO_PROJECTS;
+  }
 }
 
 export async function fetchProjectById(id) {
-  await new Promise((r) => setTimeout(r, 200));
-  return DEMO_PROJECTS.find((p) => p.id === id) || null;
+  try {
+    const res = await API.get(`/${id}`);
+    const data = res.data;
+    return { ...data, id: data.id || data._id };
+  } catch (err) {
+    return DEMO_PROJECTS.find((p) => p.id === id || p._id === id) || null;
+  }
+}
+
+export async function createProject(projectData) {
+  const res = await API.post('/', projectData);
+  const data = res.data;
+  return { ...data, id: data.id || data._id };
+}
+
+export async function updateProject(id, projectData) {
+  const res = await API.put(`/${id}`, projectData);
+  const data = res.data;
+  return { ...data, id: data.id || data._id };
+}
+
+export async function deleteProject(id) {
+  const res = await API.delete(`/${id}`);
+  return res.data;
 }

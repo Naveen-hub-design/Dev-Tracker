@@ -1,45 +1,107 @@
-import React, { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import PageContainer from '../components/ui/PageContainer';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCareerAssistant } from '../hooks/useCareerAssistant';
 import {
   ChatMessage, ChatInput, ChatSidebar, SuggestionBar,
-  TypingIndicator, WelcomeCard,
+  TypingIndicator, WelcomeCard, ATSScanner,
 } from '../components/career';
+import { MessageSquare, FileSearch, Sparkles } from 'lucide-react';
 
 export default function CareerAssistantPage() {
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'ats'
+
   const {
     messages, isTyping, sendMessage, scrollRef, SUGGESTIONS,
+    runATSScan, atsResult, isScanningATS, atsError, clearATSResult,
   } = useCareerAssistant();
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (activeTab === 'chat' && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, isTyping, scrollRef]);
+  }, [messages, isTyping, activeTab, scrollRef]);
 
   const showWelcome = messages.length === 1;
 
   return (
-    <div className="h-[calc(100vh-60px)] flex flex-col bg-slate-50/50 dark:bg-slate-950 -m-6 lg:-m-8 transition-colors">
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 flex flex-col min-w-0">
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 lg:px-6 py-6 space-y-5">
-            {showWelcome ? (
-              <WelcomeCard onSuggestion={sendMessage} />
-            ) : (
-              messages.map((msg, i) => <ChatMessage key={i} message={msg} />)
-            )}
-            {isTyping && <TypingIndicator />}
+    <div className="h-[calc(100vh-64px)] flex flex-col bg-slate-50/50 dark:bg-slate-950 -m-6 lg:-m-8 transition-colors">
+      {/* Tab Switcher Header */}
+      <div className="px-4 lg:px-6 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md flex items-center justify-between z-10 shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xs">
+            <Sparkles className="w-4 h-4" />
           </div>
-
-          <div className="border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm px-4 lg:px-6 py-3 space-y-3">
-            {showWelcome && <SuggestionBar suggestions={SUGGESTIONS} onSelect={sendMessage} />}
-            <ChatInput onSend={sendMessage} isTyping={isTyping} />
+          <div>
+            <h1 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              DevTrack AI Intelligence
+            </h1>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Live Career Guidance & ATS Resume Matching
+            </p>
           </div>
         </div>
 
-        <ChatSidebar onSend={sendMessage} />
+        {/* Navigation Tabs */}
+        <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <button
+            onClick={() => setActiveTab('chat')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeTab === 'chat'
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>AI Career Coach</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('ats')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeTab === 'ats'
+                ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            <FileSearch className="w-3.5 h-3.5" />
+            <span>Resume ATS Matcher</span>
+            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse ml-0.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Main Tab Content */}
+      <div className="flex-1 overflow-hidden">
+        {activeTab === 'chat' ? (
+          <div className="flex h-full overflow-hidden">
+            <div className="flex-1 flex flex-col min-w-0">
+              <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 lg:px-6 py-6 space-y-5">
+                {showWelcome ? (
+                  <WelcomeCard onSuggestion={sendMessage} />
+                ) : (
+                  messages.map((msg, i) => <ChatMessage key={i} message={msg} />)
+                )}
+                {isTyping && <TypingIndicator />}
+              </div>
+
+              <div className="border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm px-4 lg:px-6 py-3 space-y-3">
+                {showWelcome && <SuggestionBar suggestions={SUGGESTIONS} onSelect={sendMessage} />}
+                <ChatInput onSend={sendMessage} isTyping={isTyping} />
+              </div>
+            </div>
+
+            <ChatSidebar onSend={sendMessage} />
+          </div>
+        ) : (
+          <div className="h-full overflow-y-auto p-4 lg:p-8 max-w-5xl mx-auto">
+            <ATSScanner
+              onScan={runATSScan}
+              result={atsResult}
+              loading={isScanningATS}
+              error={atsError}
+              onClear={clearATSResult}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

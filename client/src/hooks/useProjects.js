@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { fetchProjects } from '../api/projects';
+import {
+  fetchProjects,
+  createProject,
+  updateProject,
+  deleteProject,
+} from '../api/projects';
 
 export function useProjects() {
   const [projects, setProjects] = useState([]);
@@ -24,6 +29,39 @@ export function useProjects() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  const addProject = useCallback(async (projectData) => {
+    try {
+      const created = await createProject(projectData);
+      setProjects((prev) => [created, ...prev]);
+      return created;
+    } catch (err) {
+      setError(err.message || 'Failed to create project');
+      throw err;
+    }
+  }, []);
+
+  const editProject = useCallback(async (id, updates) => {
+    try {
+      const updated = await updateProject(id, updates);
+      setProjects((prev) => prev.map((p) => (p.id === id || p._id === id ? { ...p, ...updated } : p)));
+      return updated;
+    } catch (err) {
+      setError(err.message || 'Failed to update project');
+      throw err;
+    }
+  }, []);
+
+  const removeProject = useCallback(async (id) => {
+    try {
+      await deleteProject(id);
+      setProjects((prev) => prev.filter((p) => p.id !== id && p._id !== id));
+      return true;
+    } catch (err) {
+      setError(err.message || 'Failed to delete project');
+      throw err;
+    }
+  }, []);
 
   const allTech = useMemo(() => {
     const set = new Set();
@@ -97,6 +135,9 @@ export function useProjects() {
     setTechFilter,
     sortBy,
     setSortBy,
+    addProject,
+    editProject,
+    removeProject,
     refetch: load,
   };
 }

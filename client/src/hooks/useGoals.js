@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-
-const STORAGE_KEY = 'devtrack_goals';
-const HISTORY_KEY = 'devtrack_goals_history';
+import { fetchGoals, saveGoalTargets, logActivity } from '../api/goals';
 
 const DEFAULT_GOALS = {
   daily: { commits: 3, problems: 2, hours: 2 },
@@ -9,44 +7,7 @@ const DEFAULT_GOALS = {
   monthly: { commits: 60, problems: 40, hours: 60 },
 };
 
-function loadGoals() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch { /* ignore */ }
-  return DEFAULT_GOALS;
-}
-
-function loadHistory() {
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch { /* ignore */ }
-  return {};
-}
-
-function saveGoals(goals) { localStorage.setItem(STORAGE_KEY, JSON.stringify(goals)); }
-function saveHistory(hist) { localStorage.setItem(HISTORY_KEY, JSON.stringify(hist)); }
-
 function todayKey() { return new Date().toISOString().slice(0, 10); }
-
-function generateDemoHistory() {
-  const hist = {};
-  const now = new Date();
-  for (let i = 0; i < 180; i++) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
-    if (Math.random() > 0.25) {
-      hist[key] = {
-        commits: Math.floor(Math.random() * 8),
-        problems: Math.floor(Math.random() * 5),
-        hours: Math.round(Math.random() * 5 * 10) / 10,
-      };
-    }
-  }
-  return hist;
-}
 
 const ACHIEVEMENTS = [
   { id: 'first-day', name: 'First Day', desc: 'Complete your first day of coding', icon: '🌱', threshold: 1, type: 'streak' },
@@ -92,16 +53,27 @@ function calcStreaks(history) {
 }
 
 export function useGoals() {
-  const [goals, setGoals] = useState(loadGoals);
-  const [history, setHistory] = useState(() => {
-    const h = loadHistory();
-    if (Object.keys(h).length === 0) return generateDemoHistory();
-    return h;
-  });
+  const [goals, setGoals] = useState(DEFAULT_GOALS);
+  const [history, setHistory] = useState({});
+  const [loading, setLoading] = useState(true);
   const [showEditor, setShowEditor] = useState(false);
 
-  useEffect(() => { saveGoals(goals); }, [goals]);
-  useEffect(() => { saveHistory(history); }, [history]);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchGoals();
+      if (data?.goals) setGoals(data.goals);
+      if (data?.history) setHistory(data.history);
+    } catch (err) {
+      console.error('Failed to load goals:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const todayActivity = useMemo(() => history[todayKey()] || { commits: 0, problems: 0, hours: 0 }, [history]);
 
@@ -195,17 +167,33 @@ export function useGoals() {
   }), [todayActivity, goals, weeklyData]);
 
   const updateGoal = useCallback((period, field, value) => {
-    setGoals((prev) => ({ ...prev, [period]: { ...prev[period], [field]: Math.max(0, parseInt(value) || 0) } }));
+    setGoals((prev) => {
+      const nextGoals = {
+        ...prev,
+        [period]: {
+          ...prev[period],
+          [field]: Math.max(0, parseInt(value) || 0),
+        },
+      };
+      saveGoalTargets(nextGoals).catch(console.error);
+      return nextGoals;
+    });
   }, []);
 
-  const logToday = useCallback((data) => {
+  const logToday = useCallback(async (data) => {
     const key = todayKey();
     setHistory((prev) => ({ ...prev, [key]: { ...prev[key], ...data } }));
+    try {
+      const updatedHistory = await logActivity(data);
+      if (updatedHistory) setHistory(updatedHistory);
+    } catch (err) {
+      console.error('Failed to sync logged activity:', err);
+    }
   }, []);
 
   return {
     goals, history, todayActivity, streaks, achievements, weeklyData,
     monthlyData, heatmapData, calendarData, ringProgress, showEditor,
-    setShowEditor, updateGoal, logToday, REMINDERS,
+    setShowEditor, updateGoal, logToday, REMINDERS, loading, refetch: load,
   };
 }
