@@ -13,9 +13,9 @@ const CARDS = [
 
 function QuickStatCard({ card, value, sub, loading }) {
   return (
-    <div className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 hover:-translate-y-0.5">
+    <div className="group bg-white dark:bg-[#0f121a] rounded-xl border border-slate-200 dark:border-white/[0.08] shadow-sm p-4 hover:shadow-md hover:border-orange-500/30 dark:hover:border-orange-500/30 transition-all duration-200 hover:-translate-y-0.5">
       <div className="flex items-center gap-3 mb-3">
-        <div className={`p-2 rounded-lg ring-1 ${card.ring} ${card.iconBg}`}>
+        <div className={`p-2 rounded-lg ring-1 ${card.ring} ${card.iconBg} dark:bg-white/[0.04]`}>
           <card.Icon className={`w-4 h-4 ${card.iconColor}`} />
         </div>
       </div>

@@ -343,7 +343,7 @@ export default function Settings() {
           {user.avatar ? (
             <img src={user.avatar} alt={user.name} className="w-16 h-16 rounded-full border-2 border-slate-200 dark:border-slate-700 object-cover" />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shrink-0 shadow-lg shadow-blue-500/20">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 flex items-center justify-center text-white text-xl font-bold shrink-0 shadow-lg shadow-orange-500/20">
               {initials}
             </div>
           )}
@@ -351,7 +351,7 @@ export default function Settings() {
             <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">{user.name}</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
             <div className="flex items-center gap-3 mt-2 flex-wrap">
-              <StatBadge label="Joined" value={formatDate(user.createdAt)} color="blue" dot />
+              <StatBadge label="Joined" value={formatDate(user.createdAt)} color="orange" dot />
               <StatBadge label="Active" color="emerald" dot />
             </div>
           </div>

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import ChartCard from '../ui/ChartCard';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'];
+const COLORS = ['#F97316', '#FB923C', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#3B82F6', '#6366F1'];
 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;

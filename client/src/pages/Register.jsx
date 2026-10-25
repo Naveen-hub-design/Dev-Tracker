@@ -42,22 +42,22 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#08090d] text-slate-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden select-none font-sans">
-      {/* ================= Atmospheric Ambient Lighting (Linear/Vercel Obsidian & Indigo) ================= */}
+    <div className="min-h-screen w-full bg-[#090b11] text-slate-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden select-none font-sans">
+      {/* ================= Atmospheric Ambient Lighting (Warm Sunset Amber & Obsidian) ================= */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/[0.18] rounded-full blur-[140px]" />
-        <div className="absolute top-1/4 -right-36 w-[500px] h-[500px] bg-purple-600/[0.12] rounded-full blur-[160px]" />
-        <div className="absolute -bottom-20 left-1/4 w-[500px] h-[400px] bg-cyan-500/[0.08] rounded-full blur-[140px]" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-orange-500/[0.16] rounded-full blur-[140px]" />
+        <div className="absolute top-1/4 -right-36 w-[500px] h-[500px] bg-amber-600/[0.12] rounded-full blur-[160px]" />
+        <div className="absolute -bottom-20 left-1/4 w-[500px] h-[400px] bg-orange-600/[0.08] rounded-full blur-[140px]" />
 
         <div
           className="absolute inset-0 opacity-[0.035]"
           style={{
-            backgroundImage: `radial-gradient(circle, #818cf8 1px, transparent 1px)`,
+            backgroundImage: `radial-gradient(circle, #f97316 1px, transparent 1px)`,
             backgroundSize: '28px 28px',
           }}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#08090d]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#090b11]" />
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
@@ -65,16 +65,16 @@ export default function Register() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center justify-center gap-2.5 mb-3 group">
             <div className="relative">
-              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 opacity-60 blur-sm group-hover:opacity-100 transition-opacity" />
-              <div className="relative w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 border border-white/20">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 opacity-60 blur-sm group-hover:opacity-100 transition-opacity" />
+              <div className="relative w-11 h-11 rounded-xl bg-gradient-to-tr from-orange-500 via-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30 border border-white/20">
                 <Code2 className="w-5 h-5 text-white" />
               </div>
             </div>
             <div className="text-left">
               <div className="flex items-center gap-2">
                 <span className="text-xl font-bold tracking-tight text-white font-sans">DevTrack</span>
-                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
-                  OBSIDIAN
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300">
+                  PRO
                 </span>
               </div>
             </div>
@@ -84,8 +84,8 @@ export default function Register() {
         </div>
 
         {/* Main Card */}
-        <div className="relative rounded-2xl bg-[#0f111a]/85 backdrop-blur-2xl border border-indigo-500/20 shadow-[0_0_60px_-15px_rgba(99,102,241,0.25)] p-6 sm:p-8 overflow-hidden">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent pointer-events-none" />
+        <div className="relative rounded-2xl bg-[#0f121a]/85 backdrop-blur-2xl border border-orange-500/20 shadow-[0_0_60px_-15px_rgba(249,115,22,0.22)] p-6 sm:p-8 overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-400/60 to-transparent pointer-events-none" />
 
           {error && (
             <div className="mb-4 flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-300 text-xs">
@@ -105,7 +105,7 @@ export default function Register() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090e]/80 border border-indigo-500/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all shadow-inner"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#090b11]/80 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 text-sm transition-all shadow-inner"
               />
             </div>
 
@@ -120,7 +120,7 @@ export default function Register() {
                 placeholder="name@company.com"
                 required
                 autoComplete="email"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090e]/80 border border-indigo-500/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all shadow-inner"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#090b11]/80 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 text-sm transition-all shadow-inner"
               />
             </div>
 
@@ -137,12 +137,12 @@ export default function Register() {
                   required
                   minLength={6}
                   autoComplete="new-password"
-                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-[#08090e]/80 border border-indigo-500/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all font-mono shadow-inner"
+                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-[#090b11]/80 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 text-sm transition-all font-mono shadow-inner"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-300 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-orange-300 transition-colors"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -162,14 +162,14 @@ export default function Register() {
                 required
                 minLength={6}
                 autoComplete="new-password"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#08090e]/80 border border-indigo-500/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 text-sm transition-all font-mono shadow-inner"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#090b11]/80 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 text-sm transition-all font-mono shadow-inner"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading || !name || !email || !password || !confirmPassword}
-              className="w-full mt-2 py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:from-indigo-400 hover:to-purple-500 active:scale-[0.99] transition-all shadow-lg shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-indigo-400/30"
+              className="w-full mt-2 py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-400 hover:to-amber-500 active:scale-[0.99] transition-all shadow-lg shadow-orange-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-orange-400/30"
             >
               {loading ? (
                 <>
@@ -186,11 +186,11 @@ export default function Register() {
           </form>
 
           {/* Sign in footer */}
-          <p className="text-center text-xs text-slate-400 mt-6 pt-5 border-t border-indigo-500/15">
+          <p className="text-center text-xs text-slate-400 mt-6 pt-5 border-t border-white/10">
             Already have an account?{' '}
             <Link
               to="/login"
-              className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="font-semibold text-orange-400 hover:text-orange-300 transition-colors"
             >
               Sign in
             </Link>

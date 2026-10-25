@@ -487,7 +487,7 @@ export default function PlaygroundPage() {
             size="sm"
             onClick={handleAiReview}
             loading={reviewing}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 shadow-md shadow-blue-500/20"
+            className="bg-gradient-to-r from-orange-500 to-amber-500 shadow-md shadow-orange-500/20"
           >
             <Sparkles className="w-3.5 h-3.5" />
             AI Review & Complexity

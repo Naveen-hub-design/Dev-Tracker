@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import Card from '../ui/Card';
 
 const LEVELS = [
-  { bg: '#ebedf0', label: 'No activity' },
-  { bg: '#9be9a8', label: '1-2' },
-  { bg: '#40c463', label: '3-4' },
-  { bg: '#30a14e', label: '5-6' },
-  { bg: '#216e39', label: '7+' },
+  { bg: '#232936', label: 'No activity' },
+  { bg: '#FED7AA', label: '1-2' },
+  { bg: '#FB923C', label: '3-4' },
+  { bg: '#F97316', label: '5-6' },
+  { bg: '#EA580C', label: '7+' },
 ];
 
 function Heatmap({ data }) {
@@ -20,7 +20,7 @@ function Heatmap({ data }) {
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
       <Card className="p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-slate-900">Activity Heatmap</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Activity Heatmap</h3>
           <div className="flex items-center gap-1">
             {LEVELS.map((l, i) => (
               <div key={i} className="w-3 h-3 rounded-sm" style={{ backgroundColor: l.bg }} title={l.label} />

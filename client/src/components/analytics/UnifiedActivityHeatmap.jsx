@@ -117,11 +117,11 @@ function generate365DayActivity(dashboard, filterPlatform) {
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const LEVEL_COLORS = {
-  0: 'bg-slate-100 dark:bg-slate-800/80',
-  1: 'bg-emerald-200 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800',
-  2: 'bg-emerald-400 dark:bg-emerald-700/80',
-  3: 'bg-emerald-500 dark:bg-emerald-500',
-  4: 'bg-emerald-600 dark:bg-emerald-400 shadow-sm shadow-emerald-500/30',
+  0: 'bg-slate-100 dark:bg-[#161a26]',
+  1: 'bg-orange-200 dark:bg-orange-950/60 border border-orange-300 dark:border-orange-800/60',
+  2: 'bg-orange-400 dark:bg-orange-600/80',
+  3: 'bg-orange-500 dark:bg-orange-500',
+  4: 'bg-amber-400 dark:bg-amber-400 shadow-sm shadow-orange-500/40',
 };
 
 function CertificateModal({ isOpen, onClose, badge, userName }) {

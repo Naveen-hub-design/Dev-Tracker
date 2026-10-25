@@ -29,20 +29,20 @@ function GoalBar({ label, completed, target, color, icon: Icon }) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Icon className={`w-3.5 h-3.5 ${color}`} />
-          <span className="text-sm font-medium text-slate-700">{label}</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
         </div>
-        <span className="text-xs font-bold text-slate-900 tabular-nums">{pct}%</span>
+        <span className="text-xs font-bold text-slate-900 dark:text-slate-100 tabular-nums">{pct}%</span>
       </div>
-      <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+      <div className="w-full h-3 bg-slate-100 dark:bg-[#161a26] rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-700 ease-out"
+          className="h-full rounded-full transition-all duration-700 ease-out shadow-sm shadow-orange-500/20"
           style={{
             width: `${pct}%`,
-            backgroundColor: pct >= 70 ? '#10B981' : pct >= 40 ? '#F59E0B' : '#EF4444',
+            backgroundColor: pct >= 70 ? '#f97316' : pct >= 40 ? '#fb923c' : '#fed7aa',
           }}
         />
       </div>
-      <p className="text-[11px] text-slate-400 mt-1.5 tabular-nums">{completed} / {target} completed</p>
+      <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 tabular-nums">{completed} / {target} completed</p>
     </div>
   );
 }

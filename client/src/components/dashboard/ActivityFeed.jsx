@@ -6,11 +6,11 @@ import { Skeleton } from '../ui/LoadingSkeleton';
 import { GitCommit, Code, GitBranch, Clock, ArrowUpRight, Trophy } from 'lucide-react';
 
 const TYPE_CONFIG = {
-  github: { icon: GitCommit, color: 'text-blue-500', bg: 'bg-blue-50' },
-  leetcode: { icon: Code, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-  hackerrank: { icon: GitBranch, color: 'text-green-500', bg: 'bg-green-50' },
-  codeforces: { icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/40' },
-  default: { icon: ArrowUpRight, color: 'text-slate-500', bg: 'bg-slate-50' },
+  github: { icon: GitCommit, color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-500/10' },
+  leetcode: { icon: Code, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10' },
+  hackerrank: { icon: GitBranch, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+  codeforces: { icon: Trophy, color: 'text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/40' },
+  default: { icon: ArrowUpRight, color: 'text-slate-500', bg: 'bg-slate-50 dark:bg-white/[0.04]' },
 };
 
 function timeAgo(dateStr) {
@@ -67,7 +67,7 @@ function ActivityFeed({ data, loading }) {
   return (
     <FadeIn>
       <Card>
-        <h3 className="text-sm font-semibold text-slate-900 mb-4">Recent Activity</h3>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">Recent Activity</h3>
         <div className="space-y-3" role="list" aria-label="Activity feed">
           {items.map((item, i) => {
             const config = TYPE_CONFIG[item.type] || TYPE_CONFIG.default;
@@ -78,7 +78,7 @@ function ActivityFeed({ data, loading }) {
                   <Icon className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-800 truncate">{item.title}</p>
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{item.title}</p>
                   {item.description && (
                     <p className="text-xs text-slate-500 truncate mt-0.5">{item.description}</p>
                   )}

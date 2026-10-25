@@ -78,7 +78,7 @@ export default function TopNavbar() {
 
   return (
     <>
-      <header className="h-[64px] bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between px-6 sticky top-0 z-30 transition-colors">
+      <header className="h-[64px] bg-white/70 dark:bg-[#0c0e15]/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/[0.08] flex items-center justify-between px-6 sticky top-0 z-30 transition-colors">
         {/* Mobile menu spacer */}
         <div className="w-8 lg:hidden" />
 
@@ -86,13 +86,13 @@ export default function TopNavbar() {
         <div className="hidden sm:flex items-center">
           <button
             onClick={() => setCommandOpen(true)}
-            className="flex items-center gap-3 px-3.5 py-1.5 text-xs rounded-xl bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600 transition-all w-64 justify-between group shadow-sm"
+            className="flex items-center gap-3 px-3.5 py-1.5 text-xs rounded-xl bg-slate-100/80 dark:bg-[#111420] border border-slate-200/60 dark:border-white/10 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:border-orange-500/40 dark:hover:border-orange-500/40 transition-all w-64 justify-between group shadow-sm"
           >
             <div className="flex items-center gap-2">
-              <Search className="w-3.5 h-3.5 group-hover:text-blue-500 transition-colors" />
+              <Search className="w-3.5 h-3.5 group-hover:text-orange-500 transition-colors" />
               <span>Search or jump to...</span>
             </div>
-            <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 shadow-xs">
+            <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-[#1a1f30] border border-slate-200 dark:border-white/10 text-slate-500 dark:text-orange-300/80 shadow-xs">
               ⌘K
             </kbd>
           </button>
@@ -113,20 +113,20 @@ export default function TopNavbar() {
           <NotificationBell />
 
           {/* Vertical Divider */}
-          <div className="w-px h-5 bg-slate-200 dark:border-slate-700 mx-1" />
+          <div className="w-px h-5 bg-slate-200 dark:bg-white/10 mx-1" />
 
           {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowProfile(!showProfile)}
-              className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100/70 dark:hover:bg-slate-800/60 transition-colors"
+              className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100/70 dark:hover:bg-[#161a26] transition-colors"
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm shadow-blue-500/20">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-orange-500 via-amber-500 to-orange-600 flex items-center justify-center text-white text-xs font-bold shadow-sm shadow-orange-500/25">
                 {user?.name?.charAt(0)?.toUpperCase() || 'U'}
               </div>
               <div className="hidden sm:block text-left">
                 <p className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">{user?.name}</p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight font-medium">Pro Developer</p>
+                <p className="text-[10px] text-orange-600 dark:text-orange-300 leading-tight font-medium">Pro Developer</p>
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
             </button>
@@ -138,9 +138,9 @@ export default function TopNavbar() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.96 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-full mt-2 w-60 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl z-50 py-2 overflow-hidden"
+                  className="absolute right-0 top-full mt-2 w-60 bg-white dark:bg-[#0f121a] rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl z-50 py-2 overflow-hidden"
                 >
-                  <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800">
+                  <div className="px-4 py-2.5 border-b border-slate-100 dark:border-white/10">
                     <p className="text-xs font-bold text-slate-900 dark:text-slate-100">{user?.name}</p>
                     <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">{user?.email}</p>
                   </div>
@@ -148,21 +148,21 @@ export default function TopNavbar() {
                   <div className="p-1 space-y-0.5">
                     <button
                       onClick={() => { navigate('/settings'); setShowProfile(false); }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl transition-colors"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#161a26] rounded-xl transition-colors"
                     >
                       <Settings className="w-4 h-4 text-slate-400" />
                       Settings & Credentials
                     </button>
                     <button
                       onClick={() => { navigate('/applications'); setShowProfile(false); }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl transition-colors"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#161a26] rounded-xl transition-colors"
                     >
                       <Briefcase className="w-4 h-4 text-slate-400" />
                       Job Pipeline
                     </button>
                   </div>
 
-                  <div className="p-1 border-t border-slate-100 dark:border-slate-800">
+                  <div className="p-1 border-t border-slate-100 dark:border-white/10">
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl transition-colors"
@@ -178,18 +178,27 @@ export default function TopNavbar() {
         </div>
       </header>
 
-      {/* Interactive Command Palette Modal */}
+      {/* Interactive Command Palette Modal (Ctrl+K) */}
       <AnimatePresence>
         {commandOpen && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
             <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.98 }}
-              className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setCommandOpen(false)}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              transition={{ duration: 0.15 }}
+              className="relative w-full max-w-xl bg-white dark:bg-[#0f121a] rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden z-10"
             >
-              <div className="flex items-center px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                <Search className="w-4 h-4 text-slate-400 mr-2.5" />
+              <div className="flex items-center px-4 py-3 border-b border-slate-100 dark:border-white/10">
+                <Search className="w-4 h-4 text-orange-500 mr-2.5" />
                 <input
                   type="text"
                   autoFocus
@@ -200,7 +209,7 @@ export default function TopNavbar() {
                 />
                 <button
                   onClick={() => setCommandOpen(false)}
-                  className="p-1 rounded text-slate-400 hover:text-slate-600"
+                  className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -218,14 +227,14 @@ export default function TopNavbar() {
                           setCommandOpen(false);
                           setSearchQuery('');
                         }}
-                        className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/80 text-left transition-colors group"
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-orange-50/50 dark:hover:bg-orange-500/10 text-left transition-colors group"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <div className="p-2 rounded-lg bg-slate-100 dark:bg-[#161a26] group-hover:bg-orange-100 dark:group-hover:bg-orange-500/20 text-slate-500 group-hover:text-orange-600 dark:group-hover:text-orange-300 transition-colors">
                             <CmdIcon className="w-4 h-4" />
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-slate-800 dark:text-slate-100">{cmd.name}</p>
+                            <p className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-orange-600 dark:group-hover:text-orange-300 transition-colors">{cmd.name}</p>
                             <p className="text-[10px] text-slate-400">{cmd.path}</p>
                           </div>
                         </div>
@@ -238,6 +247,13 @@ export default function TopNavbar() {
                 ) : (
                   <p className="text-xs text-slate-400 text-center py-6">No matching pages found.</p>
                 )}
+              </div>
+
+              <div className="px-4 py-2 border-t border-slate-100 dark:border-white/10 bg-slate-50/60 dark:bg-[#0c0e15] text-[11px] text-slate-400 flex items-center justify-between">
+                <span>Use arrows to navigate</span>
+                <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-[#161a26] border border-slate-200 dark:border-white/10 font-mono text-[10px]">
+                  ESC to close
+                </kbd>
               </div>
             </motion.div>
           </div>

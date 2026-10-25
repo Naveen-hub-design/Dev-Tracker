@@ -78,8 +78,8 @@ function SidebarLink({ item, collapsed }) {
         ${collapsed ? 'justify-center p-2.5 my-0.5' : 'px-3 py-2 my-0.5'}
         ${
           isActive
-            ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/25 dark:text-blue-400 shadow-sm'
-            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 hover:text-slate-900 dark:hover:bg-slate-800/60 dark:hover:text-slate-200'
+            ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/15 dark:text-orange-300 shadow-sm border border-orange-500/20'
+            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 hover:text-slate-900 dark:hover:bg-[#161a26] dark:hover:text-slate-200'
         }`
       }
       title={collapsed ? item.label : undefined}
@@ -87,11 +87,11 @@ function SidebarLink({ item, collapsed }) {
       {({ isActive }) => (
         <>
           {isActive && !collapsed && (
-            <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-blue-600 dark:bg-blue-400" />
+            <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-orange-500 dark:bg-orange-400 shadow-sm shadow-orange-500/50" />
           )}
           <IconComp
             className={`w-4 h-4 shrink-0 transition-transform duration-150 group-hover:scale-110 ${
-              isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'
+              isActive ? 'text-orange-600 dark:text-orange-400' : 'text-slate-400 dark:text-slate-500'
             }`}
           />
           {!collapsed && (
@@ -101,10 +101,10 @@ function SidebarLink({ item, collapsed }) {
                 <span
                   className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider ${
                     item.badge === 'Live'
-                      ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400'
+                      ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                       : item.badge === 'AI'
-                      ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400'
-                      : 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400'
+                      ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
+                      : 'bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/30'
                   }`}
                 >
                   {item.badge}
@@ -139,7 +139,7 @@ export default function Sidebar({ collapsed, onToggle }) {
       {/* Mobile Toggle Button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-3 left-4 z-50 lg:hidden p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-slate-600 dark:text-slate-300"
+        className="fixed top-3 left-4 z-50 lg:hidden p-2 rounded-xl bg-white dark:bg-[#0c0e15] border border-slate-200 dark:border-white/10 shadow-sm text-slate-600 dark:text-slate-300"
         aria-label="Open menu"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -149,7 +149,7 @@ export default function Sidebar({ collapsed, onToggle }) {
 
       <aside
         className={`
-          fixed top-0 left-0 h-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200/80 dark:border-slate-800/80 z-40
+          fixed top-0 left-0 h-full bg-white/95 dark:bg-[#0c0e15]/95 backdrop-blur-xl border-r border-slate-200/80 dark:border-white/[0.08] z-40
           transition-all duration-300 ease-in-out flex flex-col justify-between
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0 lg:static lg:z-auto
@@ -160,12 +160,12 @@ export default function Sidebar({ collapsed, onToggle }) {
         <div className="flex flex-col h-full min-h-0">
           {/* Logo Header */}
           <div
-            className={`flex items-center h-[64px] border-b border-slate-100 dark:border-slate-800/80 shrink-0 ${
+            className={`flex items-center h-[64px] border-b border-slate-100 dark:border-white/[0.08] shrink-0 ${
               collapsed ? 'justify-center px-2' : 'px-5 justify-between'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-blue-500/25">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/25">
                 <BarChart3 className="w-4 h-4 text-white" />
               </div>
               {!collapsed && (
@@ -173,7 +173,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                   <span className="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
                     DevTrack
                   </span>
-                  <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400">
+                  <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-300 border border-orange-500/30 font-mono">
                     PRO
                   </span>
                 </div>
@@ -184,7 +184,7 @@ export default function Sidebar({ collapsed, onToggle }) {
             {!collapsed && (
               <button
                 onClick={onToggle}
-                className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#161a26] transition-colors"
                 title="Collapse sidebar"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -211,7 +211,7 @@ export default function Sidebar({ collapsed, onToggle }) {
           </nav>
 
           {/* Bottom Settings & User Footer */}
-          <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 shrink-0 space-y-1">
+          <div className="p-3 border-t border-slate-100 dark:border-white/[0.08] shrink-0 space-y-1">
             <NavLink
               to="/settings"
               className={({ isActive }) =>
@@ -219,8 +219,8 @@ export default function Sidebar({ collapsed, onToggle }) {
                 ${collapsed ? 'justify-center p-2.5' : 'px-3 py-2'}
                 ${
                   isActive
-                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 hover:text-slate-900 dark:hover:bg-slate-800/60 dark:hover:text-slate-200'
+                    ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/20 dark:text-orange-300 border border-orange-500/20'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 hover:text-slate-900 dark:hover:bg-[#161a26] dark:hover:text-slate-200'
                 }`
               }
               title="Settings"
@@ -232,7 +232,7 @@ export default function Sidebar({ collapsed, onToggle }) {
             {collapsed && (
               <button
                 onClick={onToggle}
-                className="hidden lg:flex w-full items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="hidden lg:flex w-full items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#161a26] transition-colors"
                 title="Expand sidebar"
               >
                 <ChevronRight className="w-4 h-4" />

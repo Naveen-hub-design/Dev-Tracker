@@ -144,7 +144,7 @@ export default function PublicProfilePage() {
       <header className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-orange-500 via-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/20">
               <span className="text-white font-black text-sm">D</span>
             </div>
             <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
@@ -159,7 +159,7 @@ export default function PublicProfilePage() {
               onClick={() => setBadgeModalOpen(true)}
               className="hidden sm:inline-flex"
             >
-              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+              <Sparkles className="w-3.5 h-3.5 text-orange-500" />
               README Badge
             </Button>
             <Button variant="ghost" size="sm" onClick={handleCopyLink}>
@@ -179,7 +179,7 @@ export default function PublicProfilePage() {
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
         {/* Profile Hero Card */}
         <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-8">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-500/10 via-indigo-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-orange-500/10 via-amber-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
             {/* Developer Identity */}
@@ -192,12 +192,12 @@ export default function PublicProfilePage() {
                     className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover ring-4 ring-white dark:ring-slate-800 shadow-md"
                   />
                 ) : (
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-3xl font-extrabold shadow-md ring-4 ring-white dark:ring-slate-800">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-tr from-orange-500 via-amber-500 to-orange-600 flex items-center justify-center text-white text-3xl font-extrabold shadow-md ring-4 ring-white dark:ring-slate-800">
                     {user.name.charAt(0)}
                   </div>
                 )}
                 <div className="absolute -bottom-1 -right-1 p-1 bg-white dark:bg-slate-900 rounded-full shadow">
-                  <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-500 dark:fill-blue-400" />
+                  <CheckCircle className="w-4 h-4 text-orange-500 fill-orange-500 dark:fill-orange-400" />
                 </div>
               </div>
 
@@ -539,19 +539,19 @@ export default function PublicProfilePage() {
         )}
 
         {/* GitHub README Badge Embed Banner */}
-        <div className="p-6 rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-5">
+        <div className="p-6 rounded-3xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white shadow-lg shadow-orange-500/20 flex flex-col sm:flex-row items-center justify-between gap-5">
           <div className="space-y-1 text-center sm:text-left">
             <h3 className="text-lg font-bold">Display your DevTrack badge on GitHub</h3>
-            <p className="text-xs text-blue-100 max-w-lg">
+            <p className="text-xs text-orange-100 max-w-lg">
               Embed this live, auto-updating stats card into your GitHub profile README.md to impress recruiters and fellow developers.
             </p>
           </div>
           <Button
             variant="secondary"
-            className="bg-white text-blue-600 hover:bg-blue-50 border-0 shrink-0 shadow-md"
+            className="bg-white text-orange-600 hover:bg-orange-50 border-0 shrink-0 shadow-md font-semibold"
             onClick={() => setBadgeModalOpen(true)}
           >
-            <Sparkles className="w-4 h-4 text-blue-600" />
+            <Sparkles className="w-4 h-4 text-orange-600" />
             Get README Badge
           </Button>
         </div>

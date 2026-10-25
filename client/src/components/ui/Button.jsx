@@ -2,17 +2,17 @@ import { forwardRef } from 'react';
 
 const variants = {
   primary:
-    'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20 active:scale-[0.98]',
+    'bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white shadow-md shadow-orange-500/25 active:scale-[0.98]',
   secondary:
-    'bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 active:bg-slate-100 shadow-xs dark:bg-slate-900 dark:text-slate-200 dark:border-slate-800 dark:hover:bg-slate-800/80 active:scale-[0.98]',
+    'bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 active:bg-slate-100 shadow-xs dark:bg-[#0f121a] dark:text-slate-200 dark:border-white/10 dark:hover:bg-[#161a26] active:scale-[0.98]',
   ghost:
-    'text-slate-600 hover:bg-slate-100 active:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800/80 dark:active:bg-slate-700 active:scale-[0.98]',
+    'text-slate-600 hover:bg-slate-100 active:bg-slate-200 dark:text-slate-400 dark:hover:bg-[#161a26] dark:active:bg-[#1b2030] active:scale-[0.98]',
   danger:
     'bg-gradient-to-r from-rose-600 to-red-600 text-white hover:from-rose-700 hover:to-red-700 shadow-md shadow-rose-500/20 active:scale-[0.98]',
   outline:
-    'border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 active:scale-[0.98]',
+    'border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#161a26] active:scale-[0.98]',
   link:
-    'text-blue-600 hover:text-blue-700 underline-offset-2 hover:underline p-0 h-auto dark:text-blue-400 dark:hover:text-blue-300',
+    'text-orange-500 hover:text-orange-600 underline-offset-2 hover:underline p-0 h-auto dark:text-orange-400 dark:hover:text-orange-300',
 };
 
 const sizes = {
@@ -34,7 +34,7 @@ const Button = forwardRef(function Button(
       className={`
         inline-flex items-center justify-center font-semibold
         transition-all duration-150 ease-in-out
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900
         disabled:opacity-50 disabled:cursor-not-allowed
         ${variants[variant] || variants.primary}
         ${sizes[size] || sizes.md}

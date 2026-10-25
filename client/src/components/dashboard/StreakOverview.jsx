@@ -25,10 +25,10 @@ function StreakSkeleton() {
 }
 
 function getDayColor(count) {
-  if (count <= 2) return 'bg-green-200';
-  if (count <= 5) return 'bg-green-400';
-  if (count <= 8) return 'bg-green-500';
-  return 'bg-green-600';
+  if (count <= 2) return 'bg-orange-200 dark:bg-orange-950/60 border border-orange-400/30';
+  if (count <= 5) return 'bg-orange-400 dark:bg-orange-600/80';
+  if (count <= 8) return 'bg-orange-500 dark:bg-orange-500';
+  return 'bg-amber-400 dark:bg-amber-400 shadow-sm shadow-orange-500/40';
 }
 
 export default function StreakOverview({ days = [], stats, loading, empty }) {

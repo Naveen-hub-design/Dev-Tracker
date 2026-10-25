@@ -5,11 +5,11 @@ import Card from '../ui/Card';
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const LEVEL_COLORS = {
-  0: 'bg-slate-50 text-slate-300',
-  1: 'bg-emerald-50 text-emerald-700',
-  2: 'bg-emerald-100 text-emerald-800',
-  3: 'bg-emerald-200 text-emerald-800',
-  4: 'bg-emerald-500 text-white',
+  0: 'bg-slate-50 dark:bg-slate-800/60 text-slate-300 dark:text-slate-600',
+  1: 'bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400',
+  2: 'bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300',
+  3: 'bg-orange-300 dark:bg-orange-700/60 text-orange-900 dark:text-orange-100 font-semibold',
+  4: 'bg-orange-500 text-white font-bold shadow-xs',
 };
 
 function CalendarView({ calendarData }) {
@@ -19,7 +19,7 @@ function CalendarView({ calendarData }) {
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
       <Card className="p-5">
-        <h3 className="text-sm font-bold text-slate-900 mb-4">{monthName}</h3>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-4">{monthName}</h3>
         <div className="grid grid-cols-7 gap-1">
           {WEEKDAYS.map((d) => (
             <div key={d} className="text-center text-[10px] font-semibold text-slate-400 py-1">{d}</div>
@@ -33,7 +33,7 @@ function CalendarView({ calendarData }) {
             return (
               <motion.div
                 key={cell.key}
-                className={`aspect-square flex flex-col items-center justify-center rounded-lg text-xs font-medium transition-all hover:scale-110 ${LEVEL_COLORS[level]} ${cell.isToday ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
+                className={`aspect-square flex flex-col items-center justify-center rounded-lg text-xs font-medium transition-all hover:scale-110 ${LEVEL_COLORS[level]} ${cell.isToday ? 'ring-2 ring-orange-500 ring-offset-1 dark:ring-offset-[#0f121a]' : ''}`}
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: i * 0.008 }}

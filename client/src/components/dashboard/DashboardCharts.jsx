@@ -11,8 +11,8 @@ import {
 } from 'recharts';
 import { PieChart as PieIcon } from 'lucide-react';
 
-const LANG_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316'];
-const DIFF_COLORS = { Easy: '#10B981', Medium: '#F59E0B', Hard: '#EF4444' };
+const LANG_COLORS = ['#F97316', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899', '#06B6D4', '#FB923C'];
+const DIFF_COLORS = { Easy: '#10B981', Medium: '#F97316', Hard: '#EF4444' };
 
 function ChartSkeleton({ title }) {
   return (
@@ -26,11 +26,11 @@ function ChartSkeleton({ title }) {
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg px-3 py-2 text-xs">
-      <p className="font-medium text-slate-900 dark:text-slate-100 mb-1">{label}</p>
+    <div className="bg-white dark:bg-[#0f121a] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl px-3 py-2 text-xs">
+      <p className="font-semibold text-slate-900 dark:text-slate-100 mb-1">{label}</p>
       {payload.map((entry) => (
         <p key={entry.name} className="text-slate-600 dark:text-slate-400">
-          {entry.name}: <span className="font-medium text-slate-900 dark:text-slate-100">{entry.value}</span>
+          {entry.name}: <span className="font-bold text-orange-500 dark:text-orange-400">{entry.value}</span>
         </p>
       ))}
     </div>
@@ -152,15 +152,15 @@ function WeeklyActivityChart({ data }) {
           <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id="actGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
+                <stop offset="0%" stopColor="#F97316" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="#F97316" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
             <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#94A3B8' }} tickLine={false} axisLine={false} />
             <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} tickLine={false} axisLine={false} />
             <Tooltip content={<ChartTooltip />} />
-            <Area type="monotone" dataKey="commits" name="Commits" stroke="#3B82F6" fill="url(#actGrad)" strokeWidth={2} dot={{ fill: '#3B82F6', r: 3 }} activeDot={{ r: 5 }} animationDuration={800} />
+            <Area type="monotone" dataKey="commits" name="Commits" stroke="#F97316" fill="url(#actGrad)" strokeWidth={2} dot={{ fill: '#F97316', r: 3 }} activeDot={{ r: 5 }} animationDuration={800} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -194,7 +194,7 @@ function WeeklyProgressChart({ data }) {
             <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#94A3B8' }} tickLine={false} axisLine={false} />
             <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} tickLine={false} axisLine={false} />
             <Tooltip content={<ChartTooltip />} />
-            <Line type="monotone" dataKey="solved" name="Solved" stroke="#8B5CF6" strokeWidth={2} dot={{ fill: '#8B5CF6', r: 3 }} activeDot={{ r: 5 }} animationDuration={800} />
+            <Line type="monotone" dataKey="solved" name="Solved" stroke="#FB923C" strokeWidth={2} dot={{ fill: '#FB923C', r: 3 }} activeDot={{ r: 5 }} animationDuration={800} />
           </LineChart>
         </ResponsiveContainer>
       </div>

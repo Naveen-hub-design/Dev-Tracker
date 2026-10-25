@@ -7,12 +7,12 @@ export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen bg-slate-50/80 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-300 relative">
-      {/* Background ambient lighting for premium depth */}
+    <div className="flex h-screen bg-slate-50/80 dark:bg-[#090b11] text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-300 relative font-sans">
+      {/* Background ambient warm lighting for premium depth */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-blue-500/5 dark:bg-blue-600/10 blur-[120px]" />
-        <div className="absolute top-[40%] -right-[10%] w-[45vw] h-[45vw] rounded-full bg-indigo-500/5 dark:bg-indigo-600/8 blur-[130px]" />
-        <div className="absolute -bottom-[20%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-purple-500/5 dark:bg-purple-600/5 blur-[120px]" />
+        <div className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-orange-500/5 dark:bg-orange-500/10 blur-[130px]" />
+        <div className="absolute top-[40%] -right-[10%] w-[45vw] h-[45vw] rounded-full bg-amber-500/5 dark:bg-amber-600/8 blur-[140px]" />
+        <div className="absolute -bottom-[20%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-orange-600/5 dark:bg-orange-600/6 blur-[120px]" />
       </div>
 
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />

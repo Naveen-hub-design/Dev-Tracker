@@ -10,9 +10,9 @@ import Button from '../ui/Button';
 
 function getLevel(score) {
   if (score >= 80) return { label: 'Master Engineer', dot: 'bg-emerald-500', text: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500/30' };
-  if (score >= 60) return { label: 'Expert Developer', dot: 'bg-blue-500', text: 'text-blue-700 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/40 border-blue-500/30' };
-  if (score >= 40) return { label: 'Advanced Practitioner', dot: 'bg-purple-500', text: 'text-purple-700 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/40 border-purple-500/30' };
-  if (score >= 20) return { label: 'Intermediate Coder', dot: 'bg-amber-500', text: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/40 border-amber-500/30' };
+  if (score >= 60) return { label: 'Expert Developer', dot: 'bg-orange-500', text: 'text-orange-700 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/40 border-orange-500/30' };
+  if (score >= 40) return { label: 'Advanced Practitioner', dot: 'bg-amber-500', text: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/40 border-amber-500/30' };
+  if (score >= 20) return { label: 'Intermediate Coder', dot: 'bg-orange-400', text: 'text-orange-700 dark:text-orange-300', bg: 'bg-orange-50 dark:bg-orange-950/30 border-orange-400/30' };
   return { label: 'Aspiring Developer', dot: 'bg-slate-400', text: 'text-slate-600 dark:text-slate-400', bg: 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700' };
 }
 
@@ -36,9 +36,9 @@ export default function DashboardHero({ score = 0, loading }) {
   return (
     <>
       <FadeIn>
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900/90 dark:to-indigo-950/20 border border-slate-200/80 dark:border-slate-800/80 p-6 sm:p-8 shadow-sm">
-          {/* Subtle Ambient Glow */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 dark:bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-orange-50/20 to-amber-50/30 dark:from-[#0f121a] dark:via-[#111420] dark:to-orange-950/20 border border-slate-200/80 dark:border-white/[0.08] p-6 sm:p-8 shadow-sm">
+          {/* Subtle Warm Sunset Ambient Glow */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-orange-500/10 dark:bg-orange-500/15 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -66,14 +66,14 @@ export default function DashboardHero({ score = 0, loading }) {
               <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                 <Link to="/playground">
                   <Button variant="secondary" size="sm" className="text-xs font-semibold">
-                    <Terminal className="w-3.5 h-3.5 text-blue-500" />
+                    <Terminal className="w-3.5 h-3.5 text-orange-500" />
                     Playground
                   </Button>
                 </Link>
 
                 <Link to="/applications">
                   <Button variant="secondary" size="sm" className="text-xs font-semibold">
-                    <Briefcase className="w-3.5 h-3.5 text-indigo-500" />
+                    <Briefcase className="w-3.5 h-3.5 text-amber-500" />
                     Pipeline
                   </Button>
                 </Link>
@@ -84,7 +84,7 @@ export default function DashboardHero({ score = 0, loading }) {
                   onClick={() => setBadgeModalOpen(true)}
                   className="text-xs font-semibold"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <Sparkles className="w-3.5 h-3.5 text-orange-400" />
                   Badge
                 </Button>
 
@@ -98,18 +98,18 @@ export default function DashboardHero({ score = 0, loading }) {
             </div>
 
             {/* Developer Score Progress Strip */}
-            <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800/80">
+            <div className="mt-6 pt-5 border-t border-slate-100 dark:border-white/[0.08]">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   DevTrack Composite Score
                 </span>
-                <span className="text-sm font-extrabold text-blue-600 dark:text-blue-400 font-mono">
+                <span className="text-sm font-extrabold text-orange-500 dark:text-orange-400 font-mono">
                   {loading ? '—' : <><AnimatedNumber value={score} duration={1200} /> / 100</>}
                 </span>
               </div>
-              <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5">
+              <div className="w-full h-3 bg-slate-100 dark:bg-[#161a26] rounded-full overflow-hidden p-0.5 border border-slate-200/50 dark:border-white/5">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 shadow-sm shadow-blue-500/40"
+                  className="h-full rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-orange-400 shadow-sm shadow-orange-500/40"
                   style={{
                     width: loading ? '0%' : `${score}%`,
                     transition: 'width 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
