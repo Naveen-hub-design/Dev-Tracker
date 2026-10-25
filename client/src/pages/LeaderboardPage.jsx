@@ -17,6 +17,7 @@ import {
   User,
   Shield,
   Layers,
+  ChefHat,
 } from 'lucide-react';
 import PageContainer from '../components/ui/PageContainer';
 import Button from '../components/ui/Button';
@@ -24,9 +25,11 @@ import EmptyState from '../components/ui/EmptyState';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 
 const CATEGORIES = [
-  { id: 'overall', label: 'All-Round Score', icon: Trophy, desc: 'Overall Developer Score' },
-  { id: 'algorithms', label: 'Algorithms & CP', icon: Code2, desc: 'LeetCode & Codeforces' },
-  { id: 'opensource', label: 'Open Source', icon: Github, desc: 'Commits & Stars' },
+  { id: 'overall', label: 'All-Round', icon: Trophy, desc: 'Overall Developer Score' },
+  { id: 'codechef', label: 'CodeChef', icon: ChefHat, desc: 'CodeChef Stars & Rating' },
+  { id: 'codeforces', label: 'Codeforces', icon: Binary, desc: 'Codeforces CP Rating' },
+  { id: 'leetcode', label: 'LeetCode', icon: Code2, desc: 'Problems Solved' },
+  { id: 'opensource', label: 'Open Source', icon: Github, desc: 'Commits & Repos' },
   { id: 'consistency', label: 'Daily Streak', icon: Flame, desc: 'Active Daily Solves' },
 ];
 
@@ -331,11 +334,16 @@ export default function LeaderboardPage() {
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                            <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5 flex-wrap">
                               {dev.githubUsername && <span>@{dev.githubUsername}</span>}
+                              {dev.ccStars && dev.ccRating > 0 && (
+                                <span className="px-1.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-semibold">
+                                  CC {dev.ccStars} ({dev.ccRating})
+                                </span>
+                              )}
                               {dev.cfRank && (
                                 <span className="px-1.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px]">
-                                  {dev.cfRank}
+                                  CF {dev.cfRank}
                                 </span>
                               )}
                             </div>
@@ -356,7 +364,7 @@ export default function LeaderboardPage() {
                           {dev.totalProblems}
                         </span>
                         <span className="text-[10px] text-slate-400 block">
-                          LC: {dev.lcSolved} • CF: {dev.cfSolved}
+                          LC: {dev.lcSolved} • CF: {dev.cfSolved} • CC: {dev.ccSolved || 0}
                         </span>
                       </td>
 

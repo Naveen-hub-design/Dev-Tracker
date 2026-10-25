@@ -11,6 +11,7 @@ import {
   refreshCodeChef,
 } from '../api/profile';
 import { refreshCodeforces } from '../api/codeforces';
+import { changePassword as changeUserPassword } from '../api/auth';
 import PageContainer from '../components/ui/PageContainer';
 import Card from '../components/ui/Card';
 import { Link } from 'react-router-dom';
@@ -151,13 +152,17 @@ function ChangePasswordSection({ toast }) {
       return;
     }
     setChanging(true);
-    // Simulated — no backend endpoint for password change
-    await new Promise((r) => setTimeout(r, 1000));
-    toast.success('Password updated successfully');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setChanging(false);
+    try {
+      await changeUserPassword(currentPassword, newPassword);
+      toast.success('Password updated successfully');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update password');
+    } finally {
+      setChanging(false);
+    }
   };
 
   return (

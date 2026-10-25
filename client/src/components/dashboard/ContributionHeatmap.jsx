@@ -33,23 +33,32 @@ export default function ContributionHeatmap({ data = [], loading, empty }) {
   sixMonthsAgo.setMonth(today.getMonth() - 6);
 
   return (
-    <ChartCard title="Activity (Last 6 Months)">
+    <ChartCard title="Unified Coding Activity (Last 6 Months)">
       <CalendarHeatmap
         startDate={sixMonthsAgo}
         endDate={today}
         values={data}
         classForValue={(value) => {
-          if (!value) return 'fill-slate-100';
+          if (!value || !value.count || value.count <= 0) return 'color-empty';
           const count = value.count || 0;
-          if (count <= 0) return 'fill-slate-100';
           if (count <= 3) return 'color-scale-1';
           if (count <= 6) return 'color-scale-2';
           if (count <= 9) return 'color-scale-3';
           return 'color-scale-4';
         }}
         titleForValue={(value) => {
-          if (!value) return 'No activity';
-          return `${value.date}: ${value.count || 0} contributions`;
+          if (!value || !value.count) return 'No activity';
+          const d = value.details;
+          if (d) {
+            const parts = [];
+            if (d.github) parts.push(`${d.github} commit${d.github > 1 ? 's' : ''}`);
+            if (d.leetcode) parts.push(`${d.leetcode} LC solve${d.leetcode > 1 ? 's' : ''}`);
+            if (d.codeforces) parts.push(`${d.codeforces} CF contest${d.codeforces > 1 ? 's' : ''}`);
+            if (d.codechef) parts.push(`${d.codechef} CC contest${d.codechef > 1 ? 's' : ''}`);
+            const detailStr = parts.length > 0 ? ` (${parts.join(', ')})` : '';
+            return `${value.date}: ${value.count} contribution${value.count > 1 ? 's' : ''}${detailStr}`;
+          }
+          return `${value.date}: ${value.count} contribution${value.count > 1 ? 's' : ''}`;
         }}
       />
     </ChartCard>

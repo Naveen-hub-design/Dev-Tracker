@@ -19,6 +19,7 @@ import {
   Radio,
   ChevronRight,
   Info,
+  ChefHat,
 } from 'lucide-react';
 import PageContainer from '../components/ui/PageContainer';
 import Card from '../components/ui/Card';
@@ -46,7 +47,7 @@ const PLATFORM_CONFIG = {
     name: 'CodeChef',
     color: 'from-orange-600/20 to-amber-700/10 text-orange-700 dark:text-orange-400 border-orange-500/30',
     badge: 'bg-orange-600/10 text-orange-700 dark:text-orange-400 border-orange-500/20',
-    icon: Trophy,
+    icon: ChefHat,
     brandColor: '#ea580c',
   },
   atcoder: {

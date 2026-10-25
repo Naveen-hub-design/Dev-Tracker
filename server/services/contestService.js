@@ -67,6 +67,45 @@ function getCalculatedLeetCodeContests() {
 }
 
 /**
+ * Generate standard recurring CodeChef Starters contests (Every Wednesday 14:30 UTC / 20:00 IST)
+ */
+function getCalculatedCodeChefContests() {
+  const contests = [];
+  const now = new Date();
+
+  for (let week = 0; week < 4; week++) {
+    const wednesday = new Date(now);
+    // Day 3 is Wednesday (0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed)
+    let dayDiff = (3 - now.getUTCDay() + 7) % 7;
+    wednesday.setUTCDate(now.getUTCDate() + dayDiff + week * 7);
+    wednesday.setUTCHours(14, 30, 0, 0);
+
+    // If today is Wednesday and 14:30 UTC already passed, skip to next week
+    if (wednesday.getTime() < now.getTime()) {
+      wednesday.setUTCDate(wednesday.getUTCDate() + 7);
+    }
+
+    // Reference: Starters 157 was Oct 23, 2024
+    const refDate = new Date('2024-10-23T14:30:00Z');
+    const weeksDiff = Math.round((wednesday.getTime() - refDate.getTime()) / (7 * 24 * 3600 * 1000));
+    const startersNum = 157 + Math.max(0, weeksDiff);
+
+    contests.push({
+      id: `cc-starters-${startersNum}`,
+      name: `CodeChef Starters ${startersNum}`,
+      platform: 'codechef',
+      url: `https://www.codechef.com/START${startersNum}`,
+      startTime: wednesday.toISOString(),
+      durationSeconds: 2 * 3600, // 2h
+      division: 'Div. 1, 2, 3 & 4',
+    });
+  }
+
+  return contests;
+}
+
+
+/**
  * Fetch upcoming contests from Codeforces official API
  */
 async function fetchCodeforcesUpcoming() {
@@ -138,7 +177,7 @@ async function fetchKontestsUpcoming() {
         };
       });
   } catch (err) {
-    console.warn(`ContestService: Kontests API error: ${err.message}`);
+    // Kontests aggregator is frequently offline or blocked; silently fallback
     return [];
   }
 }
@@ -159,6 +198,7 @@ async function getUpcomingContests(platformFilter = 'all') {
   ]);
 
   const leetcodeContests = getCalculatedLeetCodeContests();
+  const codechefContests = getCalculatedCodeChefContests();
 
   // Deduplicate and merge
   const contestMap = new Map();
@@ -166,7 +206,7 @@ async function getUpcomingContests(platformFilter = 'all') {
   // 1. Codeforces official
   cfContests.forEach((c) => contestMap.set(c.name.toLowerCase().trim(), c));
 
-  // 2. Kontests aggregator
+  // 2. Kontests aggregator (if online)
   kontestContests.forEach((c) => {
     const key = c.name.toLowerCase().trim();
     if (!contestMap.has(key)) {
@@ -176,6 +216,14 @@ async function getUpcomingContests(platformFilter = 'all') {
 
   // 3. Calculated LeetCode
   leetcodeContests.forEach((c) => {
+    const key = c.name.toLowerCase().trim();
+    if (!contestMap.has(key)) {
+      contestMap.set(key, c);
+    }
+  });
+
+  // 4. Calculated CodeChef
+  codechefContests.forEach((c) => {
     const key = c.name.toLowerCase().trim();
     if (!contestMap.has(key)) {
       contestMap.set(key, c);

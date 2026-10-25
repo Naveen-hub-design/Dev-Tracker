@@ -31,3 +31,9 @@ export async function getMe() {
   const res = await API.get('/me');
   return res.data;
 }
+
+export async function changePassword(currentPassword, newPassword) {
+  const res = await API.put('/change-password', { currentPassword, newPassword });
+  return res.data;
+}
+

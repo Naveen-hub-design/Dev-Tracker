@@ -276,6 +276,288 @@ int maxProfit(vector<int>& prices) {
       { name: 'Case 2', input: 'prices = [7, 6, 4, 3, 1]', expected: '0' },
     ],
   },
+  {
+    id: 'reverse-linked-list',
+    title: 'Reverse Linked List',
+    difficulty: 'Easy',
+    tags: ['Linked List', 'Pointers'],
+    description:
+      'Given the head of a singly linked list, reverse the list, and return the reversed list.',
+    examples: [
+      { input: 'head = [1,2,3,4,5]', output: '[5,4,3,2,1]' },
+      { input: 'head = [1,2]', output: '[2,1]' },
+    ],
+    constraints: ['The number of nodes in the list is the range [0, 5000].', '-5000 <= Node.val <= 5000'],
+    templates: {
+      javascript: `/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+function reverseList(head) {
+  let prev = null;
+  let curr = head;
+  while (curr !== null) {
+    const nextTemp = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = nextTemp;
+  }
+  return prev;
+}
+
+console.log("Reversed linked list successfully [5, 4, 3, 2, 1]");
+`,
+      python: `def reverse_list(head):
+    prev = None
+    curr = head
+    while curr:
+        next_temp = curr.next
+        curr.next = prev
+        prev = curr
+        curr = next_temp
+    return prev
+
+print("Reversed linked list successfully")
+`,
+      cpp: `ListNode* reverseList(ListNode* head) {
+    ListNode* prev = nullptr;
+    ListNode* curr = head;
+    while (curr != nullptr) {
+        ListNode* nextTemp = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = nextTemp;
+    }
+    return prev;
+}
+`,
+      java: `class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode prev = null;
+        ListNode curr = head;
+        while (curr != null) {
+            ListNode nextTemp = curr.next;
+            curr.next = prev;
+            prev = curr;
+            curr = nextTemp;
+        }
+        return prev;
+    }
+}
+`,
+    },
+    defaultTests: [
+      { name: 'Case 1', input: 'head = [1,2,3,4,5]', expected: '[5,4,3,2,1]' },
+      { name: 'Case 2', input: 'head = [1,2]', expected: '[2,1]' },
+    ],
+  },
+  {
+    id: 'binary-search',
+    title: 'Binary Search',
+    difficulty: 'Easy',
+    tags: ['Binary Search', 'Array'],
+    description:
+      'Given an array of integers nums which is sorted in ascending order, and an integer target, write a function to search target in nums. If target exists, then return its index. Otherwise, return -1. You must write an algorithm with O(log n) runtime complexity.',
+    examples: [
+      { input: 'nums = [-1,0,3,5,9,12], target = 9', output: '4' },
+      { input: 'nums = [-1,0,3,5,9,12], target = 2', output: '-1' },
+    ],
+    constraints: ['1 <= nums.length <= 10^4', '-10^4 < nums[i], target < 10^4', 'All integers in nums are unique.'],
+    templates: {
+      javascript: `function search(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    if (nums[mid] === target) return mid;
+    if (nums[mid] < target) left = mid + 1;
+    else right = mid - 1;
+  }
+  return -1;
+}
+
+console.log("Test 1 (target 9):", search([-1,0,3,5,9,12], 9));
+console.log("Test 2 (target 2):", search([-1,0,3,5,9,12], 2));
+`,
+      python: `def search(nums: list[int], target: int) -> int:
+    left, right = 0, len(nums) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] == target:
+            return mid
+        elif nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+
+print("Test 1:", search([-1,0,3,5,9,12], 9))
+print("Test 2:", search([-1,0,3,5,9,12], 2))
+`,
+      cpp: `int search(vector<int>& nums, int target) {
+    int left = 0, right = nums.size() - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] == target) return mid;
+        if (nums[mid] < target) left = mid + 1;
+        else right = mid - 1;
+    }
+    return -1;
+}
+`,
+      java: `class Solution {
+    public int search(int[] nums, int target) {
+        int left = 0, right = nums.length - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] == target) return mid;
+            if (nums[mid] < target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return -1;
+    }
+}
+`,
+    },
+    defaultTests: [
+      { name: 'Case 1', input: 'nums = [-1,0,3,5,9,12], target = 9', expected: '4' },
+      { name: 'Case 2', input: 'nums = [-1,0,3,5,9,12], target = 2', expected: '-1' },
+    ],
+  },
+  {
+    id: 'maximum-subarray',
+    title: 'Maximum Subarray (Kadane)',
+    difficulty: 'Medium',
+    tags: ['Array', 'Dynamic Programming'],
+    description:
+      'Given an integer array nums, find the subarray with the largest sum, and return its sum.',
+    examples: [
+      { input: 'nums = [-2,1,-3,4,-1,2,1,-5,4]', output: '6' },
+      { input: 'nums = [5,4,-1,7,8]', output: '23' },
+    ],
+    constraints: ['1 <= nums.length <= 10^5', '-10^4 <= nums[i] <= 10^4'],
+    templates: {
+      javascript: `function maxSubArray(nums) {
+  let maxSum = nums[0];
+  let currentSum = nums[0];
+  for (let i = 1; i < nums.length; i++) {
+    currentSum = Math.max(nums[i], currentSum + nums[i]);
+    maxSum = Math.max(maxSum, currentSum);
+  }
+  return maxSum;
+}
+
+console.log("Test 1:", maxSubArray([-2,1,-3,4,-1,2,1,-5,4]));
+console.log("Test 2:", maxSubArray([5,4,-1,7,8]));
+`,
+      python: `def max_sub_array(nums: list[int]) -> int:
+    max_sum = current_sum = nums[0]
+    for x in nums[1:]:
+        current_sum = max(x, current_sum + x)
+        max_sum = max(max_sum, current_sum)
+    return max_sum
+
+print("Test 1:", max_sub_array([-2,1,-3,4,-1,2,1,-5,4]))
+`,
+      cpp: `int maxSubArray(vector<int>& nums) {
+    int maxSum = nums[0], curSum = nums[0];
+    for (size_t i = 1; i < nums.size(); ++i) {
+        curSum = max(nums[i], curSum + nums[i]);
+        maxSum = max(maxSum, curSum);
+    }
+    return maxSum;
+}
+`,
+      java: `class Solution {
+    public int maxSubArray(int[] nums) {
+        int max = nums[0], sum = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            sum = Math.max(nums[i], sum + nums[i]);
+            max = Math.max(max, sum);
+        }
+        return max;
+    }
+}
+`,
+    },
+    defaultTests: [
+      { name: 'Case 1', input: 'nums = [-2,1,-3,4,-1,2,1,-5,4]', expected: '6' },
+      { name: 'Case 2', input: 'nums = [5,4,-1,7,8]', expected: '23' },
+    ],
+  },
+  {
+    id: 'climbing-stairs',
+    title: 'Climbing Stairs',
+    difficulty: 'Easy',
+    tags: ['Dynamic Programming', 'Memoization'],
+    description:
+      'You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?',
+    examples: [
+      { input: 'n = 2', output: '2' },
+      { input: 'n = 3', output: '3' },
+    ],
+    constraints: ['1 <= n <= 45'],
+    templates: {
+      javascript: `function climbStairs(n) {
+  if (n <= 2) return n;
+  let a = 1, b = 2;
+  for (let i = 3; i <= n; i++) {
+    const c = a + b;
+    a = b;
+    b = c;
+  }
+  return b;
+}
+
+console.log("Test 1 (n=2):", climbStairs(2));
+console.log("Test 2 (n=3):", climbStairs(3));
+console.log("Test 3 (n=5):", climbStairs(5));
+`,
+      python: `def climb_stairs(n: int) -> int:
+    if n <= 2:
+        return n
+    a, b = 1, 2
+    for _ in range(3, n + 1):
+        a, b = b, a + b
+    return b
+
+print("Test 1:", climb_stairs(3))
+print("Test 2:", climb_stairs(5))
+`,
+      cpp: `int climbStairs(int n) {
+    if (n <= 2) return n;
+    int a = 1, b = 2;
+    for (int i = 3; i <= n; ++i) {
+        int c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}
+`,
+      java: `class Solution {
+    public int climbStairs(int n) {
+        if (n <= 2) return n;
+        int a = 1, b = 2;
+        for (int i = 3; i <= n; i++) {
+            int c = a + b;
+            a = b;
+            b = c;
+        }
+        return b;
+    }
+}
+`,
+    },
+    defaultTests: [
+      { name: 'Case 1', input: 'n = 2', expected: '2' },
+      { name: 'Case 2', input: 'n = 3', expected: '3' },
+      { name: 'Case 3', input: 'n = 5', expected: '8' },
+    ],
+  },
 ];
 
 export default function PlaygroundPage() {

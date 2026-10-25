@@ -42,29 +42,80 @@ function ErrorState({ error, onRetry }) {
   );
 }
 
-function buildContributionData(github) {
-  if (!github?._raw?.commitActivity) return [];
-  const activity = github._raw.commitActivity;
+function buildContributionData(dashboard) {
+  if (!dashboard) return [];
   const today = new Date();
-  return activity.slice(-180).map((count, i) => {
-    const date = new Date(today);
-    date.setDate(date.getDate() - (180 - i));
-    return { date: date.toISOString().slice(0, 10), count };
+  const dateMap = new Map();
+
+  for (let i = 180; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    dateMap.set(key, {
+      date: key,
+      count: 0,
+      details: { github: 0, leetcode: 0, codeforces: 0, codechef: 0 },
+    });
+  }
+
+  // 1. GitHub commit activity
+  const ghActivity = dashboard.github?._raw?.commitActivity;
+  if (Array.isArray(ghActivity) && ghActivity.length > 0) {
+    const slice = ghActivity.slice(-181);
+    slice.forEach((count, i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - (slice.length - 1 - i));
+      const key = d.toISOString().slice(0, 10);
+      const entry = dateMap.get(key);
+      if (entry && count > 0) {
+        entry.count += count;
+        entry.details.github += count;
+      }
+    });
+  }
+
+  // 2. CodeChef Contests
+  const ccContests = dashboard.codechef?.ratingHistory || [];
+  ccContests.forEach((c) => {
+    if (c.date && dateMap.has(c.date)) {
+      const entry = dateMap.get(c.date);
+      entry.count += 1;
+      entry.details.codechef += 1;
+    }
   });
+
+  // 3. Codeforces Contests
+  const cfContests = dashboard.codeforces?.ratingHistory || [];
+  cfContests.forEach((c) => {
+    if (c.date && dateMap.has(c.date)) {
+      const entry = dateMap.get(c.date);
+      entry.count += 1;
+      entry.details.codeforces += 1;
+    }
+  });
+
+  return Array.from(dateMap.values());
 }
 
-function buildStreakData(github) {
-  if (!github?._raw?.commitActivity) return { days: [], stats: null };
-  const activity = github._raw.commitActivity;
-  const days = activity.slice(-28).map((count, i) => ({
-    date: `day-${i}`,
-    count,
-    active: count > 0,
+function buildStreakData(dashboard) {
+  if (!dashboard) return { days: [], stats: null };
+  const data = buildContributionData(dashboard);
+  const recent28 = data.slice(-28);
+  const days = recent28.map((d) => ({
+    date: d.date,
+    count: d.count,
+    active: d.count > 0,
   }));
+  const activeDays = data.filter((d) => d.count > 0);
+  let streak = 0;
+  for (let i = data.length - 1; i >= 0; i--) {
+    if (data[i].count > 0) streak++;
+    else break;
+  }
   const stats = {
-    currentStreak: activity.filter((c) => c > 0).slice(-7).length,
-    longestStreak: Math.max(...activity, 0),
-    totalActive: activity.reduce((a, b) => a + (b > 0 ? 1 : 0), 0),
+    currentStreak: streak,
+    longestStreak: Math.max(...data.map((d) => d.count), 0),
+    totalActive: activeDays.length,
   };
   return { days, stats };
 }
@@ -73,12 +124,12 @@ export default function Dashboard() {
   const { dashboard, loading, error, refetch } = useDashboard();
 
   const contributionData = useMemo(
-    () => buildContributionData(dashboard?.github),
+    () => buildContributionData(dashboard),
     [dashboard]
   );
 
   const { days: streakDays, stats: streakStats } = useMemo(
-    () => buildStreakData(dashboard?.github),
+    () => buildStreakData(dashboard),
     [dashboard]
   );
 

@@ -60,10 +60,11 @@ async function getLeaderboard({ category = 'overall', currentUserId = null, limi
       lcSolved,
       cfSolved,
       ccSolved,
-      cfRating: cf?.profile?.rating || 0,
-      cfRank: cf?.profile?.rank || '',
-      ccRating: cc?.profile?.rating || 0,
-      ccStars: cc?.profile?.stars || 0,
+      cfRating: cf?.profile?.rating || cf?.rating || 0,
+      cfRank: cf?.profile?.rank || cf?.rank || '',
+      ccRating: cc?.profile?.rating || cc?.currentRating || 0,
+      ccStars: cc?.profile?.starsDisplay || cc?.stars || (cc?.starsCount ? `${cc.starsCount}★` : '1★'),
+      ccDivision: cc?.profile?.division || cc?.division || '',
       commits,
       stars,
       repos,
@@ -74,8 +75,17 @@ async function getLeaderboard({ category = 'overall', currentUserId = null, limi
 
   // Sort based on category
   switch (category) {
+    case 'codechef':
+      developers.sort((a, b) => (b.ccRating - a.ccRating) || (b.ccSolved - a.ccSolved) || (b.developerScore - a.developerScore));
+      break;
+    case 'codeforces':
+      developers.sort((a, b) => (b.cfRating - a.cfRating) || (b.cfSolved - a.cfSolved) || (b.developerScore - a.developerScore));
+      break;
+    case 'leetcode':
+      developers.sort((a, b) => (b.lcSolved - a.lcSolved) || (b.developerScore - a.developerScore));
+      break;
     case 'algorithms':
-      developers.sort((a, b) => b.totalProblems - a.totalProblems || b.cfRating - a.cfRating || b.developerScore - a.developerScore);
+      developers.sort((a, b) => (b.totalProblems - a.totalProblems) || (b.cfRating + b.ccRating) - (a.cfRating + a.ccRating) || (b.developerScore - a.developerScore));
       break;
     case 'opensource':
       developers.sort((a, b) => (b.commits + b.stars * 2) - (a.commits + a.stars * 2) || b.repos - a.repos);
