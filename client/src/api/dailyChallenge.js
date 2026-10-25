@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getToken } from '../utils/token';
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL
@@ -6,9 +7,9 @@ const API = axios.create({
     : '/api',
 });
 
-// Attach JWT token from localStorage if user is authenticated
+// Attach JWT token from universal token resolver
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

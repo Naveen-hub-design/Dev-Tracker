@@ -14,16 +14,33 @@ export const fetchUpcomingContests = async (platform = 'all') => {
 /**
  * Generate a 1-click Google Calendar add-event URL
  */
-export function generateGoogleCalendarUrl({ name, startTime, durationSeconds, url, platform }) {
-  const start = new Date(startTime);
-  const end = new Date(start.getTime() + (durationSeconds || 7200) * 1000);
+export function generateGoogleCalendarUrl(contest = {}) {
+  const {
+    name = 'Competitive Programming Contest',
+    startTime = new Date().toISOString(),
+    durationSeconds = 7200,
+    url = 'https://devtrack.io',
+    platform = 'Contest',
+  } = contest || {};
 
-  const formatGCalDate = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+  try {
+    const start = new Date(startTime);
+    const validStart = isNaN(start.getTime()) ? new Date() : start;
+    const end = new Date(validStart.getTime() + (Number(durationSeconds) || 7200) * 1000);
 
-  const datesParam = `${formatGCalDate(start)}/${formatGCalDate(end)}`;
-  const title = encodeURIComponent(`[${platform.toUpperCase()}] ${name}`);
-  const details = encodeURIComponent(`Live Competitive Programming Contest on ${platform.toUpperCase()}.\n\nRegistration & Problems: ${url}\n\nTracked via DevTrack Platform.`);
-  const location = encodeURIComponent(url);
+    const formatGCalDate = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
 
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${datesParam}&details=${details}&location=${location}`;
+    const datesParam = `${formatGCalDate(validStart)}/${formatGCalDate(end)}`;
+    const platName = (platform || 'Contest').toUpperCase();
+    const title = encodeURIComponent(`[${platName}] ${name}`);
+    const details = encodeURIComponent(
+      `Live Competitive Programming Contest on ${platName}.\n\nRegistration & Problems: ${url}\n\nSynced via DevTrack — Developer Productivity & Career Placement Readiness.`
+    );
+    const location = encodeURIComponent(url || '');
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${datesParam}&details=${details}&location=${location}`;
+  } catch (e) {
+    console.error('Failed to generate Google Calendar URL:', e);
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+  }
 }

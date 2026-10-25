@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getToken } from '../utils/token';
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL
@@ -7,17 +8,9 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((req) => {
-  const token = localStorage.getItem('token');
+  const token = getToken();
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;
-  } else {
-    const user = localStorage.getItem('devtrack_user');
-    if (user) {
-      try {
-        const parsed = JSON.parse(user);
-        if (parsed.token) req.headers.Authorization = `Bearer ${parsed.token}`;
-      } catch { /* ignore */ }
-    }
   }
   return req;
 });

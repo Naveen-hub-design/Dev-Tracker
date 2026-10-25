@@ -22,8 +22,12 @@ export function AuthProvider({ children }) {
       const merged = { ...data, token: data.token || existingToken };
       setUser(merged);
       localStorage.setItem('devtrack_user', JSON.stringify(merged));
+      if (merged.token) {
+        localStorage.setItem('token', merged.token);
+      }
     } catch {
       localStorage.removeItem('devtrack_user');
+      localStorage.removeItem('token');
       setUser(null);
     } finally {
       setLoading(false);
@@ -37,11 +41,15 @@ export function AuthProvider({ children }) {
   const login = (userData) => {
     setUser(userData);
     localStorage.setItem('devtrack_user', JSON.stringify(userData));
+    if (userData?.token) {
+      localStorage.setItem('token', userData.token);
+    }
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('devtrack_user');
+    localStorage.removeItem('token');
   };
 
   const updateUser = (updates) => {

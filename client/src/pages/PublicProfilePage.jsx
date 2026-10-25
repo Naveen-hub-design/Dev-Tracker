@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPublicProfile } from '../api/public';
 import BadgeModal from '../components/badge/BadgeModal';
+import ShareModal from '../components/badge/ShareModal';
 import {
   Github,
   Code2,
@@ -76,6 +77,7 @@ export default function PublicProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [badgeModalOpen, setBadgeModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
@@ -163,9 +165,9 @@ export default function PublicProfilePage() {
               <Sparkles className="w-3.5 h-3.5 text-orange-500" />
               README Badge
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleCopyLink}>
-              {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Share2 className="w-3.5 h-3.5" />}
-              <span className="hidden sm:inline">{copiedLink ? 'Copied' : 'Share'}</span>
+            <Button variant="ghost" size="sm" onClick={() => setShareModalOpen(true)}>
+              <Share2 className="w-3.5 h-3.5 text-orange-500" />
+              <span className="hidden sm:inline">Share Profile</span>
             </Button>
             <Link to="/register">
               <Button variant="primary" size="sm">
@@ -268,12 +270,21 @@ export default function PublicProfilePage() {
                 <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
                   Top Tier Readiness
                 </p>
-                <button
-                  onClick={() => setBadgeModalOpen(true)}
-                  className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-flex items-center gap-1"
-                >
-                  Embed README Badge <ExternalLink className="w-3 h-3" />
-                </button>
+                <div className="flex items-center gap-2.5 mt-2">
+                  <button
+                    onClick={() => setShareModalOpen(true)}
+                    className="text-xs font-semibold text-orange-600 dark:text-orange-400 hover:underline inline-flex items-center gap-1"
+                  >
+                    <Share2 className="w-3 h-3" /> Share Profile
+                  </button>
+                  <span className="text-slate-300 dark:text-slate-700">•</span>
+                  <button
+                    onClick={() => setBadgeModalOpen(true)}
+                    className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                  >
+                    README Badge <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -617,6 +628,16 @@ export default function PublicProfilePage() {
         isOpen={badgeModalOpen}
         onClose={() => setBadgeModalOpen(false)}
         username={primaryHandle}
+        profileUrl={window.location.href}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        user={user}
+        score={score?.developerScore}
+        platforms={platforms}
         profileUrl={window.location.href}
       />
     </div>

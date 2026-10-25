@@ -20,6 +20,8 @@ import {
   ChevronRight,
   Info,
   ChefHat,
+  LayoutGrid,
+  List,
 } from 'lucide-react';
 import PageContainer from '../components/ui/PageContainer';
 import Card from '../components/ui/Card';
@@ -287,6 +289,69 @@ function ContestCard({ contest }) {
   );
 }
 
+function TimelineContestRow({ contest }) {
+  const cfg = PLATFORM_CONFIG[contest.platform] || PLATFORM_CONFIG.all;
+  const Icon = cfg.icon;
+  const remaining = getTimeRemaining(contest.startTime);
+  const gcalUrl = generateGoogleCalendarUrl(contest);
+
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:shadow-sm">
+      <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+        <div className={`p-2.5 rounded-xl border ${cfg.badge} shrink-0`}>
+          <Icon className="w-5 h-5" />
+        </div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate">
+              {contest.name}
+            </h4>
+            {contest.division && (
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                {contest.division}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <span className="flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5 text-slate-400" />
+              {new Date(contest.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+            <span>•</span>
+            <span>{formatDuration(contest.durationSeconds)}</span>
+            <span>•</span>
+            <span className={remaining.isLive ? 'text-emerald-500 font-semibold animate-pulse' : ''}>
+              {remaining.formatted}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+        <a
+          href={gcalUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 dark:bg-slate-800 dark:hover:bg-blue-900/30 dark:text-slate-300 dark:hover:text-blue-300 border border-slate-200 dark:border-slate-700 transition-all"
+          title="Add to Google Calendar"
+        >
+          <CalendarPlus className="w-3.5 h-3.5 text-blue-500" />
+          <span>Add to GCal</span>
+        </a>
+        <a
+          href={contest.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm shadow-blue-600/20 transition-all"
+        >
+          <span>Register</span>
+          <ExternalLink className="w-3 h-3" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
 export default function ContestCalendarPage() {
   const {
     contests,
@@ -401,6 +466,34 @@ export default function ContestCalendarPage() {
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Refresh</span>
             </Button>
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80">
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                  viewMode === 'grid'
+                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+                title="Grid View"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('timeline')}
+                className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                  viewMode === 'timeline'
+                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+                title="Timeline Schedule"
+              >
+                <List className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -424,14 +517,36 @@ export default function ContestCalendarPage() {
           </div>
         )}
 
-        {/* Contest Cards Grid */}
-        {!loading && filteredContests.length > 0 && (
+        {/* Contest Cards Grid View */}
+        {!loading && filteredContests.length > 0 && viewMode === 'grid' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <AnimatePresence>
               {filteredContests.map((contest) => (
                 <ContestCard key={contest.id} contest={contest} />
               ))}
             </AnimatePresence>
+          </div>
+        )}
+
+        {/* Timeline Schedule View */}
+        {!loading && filteredContests.length > 0 && viewMode === 'timeline' && (
+          <div className="space-y-6">
+            {Object.entries(groupedByDate).map(([dateLabel, dayContests]) => (
+              <div key={dateLabel} className="space-y-2.5">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
+                  <CalendarIcon className="w-3.5 h-3.5 text-blue-500" />
+                  <span>{dateLabel}</span>
+                  <span className="text-[11px] font-normal lowercase text-slate-400">
+                    ({dayContests.length} {dayContests.length === 1 ? 'round' : 'rounds'})
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {dayContests.map((c) => (
+                    <TimelineContestRow key={c.id} contest={c} />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
