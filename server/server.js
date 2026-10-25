@@ -62,7 +62,9 @@ app.get('/api/health', (req, res) => {
 const distPath = path.join(__dirname, '..', 'client', 'dist');
 app.use(express.static(distPath));
 app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) return;
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'Endpoint not found' });
+  }
   res.sendFile(path.join(distPath, 'index.html'));
 });
 

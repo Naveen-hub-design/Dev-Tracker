@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchDashboard } from '../api/dashboard';
+import { fetchDashboard, syncDashboard } from '../api/dashboard';
 
 export function useDashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
 
   const load = useCallback(async () => {
@@ -28,9 +29,24 @@ export function useDashboard() {
     }
   }, []);
 
+  const syncAll = useCallback(async () => {
+    setSyncing(true);
+    setError(null);
+    try {
+      const data = await syncDashboard();
+      setDashboard(data);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    } finally {
+      setSyncing(false);
+    }
+  }, []);
+
   useEffect(() => {
     load();
   }, [load]);
 
-  return { dashboard, loading, error, refetch: load };
+  return { dashboard, loading, syncing, error, refetch: load, syncAll };
 }
+

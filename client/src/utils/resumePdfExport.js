@@ -1,5 +1,3 @@
-import html2pdf from 'html2pdf.js';
-
 /**
  * Export resume preview directly as a clean, high-resolution A4 PDF
  */
@@ -8,6 +6,9 @@ export async function downloadResumePDF(resume, template = 'modern') {
   if (!element) {
     throw new Error('Resume preview target element not found in DOM.');
   }
+
+  const html2pdfModule = await import('html2pdf.js');
+  const html2pdf = html2pdfModule.default || html2pdfModule;
 
   const rawName = (resume?.personal?.name || 'Developer').trim();
   const cleanName = rawName.replace(/[^a-zA-Z0-9_-]/g, '_');

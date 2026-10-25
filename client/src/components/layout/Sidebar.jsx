@@ -59,8 +59,7 @@ const NAV_GROUPS = [
     items: [
       { path: '/applications', label: 'Job Applications', icon: Briefcase, badge: 'New' },
       { path: '/career', label: 'AI Assistant', icon: Sparkles },
-      { path: '/jobmatch', label: 'Job Match', icon: FileText },
-      { path: '/jobreadiness', label: 'Job Readiness', icon: ClipboardCheck },
+      { path: '/jobreadiness', label: 'Job Readiness & Match', icon: ClipboardCheck },
       { path: '/resume', label: 'Resume Builder', icon: FileText },
       { path: '/portfolio', label: 'Portfolio', icon: Globe },
       { path: '/certificates', label: 'Certificates', icon: Award },

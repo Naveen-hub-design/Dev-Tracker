@@ -11,3 +11,4 @@ export { default as LCRecentProblems } from './LCRecentProblems';
 export { default as LCAchievements } from './LCAchievements';
 export { default as LCPageSkeleton } from './LCPageSkeleton';
 export { default as DailyChallengeWidget } from './DailyChallengeWidget';
+export { default as WeakTopicsRecommender } from './WeakTopicsRecommender';

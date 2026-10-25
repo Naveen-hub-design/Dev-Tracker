@@ -19,3 +19,8 @@ export async function fetchDashboard() {
   const res = await API.get('/');
   return res.data;
 }
+
+export async function syncDashboard() {
+  const res = await API.post('/sync');
+  return res.data;
+}

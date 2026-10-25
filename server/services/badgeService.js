@@ -104,12 +104,13 @@ function generateProfileCard({
 
   // Theme palettes
   const isLight = theme === 'light';
-  const bg = isLight ? '#ffffff' : '#0d1117';
-  const cardBorder = isLight ? '#e2e8f0' : '#30363d';
-  const innerBg = isLight ? '#f8fafc' : '#161b22';
+  const isMidnight = theme === 'midnight';
+  const bg = isLight ? '#ffffff' : isMidnight ? '#0b0f19' : '#0d1117';
+  const cardBorder = isLight ? '#e2e8f0' : isMidnight ? '#1f293d' : '#30363d';
+  const innerBg = isLight ? '#f8fafc' : isMidnight ? '#111827' : '#161b22';
   const textPrimary = isLight ? '#0f172a' : '#f0f6fc';
-  const textSecondary = isLight ? '#64748b' : '#8b949e';
-  const statBoxBorder = isLight ? '#e2e8f0' : '#21262d';
+  const textSecondary = isLight ? '#64748b' : isMidnight ? '#94a3b8' : '#8b949e';
+  const statBoxBorder = isLight ? '#e2e8f0' : isMidnight ? '#1e293b' : '#21262d';
 
   // Circular gauge calculation (radius 34, perimeter = 2 * PI * 34 ≈ 213.6)
   const radius = 34;

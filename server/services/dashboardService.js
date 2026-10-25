@@ -421,4 +421,54 @@ function mergeRecentActivity(github, leetcode, codeforces, codechef) {
   return activities.slice(0, 10);
 }
 
-module.exports = { getDashboardData };
+async function syncAllDashboardData(userId) {
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+
+  const tasks = [];
+
+  if (user.githubUsername) {
+    tasks.push(
+      fetchGithubFromApi(user.githubUsername)
+        .then((fresh) => User.findOneAndUpdate({ _id: user._id }, { githubData: fresh }))
+        .catch((err) => console.warn(`SyncAll: GitHub failed: ${err.message}`))
+    );
+  }
+
+  if (user.leetcodeUsername) {
+    tasks.push(
+      fetchLeetcodeFromApi(user.leetcodeUsername)
+        .then((fresh) => User.findOneAndUpdate({ _id: user._id }, { leetcodeData: fresh }))
+        .catch((err) => console.warn(`SyncAll: LeetCode failed: ${err.message}`))
+    );
+  }
+
+  if (user.hackerRankUsername) {
+    tasks.push(
+      fetchHackerRankData(user.hackerRankUsername)
+        .then((fresh) => User.findOneAndUpdate({ _id: user._id }, { hackerRankData: fresh }))
+        .catch((err) => console.warn(`SyncAll: HackerRank failed: ${err.message}`))
+    );
+  }
+
+  if (user.codeforcesUsername) {
+    tasks.push(
+      fetchCodeforcesData(user.codeforcesUsername)
+        .then((fresh) => User.findOneAndUpdate({ _id: user._id }, { codeforcesData: fresh }))
+        .catch((err) => console.warn(`SyncAll: Codeforces failed: ${err.message}`))
+    );
+  }
+
+  if (user.codeChefUsername) {
+    tasks.push(
+      fetchCodeChefData(user.codeChefUsername)
+        .then((fresh) => User.findOneAndUpdate({ _id: user._id }, { codeChefData: fresh }))
+        .catch((err) => console.warn(`SyncAll: CodeChef failed: ${err.message}`))
+    );
+  }
+
+  await Promise.allSettled(tasks);
+  return await getDashboardData(userId);
+}
+
+module.exports = { getDashboardData, syncAllDashboardData };

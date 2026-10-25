@@ -114,8 +114,45 @@ const toggleDailySolve = async (req, res, next) => {
   }
 };
 
+const User = require('../models/User');
+const { analyzeWeakTopics } = require('../services/weakTopicService');
+
+const getWeakTopicRecommendations = async (req, res, next) => {
+  try {
+    let leetcodeData = null;
+
+    // 1. If user is logged in, inspect user's stored leetcodeData
+    if (req.user) {
+      const user = await User.findById(req.user._id);
+      if (user?.leetcodeData) {
+        leetcodeData = user.leetcodeData;
+      }
+    }
+
+    // 2. Or query by username if specified
+    const targetUsername = req.query.username || (req.user?.leetcodeUsername);
+    if (!leetcodeData && targetUsername) {
+      try {
+        const { fetchLeetCodeData } = require('../services/leetcodeService');
+        leetcodeData = await fetchLeetCodeData(targetUsername);
+      } catch {
+        // Fallback to empty evaluation
+      }
+    }
+
+    const analysis = analyzeWeakTopics(leetcodeData);
+    res.json({
+      success: true,
+      analysis,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getLeetCodeProfile,
   getDailyChallenge,
   toggleDailySolve,
+  getWeakTopicRecommendations,
 };

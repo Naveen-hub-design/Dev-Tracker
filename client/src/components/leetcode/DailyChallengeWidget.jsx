@@ -14,8 +14,11 @@ import {
   Layers,
   Clock,
   RotateCcw,
+  Bell,
+  BellRing,
 } from 'lucide-react';
 import { useDailyChallenge } from '../../hooks/useDailyChallenge';
+import { playNotificationChime } from '../../hooks/useNotifications';
 
 function getDifficultyBadge(diff = '') {
   const d = diff.toLowerCase();
@@ -33,6 +36,9 @@ export default function DailyChallengeWidget({ compact = false }) {
   const [showHints, setShowHints] = useState(false);
   const [notes, setNotes] = useState('');
   const [showNotes, setShowNotes] = useState(false);
+  const [desktopAlertsEnabled, setDesktopAlertsEnabled] = useState(() => {
+    return typeof Notification !== 'undefined' && Notification.permission === 'granted';
+  });
 
   if (loading) {
     return (
@@ -55,11 +61,51 @@ export default function DailyChallengeWidget({ compact = false }) {
   const diffClass = getDifficultyBadge(problem.difficulty);
 
   const handleToggle = async () => {
+    const isSolving = !solvedToday;
     try {
       await toggleSolve(notes);
+      if (isSolving) {
+        playNotificationChime();
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          try {
+            new Notification('🔥 Daily Challenge Solved!', {
+              body: `Great job! You completed "${problem.title}" and kept your streak alive (${currentStreak + 1} days)!`,
+              icon: '/favicon.ico',
+            });
+          } catch {
+            // notification failed silently
+          }
+        }
+      }
     } catch {
       // handled in hook
     }
+  };
+
+  const handleToggleStreakAlerts = async () => {
+    if (typeof Notification === 'undefined') return;
+    if (Notification.permission === 'granted') {
+      playNotificationChime();
+      try {
+        new Notification('🔔 Daily Streak Alerts Active', {
+          body: `DevTracker will alert you if today's daily LeetCode challenge is unfinished!`,
+          icon: '/favicon.ico',
+        });
+      } catch {}
+      return;
+    }
+
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted') {
+        setDesktopAlertsEnabled(true);
+        playNotificationChime();
+        new Notification('🔥 Streak Alerts Enabled!', {
+          body: `You'll now receive browser alerts for daily coding streak reminders.`,
+          icon: '/favicon.ico',
+        });
+      }
+    } catch {}
   };
 
   return (
@@ -97,6 +143,31 @@ export default function DailyChallengeWidget({ compact = false }) {
               <Trophy className="w-3 h-3 text-amber-500" />
               Best: {longestStreak}d
             </span>
+          )}
+
+          {typeof window !== 'undefined' && 'Notification' in window && (
+            <button
+              type="button"
+              onClick={handleToggleStreakAlerts}
+              title={desktopAlertsEnabled ? 'Desktop streak reminders enabled' : 'Enable browser alerts for streak reminders'}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
+                desktopAlertsEnabled
+                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
+                  : 'bg-white dark:bg-slate-800 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              {desktopAlertsEnabled ? (
+                <>
+                  <BellRing className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="hidden sm:inline">Alerts On</span>
+                </>
+              ) : (
+                <>
+                  <Bell className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Alert Me</span>
+                </>
+              )}
+            </button>
           )}
         </div>
       </div>

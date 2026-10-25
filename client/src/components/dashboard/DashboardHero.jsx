@@ -24,7 +24,7 @@ function getMotivation(score) {
   return "Connect your accounts and complete daily habits to begin building your developer score.";
 }
 
-export default function DashboardHero({ score = 0, loading }) {
+export default function DashboardHero({ score = 0, loading, syncing, onSyncAll }) {
   const { user } = useAuth();
   const [badgeModalOpen, setBadgeModalOpen] = useState(false);
 
@@ -64,6 +64,20 @@ export default function DashboardHero({ score = 0, loading }) {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                {onSyncAll && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={onSyncAll}
+                    disabled={syncing}
+                    className="text-xs font-semibold shadow-xs bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-0"
+                    title="Fetch fresh data from GitHub, LeetCode, Codeforces, CodeChef, and HackerRank"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+                    {syncing ? 'Syncing...' : 'Sync All'}
+                  </Button>
+                )}
+
                 <Link to="/playground">
                   <Button variant="secondary" size="sm" className="text-xs font-semibold">
                     <Terminal className="w-3.5 h-3.5 text-orange-500" />
@@ -125,6 +139,8 @@ export default function DashboardHero({ score = 0, loading }) {
         isOpen={badgeModalOpen}
         onClose={() => setBadgeModalOpen(false)}
         username={primaryHandle}
+        user={user}
+        score={score}
       />
     </>
   );

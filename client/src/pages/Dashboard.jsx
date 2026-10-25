@@ -121,7 +121,7 @@ function buildStreakData(dashboard) {
 }
 
 export default function Dashboard() {
-  const { dashboard, loading, error, refetch } = useDashboard();
+  const { dashboard, loading, syncing, error, refetch, syncAll } = useDashboard();
 
   const contributionData = useMemo(
     () => buildContributionData(dashboard),
@@ -152,7 +152,12 @@ export default function Dashboard() {
 
   return (
     <PageContainer>
-      <DashboardHero score={dashboard?.developerScore} loading={loading} />
+      <DashboardHero
+        score={dashboard?.developerScore}
+        loading={loading}
+        syncing={syncing}
+        onSyncAll={syncAll}
+      />
 
       <QuickStats dashboard={dashboard} loading={loading} />
 

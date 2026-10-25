@@ -1,0 +1,42 @@
+{
+  "name": "DevTrack - Developer Productivity & Career Hub",
+  "short_name": "DevTrack",
+  "description": "Multi-platform developer productivity, daily DSA streak monitor, contest calendar, and career placement readiness.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0f19",
+  "theme_color": "#f97316",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Daily Challenge",
+      "url": "/leetcode",
+      "description": "Check today's LeetCode daily coding challenge"
+    },
+    {
+      "name": "Contests Calendar",
+      "url": "/contests",
+      "description": "View upcoming competitive programming contests"
+    },
+    {
+      "name": "Job Readiness",
+      "url": "/jobreadiness",
+      "description": "View placement readiness & role matching"
+    }
+  ]
+}

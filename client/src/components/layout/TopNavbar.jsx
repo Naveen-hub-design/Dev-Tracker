@@ -18,30 +18,62 @@ import {
   ExternalLink,
   ShieldCheck,
   ChefHat,
+  Binary,
+  Calendar,
+  FolderKanban,
+  FileText,
+  Globe,
+  Award,
+  Target,
+  BarChart3,
+  ClipboardCheck,
+  Download,
 } from 'lucide-react';
+import { usePwaInstall } from '../../hooks/usePwaInstall';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../notifications/NotificationBell';
 import ThemeToggle from '../ui/ThemeToggle';
 
 const QUICK_COMMANDS = [
   { name: 'Dashboard', path: '/', icon: Trophy, category: 'Core' },
+  { name: 'Analytics Deep-Dive', path: '/analytics', icon: BarChart3, category: 'Core' },
+  { name: 'Global & Campus Leaderboard', path: '/leaderboard', icon: Trophy, category: 'Core' },
   { name: 'LeetCode Analytics & Daily', path: '/leetcode', icon: Code2, category: 'Platforms' },
   { name: 'GitHub Deep Analytics', path: '/github', icon: Github, category: 'Platforms' },
   { name: 'CodeChef Analytics & Contests', path: '/codechef', icon: ChefHat, category: 'Platforms' },
+  { name: 'Codeforces Analytics & Rank', path: '/codeforces', icon: Binary, category: 'Platforms' },
+  { name: 'HackerRank Badges & Skills', path: '/hackerrank', icon: ShieldCheck, category: 'Platforms' },
+  { name: 'Live Contest Calendar', path: '/contests', icon: Calendar, category: 'Platforms' },
   { name: 'DSA Code Playground', path: '/playground', icon: Terminal, category: 'Tools' },
+  { name: 'Projects Portfolio', path: '/projects', icon: FolderKanban, category: 'Tools' },
+  { name: 'Coding Goals & Streaks', path: '/goals', icon: Target, category: 'Tools' },
   { name: 'Job Application Pipeline', path: '/applications', icon: Briefcase, category: 'Career' },
+  { name: 'Placement Readiness & Match', path: '/jobreadiness', icon: ClipboardCheck, category: 'Career' },
   { name: 'AI Career Assistant & ATS', path: '/career', icon: Sparkles, category: 'Career' },
-  { name: 'Global & Campus Leaderboard', path: '/leaderboard', icon: Trophy, category: 'Core' },
-  { name: 'Settings & Token Sync', path: '/settings', icon: Settings, category: 'Settings' },
+  { name: 'Resume Builder & Export', path: '/resume', icon: FileText, category: 'Career' },
+  { name: 'Personal Web Portfolio', path: '/portfolio', icon: Globe, category: 'Career' },
+  { name: 'Verified Certificates', path: '/certificates', icon: Award, category: 'Career' },
+  { name: 'Settings & Platform Accounts', path: '/settings', icon: Settings, category: 'Settings' },
 ];
 
 export default function TopNavbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { isInstallable, promptInstall } = usePwaInstall();
   const [showProfile, setShowProfile] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const dropdownRef = useRef(null);
+
+  const filteredCommands = QUICK_COMMANDS.filter((cmd) =>
+    cmd.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    cmd.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [searchQuery]);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -68,15 +100,28 @@ export default function TopNavbar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const handleCommandKeyDown = (e) => {
+    if (!filteredCommands.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev + 1) % filteredCommands.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev - 1 + filteredCommands.length) % filteredCommands.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (filteredCommands[selectedIndex]) {
+        navigate(filteredCommands[selectedIndex].path);
+        setCommandOpen(false);
+        setSearchQuery('');
+      }
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
-
-  const filteredCommands = QUICK_COMMANDS.filter((cmd) =>
-    cmd.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cmd.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <>
@@ -102,6 +147,18 @@ export default function TopNavbar() {
 
         {/* Right Action Icons & Profile */}
         <div className="flex items-center gap-2.5 ml-auto">
+          {/* PWA Install Button */}
+          {isInstallable && (
+            <button
+              onClick={promptInstall}
+              title="Install DevTrack as a Desktop / Mobile App"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/15 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 text-orange-600 dark:text-orange-400 border border-orange-500/30 text-xs font-semibold transition-all shadow-xs group"
+            >
+              <Download className="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform" />
+              <span className="hidden sm:inline">Install App</span>
+            </button>
+          )}
+
           {/* Live System Indicator */}
           <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -148,6 +205,15 @@ export default function TopNavbar() {
                   </div>
 
                   <div className="p-1 space-y-0.5">
+                    {isInstallable && (
+                      <button
+                        onClick={() => { promptInstall(); setShowProfile(false); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 rounded-xl transition-colors"
+                      >
+                        <Download className="w-4 h-4 text-orange-500" />
+                        Install Desktop App
+                      </button>
+                    )}
                     <button
                       onClick={() => { navigate('/settings'); setShowProfile(false); }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#161a26] rounded-xl transition-colors"
@@ -204,9 +270,10 @@ export default function TopNavbar() {
                 <input
                   type="text"
                   autoFocus
-                  placeholder="Type a page or command to navigate..."
+                  placeholder="Type a page or command to navigate... (↑↓ to select, Enter to open)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleCommandKeyDown}
                   className="w-full bg-transparent text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none"
                 />
                 <button
@@ -219,24 +286,44 @@ export default function TopNavbar() {
 
               <div className="max-h-72 overflow-y-auto p-2 space-y-1">
                 {filteredCommands.length > 0 ? (
-                  filteredCommands.map((cmd) => {
+                  filteredCommands.map((cmd, idx) => {
                     const CmdIcon = cmd.icon;
+                    const isSelected = idx === selectedIndex;
                     return (
                       <button
                         key={cmd.path}
+                        onMouseEnter={() => setSelectedIndex(idx)}
                         onClick={() => {
                           navigate(cmd.path);
                           setCommandOpen(false);
                           setSearchQuery('');
                         }}
-                        className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-orange-50/50 dark:hover:bg-orange-500/10 text-left transition-colors group"
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-colors group ${
+                          isSelected
+                            ? 'bg-orange-50 dark:bg-orange-500/15 border border-orange-500/30'
+                            : 'hover:bg-slate-50 dark:hover:bg-[#161a26] border border-transparent'
+                        }`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-slate-100 dark:bg-[#161a26] group-hover:bg-orange-100 dark:group-hover:bg-orange-500/20 text-slate-500 group-hover:text-orange-600 dark:group-hover:text-orange-300 transition-colors">
+                          <div
+                            className={`p-2 rounded-lg transition-colors ${
+                              isSelected
+                                ? 'bg-orange-100 dark:bg-orange-500/25 text-orange-600 dark:text-orange-300'
+                                : 'bg-slate-100 dark:bg-[#161a26] text-slate-500 group-hover:text-orange-600 dark:group-hover:text-orange-300'
+                            }`}
+                          >
                             <CmdIcon className="w-4 h-4" />
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-orange-600 dark:group-hover:text-orange-300 transition-colors">{cmd.name}</p>
+                            <p
+                              className={`text-xs font-bold transition-colors ${
+                                isSelected
+                                  ? 'text-orange-600 dark:text-orange-300'
+                                  : 'text-slate-800 dark:text-slate-100 group-hover:text-orange-600 dark:group-hover:text-orange-300'
+                              }`}
+                            >
+                              {cmd.name}
+                            </p>
                             <p className="text-[10px] text-slate-400">{cmd.path}</p>
                           </div>
                         </div>

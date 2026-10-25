@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19" />
+      <stop offset="50%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="50%" stop-color="#fb923c" />
+      <stop offset="100%" stop-color="#fbbf24" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#818cf8" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#f97316" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- App Icon Background -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+  <rect width="504" height="504" x="4" y="4" rx="124" stroke="rgba(255,255,255,0.08)" stroke-width="8" />
+
+  <!-- Outer Ambient Hexagon Glow -->
+  <g filter="url(#shadow)">
+    <!-- Shield / Hexagon Path -->
+    <path d="M256 96 L416 188 V324 L256 416 L96 324 V188 Z" stroke="url(#glowGrad)" stroke-width="24" stroke-linejoin="round" fill="rgba(249, 115, 22, 0.08)" />
+  </g>
+
+  <!-- Internal Code Brackets & Bar Graph Emblem -->
+  <!-- Left Bracket < -->
+  <path d="M196 216 L144 256 L196 296" stroke="url(#accentGrad)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Right Bracket > -->
+  <path d="M316 216 L368 256 L316 296" stroke="url(#accentGrad)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Center Rising Stats Bars -->
+  <rect x="222" y="270" width="14" height="42" rx="7" fill="url(#glowGrad)" />
+  <rect x="248" y="236" width="16" height="76" rx="8" fill="url(#glowGrad)" />
+  <rect x="276" y="200" width="14" height="112" rx="7" fill="url(#glowGrad)" />
+
+  <!-- Glowing Accent Sparkle Core -->
+  <circle cx="256" cy="156" r="10" fill="#fbbf24" />
+</svg>

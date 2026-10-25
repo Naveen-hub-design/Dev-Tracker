@@ -16,12 +16,12 @@ export default defineConfig({
     'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || ''),
   },
   build: {
-    chunkSizeWarningLimit: 650,
+    chunkSizeWarningLimit: 850,
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('jspdf') || id.includes('html2canvas')) {
+            if (id.includes('jspdf') || id.includes('html2canvas') || id.includes('html2pdf')) {
               return 'vendor-pdf';
             }
             if (id.includes('recharts')) {

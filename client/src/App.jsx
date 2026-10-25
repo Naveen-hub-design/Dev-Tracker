@@ -10,7 +10,6 @@ const GitHubPage = lazy(() => import('./pages/GitHubPage'));
 const HackerRankPage = lazy(() => import('./pages/HackerRankPage'));
 const CodeforcesPage = lazy(() => import('./pages/CodeforcesPage'));
 const CodeChefPage = lazy(() => import('./pages/CodeChefPage'));
-const JobMatchPage = lazy(() => import('./pages/JobMatchPage'));
 const JobReadinessPage = lazy(() => import('./pages/JobReadinessPage'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
@@ -85,7 +84,7 @@ export default function App() {
             <Route path="/contests" element={<ContestCalendarPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/applications" element={<ApplicationsPage />} />
-            <Route path="/jobmatch" element={<JobMatchPage />} />
+            <Route path="/jobmatch" element={<Navigate to="/jobreadiness?tab=roles" replace />} />
             <Route path="/jobreadiness" element={<JobReadinessPage />} />
             <Route path="/resume" element={<ResumePage />} />
             <Route path="/portfolio" element={<PortfolioPage />} />

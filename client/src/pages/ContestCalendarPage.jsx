@@ -22,13 +22,26 @@ import {
   ChefHat,
   LayoutGrid,
   List,
+  Bell,
+  BellRing,
 } from 'lucide-react';
 import PageContainer from '../components/ui/PageContainer';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import EmptyState from '../components/ui/EmptyState';
 import { useContests, getTimeRemaining, formatDuration } from '../hooks/useContests';
-import { generateGoogleCalendarUrl } from '../api/contests';
+import { generateGoogleCalendarUrl, downloadIcsFile } from '../api/contests';
+import { playNotificationChime } from '../hooks/useNotifications';
+
+const CONTEST_ALERTS_KEY = 'devtrack_saved_contest_alerts';
+
+function getSavedContestAlerts() {
+  try {
+    return JSON.parse(localStorage.getItem(CONTEST_ALERTS_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
 
 const PLATFORM_CONFIG = {
   codeforces: {
@@ -88,7 +101,7 @@ function formatStartTime(isoString) {
   });
 }
 
-function HeroCountdown({ contest }) {
+function HeroCountdown({ contest, isAlerted, onToggleAlert }) {
   if (!contest) return null;
   const remaining = getTimeRemaining(contest.startTime);
   const cfg = PLATFORM_CONFIG[contest.platform] || PLATFORM_CONFIG.all;
@@ -147,6 +160,21 @@ function HeroCountdown({ contest }) {
               <CalendarPlus className="w-4 h-4" />
               Add to Google Calendar
             </a>
+            {typeof window !== 'undefined' && 'Notification' in window && (
+              <button
+                type="button"
+                onClick={() => onToggleAlert(contest)}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-xs md:text-sm border transition-all hover:scale-[1.02] active:scale-[0.98] ${
+                  isAlerted
+                    ? 'bg-amber-500/25 text-amber-300 border-amber-500/40 shadow-lg shadow-amber-500/20'
+                    : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
+                }`}
+                title="Toggle browser notification reminder for this round"
+              >
+                {isAlerted ? <BellRing className="w-4 h-4 text-amber-400" /> : <Bell className="w-4 h-4" />}
+                <span>{isAlerted ? 'Alert Enabled' : 'Notify Me'}</span>
+              </button>
+            )}
             <a
               href={contest.url}
               target="_blank"
@@ -203,7 +231,7 @@ function HeroCountdown({ contest }) {
   );
 }
 
-function ContestCard({ contest }) {
+function ContestCard({ contest, isAlerted, onToggleAlert }) {
   const cfg = PLATFORM_CONFIG[contest.platform] || PLATFORM_CONFIG.all;
   const Icon = cfg.icon;
   const remaining = getTimeRemaining(contest.startTime);
@@ -225,15 +253,31 @@ function ContestCard({ contest }) {
             <Icon className="w-3.5 h-3.5" />
             {cfg.name}
           </span>
-          <span
-            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-              remaining.isLive
-                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 animate-pulse'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-            }`}
-          >
-            {remaining.formatted}
-          </span>
+          <div className="flex items-center gap-1.5">
+            {typeof window !== 'undefined' && 'Notification' in window && (
+              <button
+                type="button"
+                onClick={() => onToggleAlert(contest)}
+                title={isAlerted ? 'Contest desktop alert enabled' : 'Notify me before this round begins'}
+                className={`p-1.5 rounded-lg border transition-all ${
+                  isAlerted
+                    ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40 ring-1 ring-amber-500/30'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-slate-200 dark:border-slate-700'
+                }`}
+              >
+                {isAlerted ? <BellRing className="w-3.5 h-3.5 text-amber-500" /> : <Bell className="w-3.5 h-3.5" />}
+              </button>
+            )}
+            <span
+              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                remaining.isLive
+                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 animate-pulse'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+              }`}
+            >
+              {remaining.formatted}
+            </span>
+          </div>
         </div>
 
         {/* Contest Name */}
@@ -264,32 +308,41 @@ function ContestCard({ contest }) {
       </div>
 
       {/* Action buttons */}
-      <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+      <div className="grid grid-cols-3 gap-1.5 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
         <a
           href={gcalUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 dark:bg-slate-800 dark:hover:bg-blue-900/30 dark:text-slate-300 dark:hover:text-blue-300 transition-colors"
+          className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-[11px] font-semibold bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 dark:bg-slate-800 dark:hover:bg-blue-900/30 dark:text-slate-300 dark:hover:text-blue-300 transition-colors"
           title="Add to Google Calendar"
         >
           <CalendarPlus className="w-3.5 h-3.5 text-blue-500" />
-          Add to GCal
+          <span>GCal</span>
         </a>
+        <button
+          type="button"
+          onClick={() => downloadIcsFile(contest)}
+          className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-[11px] font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 dark:bg-slate-800 dark:hover:bg-emerald-900/30 dark:text-slate-300 dark:hover:text-emerald-300 transition-colors"
+          title="Download universal .ics event file for Apple/Outlook/Google Calendar"
+        >
+          <CalendarIcon className="w-3.5 h-3.5 text-emerald-500" />
+          <span>.ICS</span>
+        </button>
         <a
           href={contest.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-sm shadow-blue-600/20"
+          className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-[11px] font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-sm shadow-blue-600/20"
         >
-          Register
-          <ExternalLink className="w-3.5 h-3.5" />
+          <span>Register</span>
+          <ExternalLink className="w-3 h-3" />
         </a>
       </div>
     </motion.div>
   );
 }
 
-function TimelineContestRow({ contest }) {
+function TimelineContestRow({ contest, isAlerted, onToggleAlert }) {
   const cfg = PLATFORM_CONFIG[contest.platform] || PLATFORM_CONFIG.all;
   const Icon = cfg.icon;
   const remaining = getTimeRemaining(contest.startTime);
@@ -327,17 +380,41 @@ function TimelineContestRow({ contest }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+      <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+        {typeof window !== 'undefined' && 'Notification' in window && (
+          <button
+            type="button"
+            onClick={() => onToggleAlert(contest)}
+            className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+              isAlerted
+                ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                : 'bg-slate-100 hover:bg-amber-50 text-slate-700 hover:text-amber-600 dark:bg-slate-800 dark:hover:bg-amber-900/30 dark:text-slate-300 dark:hover:text-amber-300 border-slate-200 dark:border-slate-700'
+            }`}
+            title="Toggle desktop alert for this contest"
+          >
+            {isAlerted ? <BellRing className="w-3.5 h-3.5 text-amber-500" /> : <Bell className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">{isAlerted ? 'Alert On' : 'Alert'}</span>
+          </button>
+        )}
         <a
           href={gcalUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 dark:bg-slate-800 dark:hover:bg-blue-900/30 dark:text-slate-300 dark:hover:text-blue-300 border border-slate-200 dark:border-slate-700 transition-all"
+          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 dark:bg-slate-800 dark:hover:bg-blue-900/30 dark:text-slate-300 dark:hover:text-blue-300 border border-slate-200 dark:border-slate-700 transition-all"
           title="Add to Google Calendar"
         >
           <CalendarPlus className="w-3.5 h-3.5 text-blue-500" />
-          <span>Add to GCal</span>
+          <span>GCal</span>
         </a>
+        <button
+          type="button"
+          onClick={() => downloadIcsFile(contest)}
+          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-600 dark:bg-slate-800 dark:hover:bg-emerald-900/30 dark:text-slate-300 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-700 transition-all"
+          title="Download universal .ics file for Apple/Outlook/Google Calendar"
+        >
+          <CalendarIcon className="w-3.5 h-3.5 text-emerald-500" />
+          <span>.ICS</span>
+        </button>
         <a
           href={contest.url}
           target="_blank"
@@ -366,6 +443,38 @@ export default function ContestCalendarPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'timeline'
+  const [savedAlerts, setSavedAlerts] = useState(getSavedContestAlerts);
+
+  const handleToggleAlert = async (contest) => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+
+    if (Notification.permission !== 'granted') {
+      try {
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') return;
+      } catch {
+        return;
+      }
+    }
+
+    const currentList = getSavedContestAlerts();
+    const isSaved = currentList.includes(contest.id);
+    const updated = isSaved ? currentList.filter((id) => id !== contest.id) : [...currentList, contest.id];
+    try {
+      localStorage.setItem(CONTEST_ALERTS_KEY, JSON.stringify(updated));
+    } catch {}
+    setSavedAlerts(updated);
+    playNotificationChime();
+
+    if (!isSaved) {
+      try {
+        new Notification(`🔔 Reminder Set: ${contest.name}`, {
+          body: `DevTracker will alert you before this contest kicks off on ${contest.platform.toUpperCase()}!`,
+          icon: '/favicon.ico',
+        });
+      } catch {}
+    }
+  };
 
   const filteredContests = useMemo(() => {
     return contests.filter((c) => {
@@ -409,7 +518,13 @@ export default function ContestCalendarPage() {
     >
       <div className="space-y-6">
         {/* Next Live Round Hero Banner */}
-        {nextContest && <HeroCountdown contest={nextContest} />}
+        {nextContest && (
+          <HeroCountdown
+            contest={nextContest}
+            isAlerted={savedAlerts.includes(nextContest.id)}
+            onToggleAlert={handleToggleAlert}
+          />
+        )}
 
         {/* Filter and Control Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
@@ -522,7 +637,12 @@ export default function ContestCalendarPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <AnimatePresence>
               {filteredContests.map((contest) => (
-                <ContestCard key={contest.id} contest={contest} />
+                <ContestCard
+                  key={contest.id}
+                  contest={contest}
+                  isAlerted={savedAlerts.includes(contest.id)}
+                  onToggleAlert={handleToggleAlert}
+                />
               ))}
             </AnimatePresence>
           </div>
@@ -542,7 +662,12 @@ export default function ContestCalendarPage() {
                 </div>
                 <div className="space-y-2">
                   {dayContests.map((c) => (
-                    <TimelineContestRow key={c.id} contest={c} />
+                    <TimelineContestRow
+                      key={c.id}
+                      contest={c}
+                      isAlerted={savedAlerts.includes(c.id)}
+                      onToggleAlert={handleToggleAlert}
+                    />
                   ))}
                 </div>
               </div>

@@ -14,6 +14,7 @@ import {
   LCAchievements,
   LCPageSkeleton,
   DailyChallengeWidget,
+  WeakTopicsRecommender,
 } from '../components/leetcode';
 
 export default function LeetCodePage() {
@@ -54,6 +55,10 @@ export default function LeetCodePage() {
 
       <section aria-label="Daily challenge">
         <DailyChallengeWidget />
+      </section>
+
+      <section aria-label="Weak topics recommender">
+        <WeakTopicsRecommender username={data.username} />
       </section>
 
       <section aria-label="Solved problems">

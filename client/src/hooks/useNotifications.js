@@ -186,23 +186,31 @@ export default function useNotifications() {
       try {
         // 1. Check Contests
         const contestData = await fetchUpcomingContests('all');
-        const upcoming = (contestData.contests || []).slice(0, 3);
+        const upcoming = (contestData.contests || []).slice(0, 10);
         const now = Date.now();
+        const savedAlerts = (() => {
+          try {
+            return JSON.parse(localStorage.getItem('devtrack_saved_contest_alerts') || '[]');
+          } catch {
+            return [];
+          }
+        })();
 
         upcoming.forEach((c) => {
           const diffMs = new Date(c.startTime).getTime() - now;
           const diffHrs = Math.round(diffMs / (1000 * 60 * 60));
+          const isUserSubscribed = savedAlerts.includes(c.id);
 
-          // If contest starts in less than 36 hours
-          if (diffMs > 0 && diffHrs <= 36) {
+          // If contest starts in less than 36 hours or is explicitly subscribed by user
+          if (diffMs > 0 && (diffHrs <= 36 || isUserSubscribed)) {
             const contestNoticeId = `contest_${c.id}`;
             setNotifications((prev) => {
               if (prev.some((n) => n.id === contestNoticeId)) return prev;
               const title = `Contest in ${diffHrs}h: ${c.name}`;
               const description = `Live on ${c.platform.toUpperCase()} in ${diffHrs} hour${diffHrs > 1 ? 's' : ''}. Don't forget to register!`;
 
-              if (desktopEnabled && diffHrs <= 2) {
-                sendDesktopAlert(`[CONTEST ALERT] ${c.name}`, `Starting soon on ${c.platform.toUpperCase()}!`);
+              if (desktopEnabled && (diffHrs <= 2 || isUserSubscribed)) {
+                sendDesktopAlert(`[CONTEST ALERT] ${c.name}`, `Starting on ${c.platform.toUpperCase()} in ${diffHrs}h!`);
               }
 
               return [
