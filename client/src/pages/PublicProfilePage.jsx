@@ -245,6 +245,26 @@ export default function PublicProfilePage() {
                       <Code2 className="w-3.5 h-3.5 text-yellow-500" /> LC: {user.leetcodeUsername}
                     </a>
                   )}
+                  {user.hackerRankUsername && (
+                    <a
+                      href={`https://www.hackerrank.com/profile/${user.hackerRankUsername}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 hover:text-emerald-600 transition-colors"
+                    >
+                      <Shield className="w-3.5 h-3.5 text-emerald-500" /> HR: {user.hackerRankUsername}
+                    </a>
+                  )}
+                  {user.codeChefUsername && (
+                    <a
+                      href={`https://www.codechef.com/users/${user.codeChefUsername}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 hover:text-orange-600 transition-colors"
+                    >
+                      <ChefHat className="w-3.5 h-3.5 text-orange-500" /> CC: {user.codeChefUsername}
+                    </a>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 mt-4">

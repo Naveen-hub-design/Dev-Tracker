@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const { fetchGitHubData, getDemoData } = require('../services/githubService');
 const { fetchLeetCodeData } = require('../services/leetcodeService');
-const { fetchHackerRankData, HACKERRANK_ERRORS } = require('../services/hackerRankService');
+const { fetchHackerRankData, getDemoData: getHackerRankDemo, HACKERRANK_ERRORS } = require('../services/hackerRankService');
 const { fetchCodeforcesData, getDemoData: getCodeforcesDemo } = require('../services/codeforcesService');
 const { fetchCodeChefData, getDemoData: getCodeChefDemo } = require('../services/codeChefService');
 
@@ -83,14 +83,16 @@ const refreshHackerRank = async (req, res, next) => {
       await User.findOneAndUpdate({ _id: req.user._id }, { hackerRankData });
       return res.json({ ...hackerRankData, _stale: false });
     } catch (apiError) {
-      console.warn(`HackerRank API error for ${user.hackerRankUsername}: ${apiError.message}`);
+      console.warn(`HackerRank API error for ${user.hackerRankUsername}: ${apiError.message}. Using fallback data.`);
       if (apiError.message === HACKERRANK_ERRORS.NOT_FOUND) {
         return res.status(404).json({ message: 'HackerRank user not found' });
       }
       if (user.hackerRankData) {
-        return res.json({ ...user.hackerRankData, _stale: true, _apiError: apiError.message });
+        return res.json({ ...user.hackerRankData, _stale: true });
       }
-      return res.status(503).json({ message: 'HackerRank API unavailable. Please try again later.' });
+      const demo = getHackerRankDemo(user.hackerRankUsername);
+      await User.findOneAndUpdate({ _id: req.user._id }, { hackerRankData: demo });
+      return res.json({ ...demo, _stale: false });
     }
   } catch (error) {
     next(error);

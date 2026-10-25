@@ -288,11 +288,7 @@ export default function Settings() {
       await loadProfile();
       toast.success(`${source.charAt(0).toUpperCase() + source.slice(1)} data refreshed`);
     } catch (err) {
-      if (source === 'hackerrank') {
-        toast.error('HackerRank integration is temporarily unavailable');
-      } else {
-        toast.error(err.response?.data?.message || `Failed to refresh ${source}`);
-      }
+      toast.error(err.response?.data?.message || `Failed to refresh ${source}`);
     } finally {
       setRefreshing('');
     }
@@ -506,27 +502,43 @@ export default function Settings() {
           >
             {hrData ? (
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between">
                   <StatBadge
-                    label={hrData.hackerBadge || 'None'}
-                    color={['DIAMOND', 'PLATINUM'].includes(hrData.hackerBadge) ? 'purple' : hrData.hackerBadge === 'GOLD' ? 'amber' : 'slate'}
+                    label={`${hrData.hackerBadge || 'Ranked'} Badge`}
+                    color={['DIAMOND', 'PLATINUM'].includes(hrData.hackerBadge) ? 'purple' : hrData.hackerBadge === 'GOLD' ? 'amber' : 'emerald'}
                     dot
                   />
-                  <span className="text-xs text-slate-500 dark:text-slate-400">{hrData.totalSolved ?? 0} solved</span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    {hrData.totalSolved ?? hrData.solved ?? 0} Solved
+                  </span>
                 </div>
+                {hrData.problemsSolved && (
+                  <div className="grid grid-cols-3 gap-1.5 text-center text-[10px]">
+                    <div className="p-1 rounded bg-slate-50 dark:bg-slate-800/60 font-medium text-slate-600 dark:text-slate-300">
+                      {hrData.problemsSolved.easy || 0} Easy
+                    </div>
+                    <div className="p-1 rounded bg-slate-50 dark:bg-slate-800/60 font-medium text-amber-600 dark:text-amber-400">
+                      {hrData.problemsSolved.medium || 0} Med
+                    </div>
+                    <div className="p-1 rounded bg-slate-50 dark:bg-slate-800/60 font-medium text-rose-600 dark:text-rose-400">
+                      {hrData.problemsSolved.hard || 0} Hard
+                    </div>
+                  </div>
+                )}
                 {hrData.languages?.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1 pt-1">
                     {hrData.languages.slice(0, 4).map((lang) => (
-                      <span key={lang.name} className="px-2 py-0.5 text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">{lang.name}</span>
+                      <span key={lang.name} className="px-2 py-0.5 text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">
+                        {lang.name}
+                      </span>
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <div className="text-center py-3">
-                <p className="text-xs text-slate-400 dark:text-slate-500 mb-1">HackerRank integration is temporarily unavailable.</p>
-                <p className="text-[10px] text-slate-300 dark:text-slate-600">The HackerRank API is currently restricted. We're working on a workaround.</p>
-              </div>
+              <p className="text-xs text-slate-400 dark:text-slate-500 text-center py-4">
+                Enter your HackerRank username and save to connect.
+              </p>
             )}
           </PlatformCard>
 

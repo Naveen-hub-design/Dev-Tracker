@@ -46,6 +46,7 @@ app.use('/api/resume', require('./routes/resume'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/codeforces', require('./routes/codeforces'));
 app.use('/api/codechef', require('./routes/codechef'));
+app.use('/api/hackerrank', require('./routes/hackerRank'));
 app.use('/api/badge', require('./routes/badge'));
 app.use('/api/public', require('./routes/publicProfile'));
 app.use('/api/contests', require('./routes/contests'));

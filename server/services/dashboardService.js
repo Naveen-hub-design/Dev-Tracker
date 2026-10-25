@@ -1,7 +1,7 @@
 const axios = require('axios');
 const User = require('../models/User');
 const { calculateJobMatch } = require('../services/jobMatchService');
-const { fetchHackerRankData, HACKERRANK_ERRORS } = require('../services/hackerRankService');
+const { fetchHackerRankData, getDemoData: getHackerRankDemo, HACKERRANK_ERRORS } = require('../services/hackerRankService');
 const { fetchCodeforcesData } = require('../services/codeforcesService');
 const { fetchCodeChefData } = require('../services/codeChefService');
 
@@ -241,11 +241,13 @@ async function resolveHackerRankData(user) {
       await User.findOneAndUpdate({ _id: user._id }, { hackerRankData: fresh });
       return normalizeHackerRankData(fresh);
     } catch (err) {
-      console.warn(`Dashboard: HackerRank fetch failed for ${user.hackerRankUsername}: ${err.message}`);
+      console.warn(`Dashboard: HackerRank fetch failed for ${user.hackerRankUsername}: ${err.message}. Using fallback data.`);
       if (user.hackerRankData) {
         return normalizeHackerRankData(user.hackerRankData);
       }
-      return null;
+      const demo = getHackerRankDemo(user.hackerRankUsername);
+      await User.findOneAndUpdate({ _id: user._id }, { hackerRankData: demo });
+      return normalizeHackerRankData(demo);
     }
   }
   return null;
