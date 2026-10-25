@@ -44,19 +44,6 @@ function LoadingScreen() {
   );
 }
 
-function PageLoader() {
-  return (
-    <div className="flex items-center justify-center py-24">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center animate-pulse">
-          <div className="w-4 h-4 rounded bg-blue-500/40" />
-        </div>
-        <p className="text-xs text-slate-400 dark:text-slate-500">Loading...</p>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const { user, loading } = useAuth();
 

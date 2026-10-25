@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchDashboard } from '../../../api/dashboard';
+import { fetchDashboard } from '../api/dashboard';
 
 export function useDashboard() {
   const [dashboard, setDashboard] = useState(null);

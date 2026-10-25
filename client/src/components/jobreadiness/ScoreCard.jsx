@@ -1,27 +1,5 @@
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-
-function AnimatedNumber({ target, duration = 1200 }) {
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    if (target === 0) { setValue(0); return; }
-    let start = 0;
-    const increment = target / (duration / 16);
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= target) {
-        setValue(target);
-        clearInterval(timer);
-      } else {
-        setValue(Math.round(start));
-      }
-    }, 16);
-    return () => clearInterval(timer);
-  }, [target, duration]);
-
-  return <span>{value}</span>;
-}
+import AnimatedNumber from '../dashboard/AnimatedNumber';
 
 function ProgressRing({ score, size = 180, strokeWidth = 10, color }) {
   const radius = (size - strokeWidth) / 2;
@@ -56,7 +34,7 @@ function ProgressRing({ score, size = 180, strokeWidth = 10, color }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-4xl font-bold text-slate-900 dark:text-slate-100 tabular-nums">
-          <AnimatedNumber target={score} />
+          <AnimatedNumber value={score} duration={1200} />
         </span>
         <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">out of 100</span>
       </div>

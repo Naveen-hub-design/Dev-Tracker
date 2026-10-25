@@ -1,4 +1,4 @@
-import { useDashboard } from '../features/dashboard/hooks/useDashboard';
+import { useDashboard } from '../hooks/useDashboard';
 import PageContainer from '../components/ui/PageContainer';
 import EmptyState from '../components/ui/EmptyState';
 import { AlertTriangle, RefreshCw } from 'lucide-react';

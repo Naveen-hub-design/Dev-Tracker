@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useDashboard } from '../features/dashboard/hooks/useDashboard';
-import { useAnalyticsData } from '../features/analytics/hooks/useAnalyticsData';
+import { useDashboard } from '../hooks/useDashboard';
+import { useAnalyticsData } from '../hooks/useAnalyticsData';
 import {
   AnalyticsHeader,
   OverviewCards,
