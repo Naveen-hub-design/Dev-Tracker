@@ -9,3 +9,4 @@ export { default as RecommendationPanel } from './RecommendationPanel';
 export { default as DateRangePicker } from './DateRangePicker';
 export { default as ExportMenu } from './ExportMenu';
 export { default as UnifiedActivityHeatmap } from './UnifiedActivityHeatmap';
+export { default as CompetitiveProgrammingAnalytics } from './CompetitiveProgrammingAnalytics';

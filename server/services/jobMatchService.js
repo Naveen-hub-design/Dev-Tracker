@@ -30,8 +30,8 @@ function computeJobMatch(github, leetcode, hackerrank, codeforces, codechef) {
   }
 
   if (codechef) {
-    const rating = codechef.profile?.rating || codechef.rating || 0;
-    const ccSolved = codechef.stats?.totalSolved || codechef.totalSolved || 0;
+    const rating = codechef.currentRating || codechef.rating || codechef.profile?.rating || 0;
+    const ccSolved = codechef.totalSolved || codechef.fullySolved || codechef.stats?.totalSolved || 0;
     if (rating >= 1800) score += 16; // 4★+
     else if (rating >= 1600) score += 12; // 3★
     else if (rating >= 1400) score += 7; // 2★
@@ -90,12 +90,13 @@ function generateRecommendations({ github, leetcode, hackerrank, codeforces, cod
   }
 
   if (codechef) {
-    const rating = codechef.profile?.rating || codechef.rating || 0;
-    const stars = codechef.profile?.stars || 1;
+    const rating = codechef.currentRating || codechef.rating || codechef.profile?.rating || 0;
+    const rawStars = codechef.stars || codechef.profile?.stars || '1';
+    const starsStr = String(rawStars).includes('★') ? rawStars : `${rawStars}★`;
     if (rating < 1600 && rating > 0) {
       recs.push({
         title: 'Reach CodeChef 3-Star (1600+)',
-        description: `Currently ${stars}★ (${rating} rating). Compete in weekly Starters to break into Div 2.`,
+        description: `Currently ${starsStr} (${rating} rating). Compete in weekly Starters to break into Div 2.`,
         priority: 'high',
       });
     }

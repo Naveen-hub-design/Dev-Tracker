@@ -53,14 +53,17 @@ function generateLcTopicData(dashboard) {
 function computeSkills(dashboard) {
   const langs = dashboard?.github?.languages || {};
   const lc = dashboard?.leetcode || {};
-
-  const langEntries = Object.entries(langs);
-  const topLang = langEntries.length > 0 ? langEntries.sort((a, b) => b[1] - a[1])[0] : null;
+  const cc = dashboard?.codechef || {};
+  const cf = dashboard?.codeforces || {};
 
   const frontend = Math.min(100, (langs.JavaScript || 0) + (langs.TypeScript || 0) + (langs.CSS || 0) + (langs.React || 0));
   const backend = Math.min(100, (langs.Node?.includes?.('JS') ? 20 : 0) + (langs.Python || 0) + (langs.Java || 0) + (langs.Go || 0));
   const database = Math.min(100, Math.round((langs.SQL || 0) * 0.8) || (lc.solved > 50 ? 45 : 20));
-  const dsa = Math.min(100, Math.round((lc.solved || 0) / 3));
+
+  const totalCpSolved = (lc.solved || 0) + (cc.solved || cc.totalSolved || cc.fullySolved || 0) + (cf.solved || cf.stats?.totalSolved || 0);
+  const cpRating = Math.max(cf.profile?.rating || cf.rating || 0, cc.currentRating || cc.rating || 0);
+  const dsa = Math.min(100, Math.round(totalCpSolved / 3.5) + (cpRating >= 1400 ? 20 : cpRating >= 1200 ? 10 : 0));
+
   const cloud = Math.min(100, (langs.Go ? 25 : 0) + (langs.Docker ? 30 : 0) + (lc.solved > 100 ? 20 : 10));
   const devops = Math.min(100, (langs.Shell ? 30 : 0) + (langs.Docker ? 25 : 0) + (dashboard?.github?.repositories > 5 ? 25 : 10));
   const ai = Math.min(100, (langs.Python || 0) + (langs['Jupyter Notebook'] || 0) + (lc.solved > 200 ? 15 : 5));
@@ -69,7 +72,7 @@ function computeSkills(dashboard) {
     { skill: 'Frontend', value: frontend || 15, fullMark: 100 },
     { skill: 'Backend', value: backend || 10, fullMark: 100 },
     { skill: 'Database', value: database || 10, fullMark: 100 },
-    { skill: 'DSA', value: dsa || 5, fullMark: 100 },
+    { skill: 'DSA & CP', value: dsa || 5, fullMark: 100 },
     { skill: 'Cloud', value: cloud || 5, fullMark: 100 },
     { skill: 'DevOps', value: devops || 5, fullMark: 100 },
     { skill: 'AI', value: ai || 5, fullMark: 100 },
@@ -80,6 +83,8 @@ function computeAchievements(dashboard) {
   const achs = [];
   const gh = dashboard?.github;
   const lc = dashboard?.leetcode;
+  const cc = dashboard?.codechef;
+  const cf = dashboard?.codeforces;
 
   if (gh?.repositories > 0) achs.push({ title: 'First Repository', description: `Created your first GitHub repo`, date: 'Jan 2024', color: 'blue' });
   if (gh?.repositories >= 5) achs.push({ title: '5 Repositories', description: `Built ${gh.repositories} projects`, date: 'Mar 2024', color: 'emerald' });
@@ -88,6 +93,16 @@ function computeAchievements(dashboard) {
   if (lc?.solved >= 50) achs.push({ title: '50 Problems', description: `Solved ${lc.solved} LeetCode problems`, date: 'Feb 2024', color: 'emerald' });
   if (lc?.solved >= 100) achs.push({ title: '100 Problems', description: `Solved ${lc.solved} LeetCode problems`, date: 'May 2024', color: 'blue' });
   if (lc?.solved >= 200) achs.push({ title: '200 Problems', description: `Solved ${lc.solved} LeetCode problems`, date: 'Jul 2024', color: 'purple' });
+
+  const ccRating = cc?.currentRating || cc?.rating || 0;
+  const ccSolved = cc?.solved || cc?.totalSolved || cc?.fullySolved || 0;
+  const cfRating = cf?.profile?.rating || cf?.rating || 0;
+  const cfSolved = cf?.solved || cf?.stats?.totalSolved || 0;
+
+  if (ccRating >= 1400) achs.push({ title: 'CodeChef 2-Star', description: `${ccRating} rating in CodeChef Starters`, date: '2024', color: 'orange' });
+  if (ccRating >= 1600) achs.push({ title: 'CodeChef 3-Star', description: `${ccRating} rating · Div 2 Contender`, date: '2024', color: 'amber' });
+  if (cfRating >= 1200) achs.push({ title: 'Codeforces Pupil', description: `Rating ${cfRating} on Codeforces`, date: '2024', color: 'blue' });
+  if (ccSolved + cfSolved >= 40) achs.push({ title: 'Contest Solver', description: 'Solved 40+ CP problems across CodeChef & Codeforces', date: '2024', color: 'emerald' });
 
   if (achs.length === 0) {
     achs.push({ title: 'Getting Started', description: 'Set up your DevTrack profile', date: 'Today', color: 'blue' });

@@ -171,7 +171,7 @@ function ResumeTemplate({ resume, template }) {
             <h2 className={`text-[11px] font-bold uppercase tracking-wider mb-2 pb-1 border-b ${t.sectionBorder} ${t.accent}`}>
               Coding Profiles
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[10px]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-[10px]">
               {resume.codingProfiles.github?.username && (
                 <div>
                   <p className="font-semibold">GitHub</p>
@@ -198,6 +198,13 @@ function ResumeTemplate({ resume, template }) {
                   <p className="font-semibold">Codeforces</p>
                   <p className={t.accent}>@{resume.codingProfiles.codeforces.username}</p>
                   <p>{resume.codingProfiles.codeforces.rating ? `Rating: ${resume.codingProfiles.codeforces.rating}` : `${resume.codingProfiles.codeforces.solved || 0} solved`}</p>
+                </div>
+              )}
+              {resume.codingProfiles.codechef?.username && (
+                <div>
+                  <p className="font-semibold">CodeChef</p>
+                  <p className={t.accent}>@{resume.codingProfiles.codechef.username}</p>
+                  <p>{resume.codingProfiles.codechef.stars ? `${resume.codingProfiles.codechef.stars} (${resume.codingProfiles.codechef.rating})` : `${resume.codingProfiles.codechef.rating ? `Rating: ${resume.codingProfiles.codechef.rating}` : `${resume.codingProfiles.codechef.solved || 0} solved`}`}</p>
                 </div>
               )}
             </div>

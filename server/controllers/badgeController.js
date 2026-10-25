@@ -5,9 +5,19 @@ const { generateShieldBadge, generateProfileCard } = require('../services/badgeS
 
 const getBadge = async (req, res) => {
   try {
-    const { identifier } = req.params;
-    const style = (req.query.style || 'shield').toLowerCase();
+    let { identifier } = req.params;
+    let style = (req.query.style || 'shield').toLowerCase();
     const theme = (req.query.theme || 'dark').toLowerCase();
+
+    if (identifier) {
+      if (identifier.endsWith('.svg')) {
+        identifier = identifier.replace(/\.svg$/i, '');
+      }
+      if (identifier.endsWith('/card') || identifier.endsWith('-card')) {
+        style = 'card';
+        identifier = identifier.replace(/[-/]card$/i, '');
+      }
+    }
 
     const user = await User.findByIdentifier(identifier);
 

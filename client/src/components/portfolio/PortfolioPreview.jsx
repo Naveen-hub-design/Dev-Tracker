@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Mail, Github, Linkedin, ExternalLink, Star, Code2, Shield, Trophy } from 'lucide-react';
+import { Mail, Github, Linkedin, ExternalLink, Star, Code2, Shield, Trophy, ChefHat } from 'lucide-react';
 
 const THEMES = {
   minimal: {
@@ -54,6 +54,7 @@ function PortfolioPreview({ portfolio, theme, darkMode }) {
     if (cp.leetcode?.username) items.push({ label: 'LC Solved', value: cp.leetcode.solved, Icon: Code2 });
     if (cp.hackerrank?.username) items.push({ label: 'HR Solved', value: cp.hackerrank.solved, Icon: Shield });
     if (cp.codeforces?.username) items.push({ label: 'CF Rating', value: cp.codeforces.rating || cp.codeforces.solved, Icon: Trophy });
+    if (cp.codechef?.username) items.push({ label: 'CC Rating', value: cp.codechef.rating || cp.codechef.solved, Icon: ChefHat });
     return items;
   }, [cp]);
 

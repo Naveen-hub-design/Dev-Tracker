@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useGitHub } from './useGitHub';
 import { useLeetCode } from './useLeetCode';
+import { useCodeforces } from './useCodeforces';
+import { useCodeChef } from './useCodeChef';
 import { useAuth } from '../context/AuthContext';
 import { calculateJobMatchScore } from '../utils/jobMatchScore';
 
@@ -55,7 +57,7 @@ const ROLE_DEFINITIONS = [
   },
 ];
 
-function deriveSkills(githubData, leetcodeData) {
+function deriveSkills(githubData, leetcodeData, cfData, ccData) {
   const langs = githubData?.languages || {};
   const repos = githubData?.repos || [];
   const totalCommits = githubData?.totalCommits || 0;
@@ -65,6 +67,11 @@ function deriveSkills(githubData, leetcodeData) {
   const lcTotal = leetcodeData?.total || 0;
   const lcHard = leetcodeData?.hard || 0;
   const lcMedium = leetcodeData?.medium || 0;
+
+  const cfSolved = cfData?.stats?.totalSolved || 0;
+  const cfRating = cfData?.profile?.rating || 0;
+  const ccSolved = ccData?.totalSolved || ccData?.fullySolved || 0;
+  const ccRating = ccData?.currentRating || ccData?.rating || 0;
 
   const hasReact = repos.some((r) => (r.language || '').toLowerCase() === 'react' || (r.name || '').toLowerCase().includes('react'));
   const hasNode = repos.some((r) => (r.language || '').toLowerCase() === 'javascript' || (r.name || '').toLowerCase().includes('node'));
@@ -79,6 +86,12 @@ function deriveSkills(githubData, leetcodeData) {
 
   const scale = (val, max) => Math.min(100, Math.round((val / max) * 100));
 
+  const basePS = scale(lcTotal, 200) + (lcHard * 3);
+  const cpBonus = (cfRating >= 1200 ? 15 : 0) + (ccRating >= 1400 ? 15 : 0) + scale(cfSolved + ccSolved, 80);
+  const totalPS = (cfSolved > 0 || ccSolved > 0)
+    ? Math.min(100, Math.round(basePS * 0.6 + cpBonus * 0.5))
+    : Math.min(100, basePS);
+
   const skillMap = {
     java: hasJava ? Math.min(100, 30 + (langs.Java || 0) * 2) : Math.min(100, langs.Java || 0),
     springBoot: hasJava && (hasNode || totalCommits > 50) ? 45 : hasJava ? 25 : 0,
@@ -88,7 +101,7 @@ function deriveSkills(githubData, leetcodeData) {
     sql: scale(repoCount + totalCommits * 0.1, 30),
     git: Math.min(100, scale(totalCommits, 300) + (activeWeeks > 4 ? 20 : 0)),
     github: Math.min(100, scale(repoCount, 10) + scale(totalCommits, 200)),
-    problemSolving: Math.min(100, scale(lcTotal, 200) + (lcHard * 3)),
+    problemSolving: totalPS,
     css: Math.min(100, cssPercent + (hasReact ? 15 : 0)),
     html: Math.min(100, htmlPercent + 10),
     python: hasPython ? Math.min(100, 30 + (langs.Python || 0) * 2) : Math.min(100, langs.Python || 0),
@@ -140,8 +153,10 @@ export function useJobMatch() {
   const { user } = useAuth();
   const { data: ghData, loading: ghLoading } = useGitHub();
   const { data: lcData, loading: lcLoading } = useLeetCode();
+  const { data: cfData, loading: cfLoading } = useCodeforces();
+  const { data: ccData, loading: ccLoading } = useCodeChef();
 
-  const loading = ghLoading || lcLoading;
+  const loading = ghLoading || lcLoading || cfLoading || ccLoading;
 
   const jobMatch = useMemo(() => {
     if (!ghData && !lcData) return null;
@@ -156,7 +171,7 @@ export function useJobMatch() {
     );
   }, [ghData, lcData]);
 
-  const skills = useMemo(() => deriveSkills(ghData, lcData), [ghData, lcData]);
+  const skills = useMemo(() => deriveSkills(ghData, lcData, cfData, ccData), [ghData, lcData, cfData, ccData]);
 
   const roleReadiness = useMemo(() => {
     return ROLE_DEFINITIONS.map((role) => ({

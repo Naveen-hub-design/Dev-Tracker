@@ -17,6 +17,8 @@ const ACHIEVEMENTS = [
   { id: 'centurion', name: 'Centurion', desc: '100-day coding streak', icon: '🏆', threshold: 100, type: 'streak' },
   { id: 'century-problems', name: 'Problem Crusher', desc: 'Solve 100 problems total', icon: '🧠', threshold: 100, type: 'problems' },
   { id: 'five-hundred', name: 'Code Marathon', desc: '500 total problems solved', icon: '🔥', threshold: 500, type: 'problems' },
+  { id: 'codechef-star', name: 'CodeChef Contender', desc: 'Compete in CodeChef Starters rounds', icon: '👨‍🍳', threshold: 1, type: 'special' },
+  { id: 'cf-specialist', name: 'Codeforces Tactician', desc: 'Compete in Codeforces Div. 2/3 rounds', icon: '⚔️', threshold: 1, type: 'special' },
   { id: 'night-owl', name: 'Night Owl', desc: 'Code past midnight', icon: '🦉', threshold: 1, type: 'special' },
   { id: 'early-bird', name: 'Early Bird', desc: 'Code before 7 AM', icon: '🐦', threshold: 1, type: 'special' },
   { id: 'five-star', name: 'Five Star', desc: 'Complete all daily goals 5 days in a row', icon: '⭐', threshold: 5, type: 'perfect' },

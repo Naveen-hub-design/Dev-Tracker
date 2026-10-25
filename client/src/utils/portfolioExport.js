@@ -67,6 +67,7 @@ export function generatePortfolioHTML(portfolio, theme, darkMode) {
   if (cp.leetcode?.username) statsItems.push({ label: 'Solved', value: cp.leetcode.solved, sub: 'LeetCode' });
   if (cp.hackerrank?.username) statsItems.push({ label: 'Solved', value: cp.hackerrank.solved, sub: 'HackerRank' });
   if (cp.codeforces?.username) statsItems.push({ label: 'Rating', value: cp.codeforces.rating || cp.codeforces.solved, sub: 'Codeforces' });
+  if (cp.codechef?.username) statsItems.push({ label: cp.codechef.stars ? `${cp.codechef.stars} Rating` : 'Rating', value: cp.codechef.rating || cp.codechef.solved, sub: 'CodeChef' });
 
   const statsHTML = statsItems.length ? `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">

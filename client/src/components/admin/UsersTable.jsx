@@ -101,9 +101,11 @@ function UsersTable({ users, onDelete, onSuspend, search, setSearch, statusFilte
                       </span>
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
-                      <div className="flex gap-1">
+                      <div className="flex flex-wrap gap-1">
                         {user.github && <span className="px-1.5 py-0.5 rounded bg-slate-800 text-white text-[9px] font-bold">GH</span>}
                         {user.leetcode && <span className="px-1.5 py-0.5 rounded bg-amber-500 text-white text-[9px] font-bold">LC</span>}
+                        {user.codeforces && <span className="px-1.5 py-0.5 rounded bg-blue-600 text-white text-[9px] font-bold">CF</span>}
+                        {user.codechef && <span className="px-1.5 py-0.5 rounded bg-orange-600 text-white text-[9px] font-bold">CC</span>}
                         {user.hackerrank && <span className="px-1.5 py-0.5 rounded bg-green-600 text-white text-[9px] font-bold">HR</span>}
                       </div>
                     </td>

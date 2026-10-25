@@ -3,6 +3,7 @@ import { useGitHub } from './useGitHub';
 import { useLeetCode } from './useLeetCode';
 import { useHackerRank } from './useHackerRank';
 import { useCodeforces } from './useCodeforces';
+import { useCodeChef } from './useCodeChef';
 import { useProjects } from './useProjects';
 import { useResume } from './useResume';
 import { useCertificates } from './useCertificates';
@@ -10,6 +11,25 @@ import { useGoals } from './useGoals';
 
 function clamp(val, max = 100) {
   return Math.max(0, Math.min(max, Math.round(val)));
+}
+
+function computeCodeChefScore(cc) {
+  if (!cc) return { score: 0, breakdown: {} };
+  const rating = cc.currentRating || cc.rating || 0;
+  const solved = cc.totalSolved || cc.fullySolved || 0;
+  const stars = cc.stars || '1★';
+  const division = cc.division || 'Div 4';
+
+  const ratingScore = clamp((rating / 1800) * 100);
+  const solvedScore = clamp((solved / 150) * 100);
+
+  const score = clamp(ratingScore * 0.55 + solvedScore * 0.45);
+
+  return {
+    score,
+    breakdown: { rating, solved, stars, division },
+    detail: { ratingScore, solvedScore },
+  };
 }
 
 function computeCodeforcesScore(cf) {
@@ -242,27 +262,38 @@ export default function useJobReadiness() {
   const { data: lcData, loading: lcLoading } = useLeetCode();
   const { data: hrData, loading: hrLoading } = useHackerRank();
   const { data: cfData, loading: cfLoading } = useCodeforces();
+  const { data: ccData, loading: ccLoading } = useCodeChef();
   const { allProjects, stats: projectStats, loading: projLoading } = useProjects();
   const { resume, loading: resumeLoading } = useResume();
   const { allCerts, stats: certStats } = useCertificates();
   const { streaks, achievements } = useGoals();
 
-  const loading = ghLoading || lcLoading || hrLoading || projLoading || resumeLoading || cfLoading;
+  const loading = ghLoading || lcLoading || hrLoading || projLoading || resumeLoading || cfLoading || ccLoading;
 
   const github = useMemo(() => computeGitHubScore(ghData), [ghData]);
   const leetcode = useMemo(() => computeLeetCodeScore(lcData), [lcData]);
   const codeforces = useMemo(() => computeCodeforcesScore(cfData), [cfData]);
+  const codechef = useMemo(() => computeCodeChefScore(ccData), [ccData]);
   const projects = useMemo(() => computeProjectScore(allProjects, projectStats), [allProjects, projectStats]);
   const resumeScore = useMemo(() => computeResumeScore(resume), [resume]);
   const achievementsData = useMemo(() => computeAchievementScore(allCerts, { achievements, streaks }), [allCerts, achievements, streaks]);
   const skills = useMemo(() => computeSkillScore(ghData, lcData), [ghData, lcData]);
 
   const cpScore = useMemo(() => {
-    if (cfData && (cfData.profile?.rating > 0 || cfData.stats?.totalSolved > 0)) {
+    const hasCF = cfData && (cfData.profile?.rating > 0 || cfData.stats?.totalSolved > 0);
+    const hasCC = ccData && ((ccData.currentRating || ccData.rating || 0) > 0 || (ccData.totalSolved || ccData.fullySolved || 0) > 0);
+
+    if (hasCF && hasCC) {
+      return clamp(leetcode.score * 0.4 + codeforces.score * 0.3 + codechef.score * 0.3);
+    }
+    if (hasCF) {
       return clamp(leetcode.score * 0.6 + codeforces.score * 0.4);
     }
+    if (hasCC) {
+      return clamp(leetcode.score * 0.6 + codechef.score * 0.4);
+    }
     return leetcode.score;
-  }, [leetcode.score, codeforces.score, cfData]);
+  }, [leetcode.score, codeforces.score, codechef.score, cfData, ccData]);
 
   const overallScore = useMemo(() => {
     return clamp(
@@ -279,12 +310,27 @@ export default function useJobReadiness() {
 
   const scoreCategories = useMemo(() => [
     { key: 'github', label: 'GitHub', score: github.score, color: 'slate', icon: 'Github', weight: '20%', breakdown: github.breakdown },
-    { key: 'leetcode', label: cfData?.profile?.rating ? 'DSA & Codeforces' : 'LeetCode', score: cpScore, color: 'amber', icon: 'Code2', weight: '20%', breakdown: { ...leetcode.breakdown, cfRating: cfData?.profile?.rating, cfSolved: cfData?.stats?.totalSolved } },
+    {
+      key: 'leetcode',
+      label: (cfData?.profile?.rating || ccData?.currentRating) ? 'DSA & CP' : 'LeetCode DSA',
+      score: cpScore,
+      color: 'amber',
+      icon: 'Code2',
+      weight: '20%',
+      breakdown: {
+        ...leetcode.breakdown,
+        cfRating: cfData?.profile?.rating,
+        cfSolved: cfData?.stats?.totalSolved,
+        ccRating: ccData?.currentRating || ccData?.rating,
+        ccStars: ccData?.stars,
+        ccSolved: ccData?.totalSolved || ccData?.fullySolved,
+      },
+    },
     { key: 'projects', label: 'Projects', score: projects.score, color: 'blue', icon: 'FolderKanban', weight: '20%', breakdown: projects.breakdown },
     { key: 'resume', label: 'Resume & Profile', score: resumeScore.score, color: 'purple', icon: 'FileText', weight: '15%', breakdown: resumeScore.breakdown },
     { key: 'skills', label: 'Skills', score: skills.score, color: 'cyan', icon: 'Brain', weight: '15%', breakdown: skills.breakdown },
     { key: 'achievements', label: 'Achievements', score: achievementsData.score, color: 'emerald', icon: 'Award', weight: '10%', breakdown: achievementsData.breakdown },
-  ], [github, leetcode, cpScore, cfData, projects, resumeScore, skills, achievementsData]);
+  ], [github, leetcode, cpScore, cfData, ccData, projects, resumeScore, skills, achievementsData]);
 
   const radarData = useMemo(() => [
     { subject: 'GitHub', score: github.score },
@@ -334,6 +380,7 @@ export default function useJobReadiness() {
     { label: '100+ LeetCode problems solved', done: (lcData?.total || 0) >= 100 },
     { label: '5+ Medium/Hard LeetCode problems', done: ((lcData?.medium || 0) + (lcData?.hard || 0)) >= 5 },
     { label: 'Codeforces rating 1200+ or 30+ CF solved', done: ((cfData?.profile?.rating || 0) >= 1200) || ((cfData?.stats?.totalSolved || 0) >= 30) },
+    { label: 'CodeChef rating 1400+ (2★) or 30+ CC solved', done: ((ccData?.currentRating || ccData?.rating || 0) >= 1400) || ((ccData?.totalSolved || ccData?.fullySolved || 0) >= 30) },
     { label: '3+ completed projects', done: (projectStats?.completed || 0) >= 3 },
     { label: '1+ live deployed project', done: allProjects?.some((p) => p.liveUrl) },
     { label: 'LinkedIn profile linked', done: !!resume?.personal?.linkedin },
@@ -342,7 +389,7 @@ export default function useJobReadiness() {
     { label: '2+ programming languages', done: (skills.breakdown?.programming || 0) >= 2 },
     { label: 'At least 1 certification', done: (certStats?.total || 0) >= 1 },
     { label: '7+ day coding streak', done: (streaks?.longest || 0) >= 7 },
-  ], [ghData, lcData, cfData, projectStats, allProjects, resume, skills, certStats, streaks]);
+  ], [ghData, lcData, cfData, ccData, projectStats, allProjects, resume, skills, certStats, streaks]);
 
   return {
     loading,
@@ -359,6 +406,7 @@ export default function useJobReadiness() {
     github: { ...github, data: ghData },
     leetcode: { ...leetcode, data: lcData },
     codeforces: { ...codeforces, data: cfData },
+    codechef: { ...codechef, data: ccData },
     projects: { ...projects, data: allProjects, stats: projectStats },
     resume: resumeScore,
     skills,

@@ -7,6 +7,7 @@ import {
   TrendChart,
   GitHubAnalytics,
   LeetCodeAnalytics,
+  CompetitiveProgrammingAnalytics,
   RadarSkills,
   AchievementsTimeline,
   RecommendationPanel,
@@ -39,11 +40,41 @@ function ErrorState({ error, onRetry }) {
   );
 }
 
-function handleExportCSV() {
+function exportAnalyticsCSV(analyticsData, dashboard) {
+  const points = analyticsData?.timeSeries || [];
+  const ghTotal = dashboard?.github?.commits || 0;
+  const lcTotal = dashboard?.leetcode?.solved || 0;
+  const cfRating = dashboard?.codeforces?.rating || dashboard?.codeforces?.profile?.rating || 0;
+  const ccRating = dashboard?.codechef?.currentRating || dashboard?.codechef?.rating || 0;
+  const ccStars = dashboard?.codechef?.stars || '1★';
+
+  const headers = ['Date', 'GitHub Commits', 'LeetCode Problems', 'Total Day Activity', 'Codeforces Rating', 'CodeChef Rating', 'CodeChef Stars'];
+  const rows = points.map((p) => [
+    p.date,
+    p.github || 0,
+    p.leetcode || 0,
+    p.total || 0,
+    cfRating,
+    ccRating,
+    `"${ccStars}"`,
+  ]);
+
+  const csvContent = [
+    `# DevTrack Comprehensive Multi-Platform Analytics Export`,
+    `# Export Date: ${new Date().toISOString()}`,
+    `# GitHub Commits: ${ghTotal} | LeetCode Solved: ${lcTotal} | Codeforces Rating: ${cfRating} | CodeChef Rating: ${ccRating} (${ccStars})`,
+    headers.join(','),
+    ...rows.map((r) => r.join(',')),
+  ].join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.href = 'data:text/csv;charset=utf-8,Date,GitHub,LeetCode,Total\n';
-  link.download = 'devtrack-analytics.csv';
+  link.setAttribute('href', url);
+  link.setAttribute('download', `devtrack-analytics-${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
   link.click();
+  document.body.removeChild(link);
 }
 
 function handleExportPDF() {
@@ -59,6 +90,10 @@ export default function Analytics() {
   const handleRefresh = useCallback(() => {
     refetch();
   }, [refetch]);
+
+  const handleExportCSV = useCallback(() => {
+    exportAnalyticsCSV(analyticsData, dashboard);
+  }, [analyticsData, dashboard]);
 
   if (error) {
     return <ErrorState error={error} onRetry={handleRefresh} />;
@@ -88,6 +123,8 @@ export default function Analytics() {
       />
 
       <LeetCodeAnalytics data={dashboard} loading={loading} />
+
+      <CompetitiveProgrammingAnalytics data={dashboard} loading={loading} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RadarSkills skills={analyticsData?.skills || []} loading={loading} />

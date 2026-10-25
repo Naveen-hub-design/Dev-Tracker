@@ -75,6 +75,7 @@ function generateProfileCard({
   github = null,
   leetcode = null,
   codeforces = null,
+  codechef = null,
   hackerrank = null,
   theme = 'dark',
 }) {
@@ -93,6 +94,10 @@ function generateProfileCard({
   const cfRating = codeforces?.profile?.rating || codeforces?.rating || 0;
   const cfRank = codeforces?.profile?.rank || codeforces?.rank || 'Unrated';
   const cfSolved = codeforces?.stats?.totalSolved || codeforces?.solved || 0;
+
+  const ccRating = codechef?.currentRating || codechef?.rating || 0;
+  const ccStars = codechef?.stars || '';
+  const ccSolved = codechef?.totalSolved || codechef?.fullySolved || 0;
 
   const hrSolved = hackerrank?.solved || 0;
   const hrBadge = hackerrank?.hackerBadge || '';
@@ -192,10 +197,10 @@ function generateProfileCard({
     <text x="12" y="75" fill="${textSecondary}" font-size="10" class="medium">Codeforces Rating</text>
     <text x="12" y="94" fill="${textPrimary}" font-size="13" class="bold number">${cfRating ? `${cfRating}` : 'Unranked'} <tspan font-size="10" class="regular" fill="${textSecondary}">${cfRating ? `(${escapeXml(cfRank)})` : ''}</tspan></text>
 
-    <!-- HackerRank / Project Stat Box -->
+    <!-- Box 4: CodeChef or HackerRank / Repos -->
     <rect x="170" y="56" width="160" height="48" rx="8" fill="${innerBg}" stroke="${statBoxBorder}" />
-    <text x="182" y="75" fill="${textSecondary}" font-size="10" class="medium">HackerRank &amp; Repos</text>
-    <text x="182" y="94" fill="${textPrimary}" font-size="13" class="bold number">${hrSolved ? `${hrSolved} solved` : `${repos} repos`} <tspan font-size="10" class="regular" fill="${textSecondary}">${hrBadge ? `• ${escapeXml(hrBadge)}` : ''}</tspan></text>
+    <text x="182" y="75" fill="${textSecondary}" font-size="10" class="medium">${ccRating || ccSolved ? 'CodeChef Rating' : 'HackerRank &amp; Repos'}</text>
+    <text x="182" y="94" fill="${textPrimary}" font-size="13" class="bold number">${ccRating ? `${ccRating}` : ccSolved ? `${ccSolved} solved` : hrSolved ? `${hrSolved} solved` : `${repos} repos`} <tspan font-size="10" class="regular" fill="${textSecondary}">${ccStars ? `• ${escapeXml(ccStars)}` : hrBadge ? `• ${escapeXml(hrBadge)}` : ''}</tspan></text>
   </g>
 
   <!-- Footer Link/Watermark -->
