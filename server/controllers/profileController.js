@@ -3,15 +3,17 @@ const { fetchGitHubData, getDemoData } = require('../services/githubService');
 const { fetchLeetCodeData } = require('../services/leetcodeService');
 const { fetchHackerRankData, HACKERRANK_ERRORS } = require('../services/hackerRankService');
 const { fetchCodeforcesData, getDemoData: getCodeforcesDemo } = require('../services/codeforcesService');
+const { fetchCodeChefData, getDemoData: getCodeChefDemo } = require('../services/codeChefService');
 
 const updateUsernames = async (req, res, next) => {
   try {
-    const { githubUsername, leetcodeUsername, hackerRankUsername, codeforcesUsername, githubToken } = req.body;
+    const { githubUsername, leetcodeUsername, hackerRankUsername, codeforcesUsername, codeChefUsername, githubToken } = req.body;
     const update = {};
     if (githubUsername !== undefined) update.githubUsername = githubUsername;
     if (leetcodeUsername !== undefined) update.leetcodeUsername = leetcodeUsername;
     if (hackerRankUsername !== undefined) update.hackerRankUsername = hackerRankUsername;
     if (codeforcesUsername !== undefined) update.codeforcesUsername = codeforcesUsername;
+    if (codeChefUsername !== undefined) update.codeChefUsername = codeChefUsername;
     if (githubToken !== undefined) update.githubToken = typeof githubToken === 'string' ? githubToken.trim() : '';
 
     const user = await User.findOneAndUpdate({ _id: req.user._id }, update);
@@ -24,6 +26,7 @@ const updateUsernames = async (req, res, next) => {
       leetcodeUsername: updated.leetcodeUsername || '',
       hackerRankUsername: updated.hackerRankUsername || '',
       codeforcesUsername: updated.codeforcesUsername || '',
+      codeChefUsername: updated.codeChefUsername || '',
       hasGitHubToken: Boolean(updated.githubToken && updated.githubToken.trim()),
     });
   } catch (error) {
@@ -121,6 +124,33 @@ const refreshCodeforces = async (req, res, next) => {
   }
 };
 
+const refreshCodeChef = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user.codeChefUsername) return res.status(400).json({ message: 'No CodeChef handle set' });
+
+    try {
+      const codeChefData = await fetchCodeChefData(user.codeChefUsername, true);
+      await User.findOneAndUpdate({ _id: req.user._id }, { codeChefData });
+      return res.json(codeChefData);
+    } catch (apiError) {
+      console.warn(`CodeChef API error for ${user.codeChefUsername}: ${apiError.message}`);
+      if (apiError.message.includes('not found')) {
+        return res.status(404).json({ message: 'CodeChef handle not found' });
+      }
+      if (user.codeChefData) {
+        return res.json({ ...user.codeChefData, _stale: true });
+      }
+      const demo = getCodeChefDemo();
+      await User.findOneAndUpdate({ _id: req.user._id }, { codeChefData: demo });
+      return res.json(demo);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getProfile = async (req, res) => {
   const user = await User.findById(req.user._id);
   if (!user) return res.status(404).json({ message: 'User not found' });
@@ -137,5 +167,6 @@ module.exports = {
   refreshLeetCode,
   refreshHackerRank,
   refreshCodeforces,
+  refreshCodeChef,
   getProfile,
 };

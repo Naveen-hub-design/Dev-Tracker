@@ -35,6 +35,7 @@ function QuickStats({ dashboard, loading }) {
   const lc = dashboard?.leetcode;
   const hr = dashboard?.hackerrank;
   const cf = dashboard?.codeforces;
+  const cc = dashboard?.codechef;
   const goal = dashboard?.weeklyGoal;
 
   const streak = useMemo(() => {
@@ -49,7 +50,8 @@ function QuickStats({ dashboard, loading }) {
   }, [gh]);
 
   const cfSolved = cf?.stats?.totalSolved || cf?.solved || 0;
-  const totalSolved = (lc?.solved || 0) + (hr?.solved || 0) + cfSolved;
+  const ccSolved = cc?.solved || cc?.totalSolved || cc?.fullySolved || 0;
+  const totalSolved = (lc?.solved || 0) + (hr?.solved || 0) + cfSolved + ccSolved;
 
   const values = useMemo(() => ({
     streak,
@@ -65,6 +67,7 @@ function QuickStats({ dashboard, loading }) {
     if (lc?.solved) parts.push(`${lc.solved} LC`);
     if (hr?.solved) parts.push(`${hr.solved} HR`);
     if (cfSolved) parts.push(`${cfSolved} CF`);
+    if (ccSolved) parts.push(`${ccSolved} CC`);
 
     return {
       streak: `${streak} consecutive day${streak !== 1 ? 's' : ''}`,
@@ -74,7 +77,7 @@ function QuickStats({ dashboard, loading }) {
       commits: `Last 6 months`,
       goal: `${goal?.percentage || 0}% complete`,
     };
-  }, [streak, lc, hr, cfSolved, gh, goal]);
+  }, [streak, lc, hr, cfSolved, ccSolved, gh, goal]);
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">

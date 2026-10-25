@@ -1,14 +1,36 @@
-function calculateDeveloperScore({ github, leetcode, hackerrank, codeforces }) {
+function calculateDeveloperScore({ github, leetcode, hackerrank, codeforces, codechef }) {
   const githubScore = calculateGithubScore(github);
   const leetcodeScore = calculateLeetcodeScore(leetcode);
   const hackerrankScore = calculateHackerRankScore(hackerrank);
   const codeforcesScore = calculateCodeforcesScore(codeforces);
-  const consistencyScore = calculateConsistencyScore(github, leetcode, hackerrank, codeforces);
+  const codechefScore = calculateCodeChefScore(codechef);
+  const consistencyScore = calculateConsistencyScore(github, leetcode, hackerrank, codeforces, codechef);
   const projectScore = calculateProjectScore(github);
 
   let total;
-  if (codeforces && (codeforces.profile?.rating > 0 || codeforces.stats?.totalSolved > 0)) {
-    // When Codeforces is active, balance CP between LeetCode, Codeforces, and HackerRank
+  const hasCf = codeforces && (codeforces.profile?.rating > 0 || codeforces.stats?.totalSolved > 0);
+  const hasCc = codechef && (codechef.profile?.rating > 0 || codechef.stats?.totalSolved > 0);
+
+  if (hasCf && hasCc) {
+    total = Math.round(
+      githubScore * 0.22 +
+      leetcodeScore * 0.22 +
+      codeforcesScore * 0.12 +
+      codechefScore * 0.12 +
+      hackerrankScore * 0.08 +
+      consistencyScore * 0.14 +
+      projectScore * 0.10
+    );
+  } else if (hasCc) {
+    total = Math.round(
+      githubScore * 0.25 +
+      leetcodeScore * 0.25 +
+      codechefScore * 0.15 +
+      hackerrankScore * 0.10 +
+      consistencyScore * 0.15 +
+      projectScore * 0.10
+    );
+  } else if (hasCf) {
     total = Math.round(
       githubScore * 0.25 +
       leetcodeScore * 0.25 +
@@ -161,7 +183,38 @@ function calculateCodeforcesScore(data) {
   return Math.min(100, score);
 }
 
-function calculateConsistencyScore(github, leetcode, hackerrank, codeforces) {
+function calculateCodeChefScore(data) {
+  if (!data) return 0;
+
+  let score = 0;
+
+  // Rating scoring (up to 40 pts)
+  const rating = data.profile?.rating || data.rating || 0;
+  if (rating >= 2000) score += 40;
+  else if (rating >= 1800) score += 34;
+  else if (rating >= 1600) score += 28;
+  else if (rating >= 1400) score += 20;
+  else if (rating > 0) score += 10;
+
+  // Problem solving volume (up to 35 pts)
+  const solved = data.stats?.totalSolved || data.totalSolved || data.solved || 0;
+  if (solved >= 200) score += 35;
+  else if (solved >= 100) score += 28;
+  else if (solved >= 50) score += 20;
+  else if (solved >= 20) score += 12;
+  else if (solved >= 5) score += 6;
+
+  // Contest participation (up to 25 pts)
+  const contests = data.stats?.contestsCount || data.ratingHistory?.length || 0;
+  if (contests >= 15) score += 25;
+  else if (contests >= 8) score += 18;
+  else if (contests >= 3) score += 12;
+  else if (contests >= 1) score += 6;
+
+  return Math.min(100, score);
+}
+
+function calculateConsistencyScore(github, leetcode, hackerrank, codeforces, codechef) {
   let activePlatforms = 0;
   let totalScore = 0;
 
@@ -198,6 +251,16 @@ function calculateConsistencyScore(github, leetcode, hackerrank, codeforces) {
     if (solved >= 100 || (codeforces.profile?.rating || 0) >= 1600) totalScore += 100;
     else if (solved >= 50 || (codeforces.profile?.rating || 0) >= 1400) totalScore += 75;
     else if (solved >= 20 || (codeforces.profile?.rating || 0) >= 1200) totalScore += 50;
+    else totalScore += 25;
+  }
+
+  if (codechef && ((codechef.stats?.totalSolved || codechef.totalSolved || 0) > 0 || (codechef.profile?.rating || codechef.rating || 0) > 0)) {
+    activePlatforms++;
+    const solved = codechef.stats?.totalSolved || codechef.totalSolved || 0;
+    const rating = codechef.profile?.rating || codechef.rating || 0;
+    if (solved >= 100 || rating >= 1800) totalScore += 100;
+    else if (solved >= 50 || rating >= 1600) totalScore += 75;
+    else if (solved >= 20 || rating >= 1400) totalScore += 50;
     else totalScore += 25;
   }
 

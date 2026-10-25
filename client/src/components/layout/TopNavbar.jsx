@@ -17,6 +17,7 @@ import {
   X,
   ExternalLink,
   ShieldCheck,
+  ChefHat,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../notifications/NotificationBell';
@@ -26,6 +27,7 @@ const QUICK_COMMANDS = [
   { name: 'Dashboard', path: '/', icon: Trophy, category: 'Core' },
   { name: 'LeetCode Analytics & Daily', path: '/leetcode', icon: Code2, category: 'Platforms' },
   { name: 'GitHub Deep Analytics', path: '/github', icon: Github, category: 'Platforms' },
+  { name: 'CodeChef Analytics & Contests', path: '/codechef', icon: ChefHat, category: 'Platforms' },
   { name: 'DSA Code Playground', path: '/playground', icon: Terminal, category: 'Tools' },
   { name: 'Job Application Pipeline', path: '/applications', icon: Briefcase, category: 'Career' },
   { name: 'AI Career Assistant & ATS', path: '/career', icon: Sparkles, category: 'Career' },

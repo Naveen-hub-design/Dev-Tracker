@@ -24,18 +24,21 @@ async function getLeaderboard({ category = 'overall', currentUserId = null, limi
     const lc = u.leetcodeData || null;
     const hr = u.hackerRankData || null;
     const cf = u.codeforcesData || null;
+    const cc = u.codeChefData || null;
 
     const devScore = calculateDeveloperScore({
       github: gh,
       leetcode: lc,
       hackerrank: hr,
       codeforces: cf,
+      codechef: cc,
     });
 
     const lcSolved = lc?.stats?.total || 0;
     const cfSolved = cf?.stats?.totalSolved || cf?.solved || 0;
     const hrSolved = hr?.solved || 0;
-    const totalProblems = lcSolved + cfSolved + hrSolved;
+    const ccSolved = cc?.stats?.totalSolved || cc?.totalSolved || 0;
+    const totalProblems = lcSolved + cfSolved + hrSolved + ccSolved;
 
     const commits = gh?.totalCommits || 0;
     const stars = (gh?.repos || []).reduce((acc, r) => acc + (r.stars || 0), 0);
@@ -50,13 +53,17 @@ async function getLeaderboard({ category = 'overall', currentUserId = null, limi
       githubUsername: u.githubUsername || gh?.profile?.username || '',
       leetcodeUsername: u.leetcodeUsername || lc?.username || '',
       codeforcesUsername: u.codeforcesUsername || cf?.profile?.handle || '',
+      codeChefUsername: u.codeChefUsername || cc?.profile?.username || '',
       avatar: gh?.profile?.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${u._id}`,
       developerScore: devScore,
       totalProblems,
       lcSolved,
       cfSolved,
+      ccSolved,
       cfRating: cf?.profile?.rating || 0,
       cfRank: cf?.profile?.rank || '',
+      ccRating: cc?.profile?.rating || 0,
+      ccStars: cc?.profile?.stars || 0,
       commits,
       stars,
       repos,

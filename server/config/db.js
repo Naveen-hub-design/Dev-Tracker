@@ -27,6 +27,10 @@ db.exec(`
     leetcodeData TEXT,
     hackerRankUsername TEXT DEFAULT '',
     hackerRankData TEXT,
+    codeforcesUsername TEXT DEFAULT '',
+    codeforcesData TEXT,
+    codeChefUsername TEXT DEFAULT '',
+    codeChefData TEXT,
     jobMatchScore INTEGER DEFAULT 0,
     createdAt TEXT DEFAULT (datetime('now')),
     updatedAt TEXT DEFAULT (datetime('now'))
@@ -148,6 +152,8 @@ const migrateColumns = [
   'ALTER TABLE users ADD COLUMN hackerRankData TEXT',
   'ALTER TABLE users ADD COLUMN codeforcesUsername TEXT DEFAULT \'\'',
   'ALTER TABLE users ADD COLUMN codeforcesData TEXT',
+  'ALTER TABLE users ADD COLUMN codeChefUsername TEXT DEFAULT \'\'',
+  'ALTER TABLE users ADD COLUMN codeChefData TEXT',
   'ALTER TABLE users ADD COLUMN githubToken TEXT DEFAULT \'\'',
 ];
 migrateColumns.forEach((sql) => {
@@ -159,7 +165,7 @@ function generateId() {
 }
 
 const JSON_FIELDS = {
-  users: ['githubData', 'leetcodeData', 'hackerRankData', 'codeforcesData'],
+  users: ['githubData', 'leetcodeData', 'hackerRankData', 'codeforcesData', 'codeChefData'],
   projects: ['techStack', 'features', 'challenges', 'futureImprovements', 'contributors', 'milestones'],
   certificates: [],
   goals: ['history'],

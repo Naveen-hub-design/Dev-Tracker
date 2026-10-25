@@ -29,10 +29,11 @@ const User = {
       WHERE githubUsername = ? COLLATE NOCASE
          OR leetcodeUsername = ? COLLATE NOCASE
          OR codeforcesUsername = ? COLLATE NOCASE
+         OR codeChefUsername = ? COLLATE NOCASE
          OR name = ? COLLATE NOCASE
          OR _id = ?
       LIMIT 1
-    `).get(clean, clean, clean, clean, clean);
+    `).get(clean, clean, clean, clean, clean, clean);
     if (!row) return null;
     return await getCollection('users').findById(row._id);
   },

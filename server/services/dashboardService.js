@@ -3,6 +3,7 @@ const User = require('../models/User');
 const { calculateJobMatch } = require('../services/jobMatchService');
 const { fetchHackerRankData, HACKERRANK_ERRORS } = require('../services/hackerRankService');
 const { fetchCodeforcesData } = require('../services/codeforcesService');
+const { fetchCodeChefData } = require('../services/codeChefService');
 
 const GITHUB_API = 'https://api.github.com';
 const LEETCODE_GRAPHQL = 'https://leetcode.com/graphql';
@@ -16,18 +17,25 @@ async function getDashboardData(userId) {
   const user = await User.findById(userId);
   if (!user) throw new Error('User not found');
 
-  const [github, leetcode, hackerrank, codeforces] = await Promise.all([
+  const [github, leetcode, hackerrank, codeforces, codechef] = await Promise.all([
     resolveGithubData(user),
     resolveLeetcodeData(user),
     resolveHackerRankData(user),
     resolveCodeforcesData(user),
+    resolveCodeChefData(user),
   ]);
 
-  const { developerScore, recommendations, jobMatch } = calculateJobMatch({ github, leetcode, hackerrank, codeforces });
+  const { developerScore, recommendations, jobMatch } = calculateJobMatch({
+    github,
+    leetcode,
+    hackerrank,
+    codeforces,
+    codechef,
+  });
 
-  const weeklyGoal = computeWeeklyGoal(github, leetcode, codeforces);
+  const weeklyGoal = computeWeeklyGoal(github, leetcode, codeforces, codechef);
 
-  const recentActivity = mergeRecentActivity(github, leetcode, codeforces);
+  const recentActivity = mergeRecentActivity(github, leetcode, codeforces, codechef);
 
   return {
     developerScore,
@@ -35,6 +43,7 @@ async function getDashboardData(userId) {
     leetcode,
     hackerrank,
     codeforces,
+    codechef,
     weeklyGoal,
     jobMatch,
     recentActivity,
@@ -288,7 +297,39 @@ function normalizeCodeforcesData(raw) {
   };
 }
 
-function computeWeeklyGoal(github, leetcode, codeforces) {
+async function resolveCodeChefData(user) {
+  if (user.codeChefData) {
+    return normalizeCodeChefData(user.codeChefData);
+  }
+  if (user.codeChefUsername) {
+    try {
+      const fresh = await fetchCodeChefData(user.codeChefUsername);
+      await User.findOneAndUpdate({ _id: user._id }, { codeChefData: fresh });
+      return normalizeCodeChefData(fresh);
+    } catch (err) {
+      console.warn(`Dashboard: CodeChef fetch failed for ${user.codeChefUsername}: ${err.message}`);
+      if (user.codeChefData) {
+        return normalizeCodeChefData(user.codeChefData);
+      }
+      return null;
+    }
+  }
+  return null;
+}
+
+function normalizeCodeChefData(raw) {
+  if (!raw) return null;
+  return {
+    ...raw,
+    solved: raw.stats?.totalSolved || raw.totalSolved || 0,
+    rating: raw.profile?.rating || raw.rating || 0,
+    stars: raw.profile?.stars || 1,
+    division: raw.profile?.division || 'Div 4',
+    _raw: raw,
+  };
+}
+
+function computeWeeklyGoal(github, leetcode, codeforces, codechef) {
   let completed = 0;
   let target = 25;
 
@@ -303,8 +344,11 @@ function computeWeeklyGoal(github, leetcode, codeforces) {
   }
 
   if (codeforces?.stats?.totalSolved) {
-    // Add contribution from codeforces activity
     completed += Math.min(5, Math.round(codeforces.stats.totalSolved / 20));
+  }
+
+  if (codechef?.stats?.totalSolved) {
+    completed += Math.min(5, Math.round(codechef.stats.totalSolved / 20));
   }
 
   completed = Math.min(completed, target);
@@ -316,7 +360,7 @@ function computeWeeklyGoal(github, leetcode, codeforces) {
   };
 }
 
-function mergeRecentActivity(github, leetcode, codeforces) {
+function mergeRecentActivity(github, leetcode, codeforces, codechef) {
   const activities = [];
 
   if (github?._raw?.repos) {
@@ -357,6 +401,16 @@ function mergeRecentActivity(github, leetcode, codeforces) {
       type: 'codeforces',
       title: `Solved Codeforces: ${latestSolved.name}`,
       description: `Rating: ${latestSolved.rating} • [${(latestSolved.tags || []).slice(0, 2).join(', ')}]`,
+    });
+  }
+
+  if (codechef?.ratingHistory?.length) {
+    const latestContest = codechef.ratingHistory[codechef.ratingHistory.length - 1];
+    activities.push({
+      time: latestContest.date || new Date().toISOString(),
+      type: 'codechef',
+      title: `CodeChef: ${latestContest.contestName}`,
+      description: `Rank #${latestContest.rank || '—'} (Rating: ${latestContest.rating})`,
     });
   }
 

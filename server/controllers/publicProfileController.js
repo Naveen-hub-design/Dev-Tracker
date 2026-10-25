@@ -23,12 +23,14 @@ const getPublicProfile = async (req, res, next) => {
     const leetcode = user.leetcodeData || null;
     const hackerrank = user.hackerRankData || null;
     const codeforces = user.codeforcesData || null;
+    const codechef = user.codeChefData || null;
 
     const { developerScore, jobMatch, recommendations } = calculateJobMatch({
       github,
       leetcode,
       hackerrank,
       codeforces,
+      codechef,
     });
 
     const publicProjects = (projects || [])
@@ -61,6 +63,7 @@ const getPublicProfile = async (req, res, next) => {
         leetcodeUsername: user.leetcodeUsername || '',
         hackerRankUsername: user.hackerRankUsername || '',
         codeforcesUsername: user.codeforcesUsername || '',
+        codeChefUsername: user.codeChefUsername || '',
         avatar: github?.profile?.avatar || '',
       },
       score: {
@@ -87,6 +90,15 @@ const getPublicProfile = async (req, res, next) => {
           rank: codeforces.profile?.rank || 'unranked',
           maxRating: codeforces.profile?.maxRating || 0,
           solved: codeforces.stats?.totalSolved || 0,
+        } : null,
+        codechef: codechef ? {
+          rating: codechef.currentRating || 0,
+          maxRating: codechef.highestRating || 0,
+          stars: codechef.stars || '',
+          division: codechef.division || '',
+          solved: codechef.totalSolved || codechef.fullySolved || 0,
+          globalRank: codechef.globalRank || null,
+          countryRank: codechef.countryRank || null,
         } : null,
         hackerrank: hackerrank ? {
           solved: hackerrank.solved || 0,

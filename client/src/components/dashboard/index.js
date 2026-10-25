@@ -15,3 +15,4 @@ export { default as ActivityFeed } from './ActivityFeed';
 export { default as AchievementGrid } from './AchievementGrid';
 export { default as GoalProgress } from './GoalProgress';
 export { default as DashboardSkeleton } from './DashboardSkeleton';
+export { default as CodeChefSection } from './CodeChefSection';

@@ -9,6 +9,7 @@ const LeetCodePage = lazy(() => import('./pages/LeetCodePage'));
 const GitHubPage = lazy(() => import('./pages/GitHubPage'));
 const HackerRankPage = lazy(() => import('./pages/HackerRankPage'));
 const CodeforcesPage = lazy(() => import('./pages/CodeforcesPage'));
+const CodeChefPage = lazy(() => import('./pages/CodeChefPage'));
 const JobMatchPage = lazy(() => import('./pages/JobMatchPage'));
 const JobReadinessPage = lazy(() => import('./pages/JobReadinessPage'));
 const Analytics = lazy(() => import('./pages/Analytics'));
@@ -92,6 +93,7 @@ export default function App() {
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/hackerrank" element={<HackerRankPage />} />
             <Route path="/codeforces" element={<CodeforcesPage />} />
+            <Route path="/codechef" element={<CodeChefPage />} />
             <Route path="/playground" element={<PlaygroundPage />} />
             <Route path="/contests" element={<ContestCalendarPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />

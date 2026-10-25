@@ -8,6 +8,7 @@ import {
   refreshGitHub,
   refreshLeetCode,
   refreshHackerRank,
+  refreshCodeChef,
 } from '../api/profile';
 import { refreshCodeforces } from '../api/codeforces';
 import PageContainer from '../components/ui/PageContainer';
@@ -23,7 +24,7 @@ import {
   Github, Code, Shield, RefreshCw, Save, LogOut, AlertTriangle,
   Users, FolderGit2, GitCommit, Trophy, CheckCircle2, Zap,
   Globe, Bell, BellOff, Lock, Key, Eye, EyeOff, ChevronRight,
-  Trash2, Download, Clock, ShieldCheck, Binary, Sparkles, ExternalLink,
+  Trash2, Download, Clock, ShieldCheck, Binary, Sparkles, ExternalLink, ChefHat,
 } from 'lucide-react';
 
 const LANGUAGES = [
@@ -216,6 +217,7 @@ export default function Settings() {
   const [leetcode, setLeetcode] = useState('');
   const [hackerRank, setHackerRank] = useState('');
   const [codeforces, setCodeforces] = useState('');
+  const [codechef, setCodechef] = useState('');
   const [profileData, setProfileData] = useState(null);
   const [saving, setSaving] = useState('');
   const [refreshing, setRefreshing] = useState('');
@@ -241,6 +243,7 @@ export default function Settings() {
       setLeetcode(data.leetcodeUsername || '');
       setHackerRank(data.hackerRankUsername || '');
       setCodeforces(data.codeforcesUsername || '');
+      setCodechef(data.codeChefUsername || '');
     } catch { /* ignore */ }
   }, []);
 
@@ -252,6 +255,7 @@ export default function Settings() {
         leetcodeUsername: leetcode,
         hackerRankUsername: hackerRank,
         codeforcesUsername: codeforces,
+        codeChefUsername: codechef,
       };
       if (githubToken.trim()) {
         payload.githubToken = githubToken.trim();
@@ -266,7 +270,7 @@ export default function Settings() {
     } finally {
       setSaving('');
     }
-  }, [github, githubToken, leetcode, hackerRank, codeforces, updateUser, loadProfile, toast]);
+  }, [github, githubToken, leetcode, hackerRank, codeforces, codechef, updateUser, loadProfile, toast]);
 
   const handleRefresh = useCallback(async (source) => {
     setRefreshing(source);
@@ -275,6 +279,7 @@ export default function Settings() {
       else if (source === 'leetcode') await refreshLeetCode();
       else if (source === 'hackerrank') await refreshHackerRank();
       else if (source === 'codeforces') await refreshCodeforces();
+      else if (source === 'codechef') await refreshCodeChef();
       await loadProfile();
       toast.success(`${source.charAt(0).toUpperCase() + source.slice(1)} data refreshed`);
     } catch (err) {
@@ -302,6 +307,7 @@ export default function Settings() {
   const lcData = useMemo(() => profileData?.leetcodeData, [profileData]);
   const hrData = useMemo(() => profileData?.hackerRankData, [profileData]);
   const cfData = useMemo(() => profileData?.codeforcesData, [profileData]);
+  const ccData = useMemo(() => profileData?.codeChefData, [profileData]);
 
   const initials = useMemo(() => {
     const n = user?.name || '';
@@ -312,6 +318,7 @@ export default function Settings() {
   const lcLastSync = lcData?.fetchedAt ? formatDate(lcData.fetchedAt) : null;
   const hrLastSync = hrData?.fetchedAt ? formatDate(hrData.fetchedAt) : null;
   const cfLastSync = cfData?.fetchedAt ? formatDate(cfData.fetchedAt) : null;
+  const ccLastSync = ccData?.fetchedAt ? formatDate(ccData.fetchedAt) : null;
 
   if (!user) return null;
 
@@ -550,6 +557,41 @@ export default function Settings() {
               </div>
             ) : (
               <p className="text-xs text-slate-400 dark:text-slate-500 text-center py-4">Enter your Codeforces handle and save to connect.</p>
+            )}
+          </PlatformCard>
+
+          <PlatformCard
+            icon={ChefHat} iconBg="bg-amber-600 dark:bg-amber-700" title="CodeChef"
+            username={codechef} onUsernameChange={setCodechef} placeholder="e.g. tourist"
+            connected={!!profileData?.codeChefUsername} refreshing={refreshing === 'codechef'}
+            onRefresh={() => handleRefresh('codechef')} onSave={handleSaveUsernames}
+            saving={saving === 'usernames'} lastSynced={ccLastSync}
+          >
+            {ccData ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <StatBadge
+                    label={ccData.stars || '1★'}
+                    color="amber"
+                    dot
+                  />
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                    Rating: {ccData.currentRating || 0}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                  <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{ccData.totalSolved || ccData.fullySolved || 0}</span>
+                    <span className="text-[10px] text-slate-400 block">Solved</span>
+                  </div>
+                  <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{ccData.contestCount || (ccData.ratingHistory ? ccData.ratingHistory.length : 0)}</span>
+                    <span className="text-[10px] text-slate-400 block">Contests</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 dark:text-slate-500 text-center py-4">Enter your CodeChef handle and save to connect.</p>
             )}
           </PlatformCard>
         </div>

@@ -9,6 +9,7 @@ import DashboardHero from '../components/dashboard/DashboardHero';
 import QuickStats from '../components/dashboard/QuickStats';
 import GitHubSection from '../components/dashboard/GitHubSection';
 import LeetCodeSection from '../components/dashboard/LeetCodeSection';
+import CodeChefSection from '../components/dashboard/CodeChefSection';
 import DashboardCharts from '../components/dashboard/DashboardCharts';
 import ActivityFeed from '../components/dashboard/ActivityFeed';
 import AchievementGrid from '../components/dashboard/AchievementGrid';
@@ -106,9 +107,10 @@ export default function Dashboard() {
 
       <DailyChallengeWidget />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <GitHubSection data={dashboard?.github} loading={loading} />
         <LeetCodeSection data={dashboard?.leetcode} loading={loading} />
+        <CodeChefSection data={dashboard?.codechef} loading={loading} />
       </div>
 
       <DashboardCharts dashboard={dashboard} loading={loading} />

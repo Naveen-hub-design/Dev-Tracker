@@ -41,3 +41,14 @@ export async function refreshHackerRank() {
   const res = await API.post('/refresh/hackerrank');
   return res.data;
 }
+
+export async function refreshCodeforces() {
+  const res = await API.post('/refresh/codeforces');
+  return res.data;
+}
+
+export async function refreshCodeChef() {
+  const res = await API.post('/refresh/codechef');
+  return res.data;
+}
+

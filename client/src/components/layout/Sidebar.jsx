@@ -22,6 +22,7 @@ import {
   Calendar,
   Trophy,
   Terminal,
+  ChefHat,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -40,6 +41,7 @@ const NAV_GROUPS = [
       { path: '/leetcode', label: 'LeetCode', icon: Code2 },
       { path: '/github', label: 'GitHub', icon: Github },
       { path: '/codeforces', label: 'Codeforces', icon: Binary },
+      { path: '/codechef', label: 'CodeChef', icon: ChefHat },
       { path: '/hackerrank', label: 'HackerRank', icon: Shield },
       { path: '/contests', label: 'Contest Calendar', icon: Calendar },
     ],

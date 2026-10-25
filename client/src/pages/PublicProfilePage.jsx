@@ -19,6 +19,7 @@ import {
   Sparkles,
   ArrowRight,
   Layers,
+  ChefHat,
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 
@@ -279,7 +280,7 @@ export default function PublicProfilePage() {
         </div>
 
         {/* Platform Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* GitHub Card */}
           <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
             <div>
@@ -423,6 +424,55 @@ export default function PublicProfilePage() {
               <span>HackerRank</span>
               <span className="font-semibold text-slate-700 dark:text-slate-300">
                 {platforms.hackerrank ? `${platforms.hackerrank.solved} solved` : 'Not connected'}
+              </span>
+            </div>
+          </div>
+
+          {/* CodeChef Card */}
+          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+                    <ChefHat className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">CodeChef CP</h3>
+                    <p className="text-[11px] text-slate-400">Contest Rating &amp; Stars</p>
+                  </div>
+                </div>
+              </div>
+
+              {platforms.codechef ? (
+                <div className="space-y-3">
+                  <div className="flex items-baseline justify-between">
+                    <div>
+                      <span className="text-2xl font-black text-slate-900 dark:text-slate-100">
+                        {platforms.codechef.rating || 'Unrated'}
+                      </span>
+                      <span className="text-xs font-semibold text-amber-500 capitalize ml-2">
+                        {platforms.codechef.stars}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-400">
+                      Peak: {platforms.codechef.maxRating || platforms.codechef.rating}
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                    <span className="text-slate-500">Problems Solved</span>
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{platforms.codechef.solved} solved</span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-400 italic py-4">No CodeChef account linked.</p>
+              )}
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 flex justify-between">
+              <span>Division</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">
+                {platforms.codechef?.division || 'Unrated'}
               </span>
             </div>
           </div>

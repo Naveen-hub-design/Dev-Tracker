@@ -1,14 +1,14 @@
 const { calculateDeveloperScore } = require('../utils/developerScore');
 
-function calculateJobMatch({ github, leetcode, hackerrank, codeforces }) {
-  const developerScore = calculateDeveloperScore({ github, leetcode, hackerrank, codeforces });
-  const recommendations = generateRecommendations({ github, leetcode, hackerrank, codeforces });
-  const jobMatch = computeJobMatch(github, leetcode, hackerrank, codeforces);
+function calculateJobMatch({ github, leetcode, hackerrank, codeforces, codechef }) {
+  const developerScore = calculateDeveloperScore({ github, leetcode, hackerrank, codeforces, codechef });
+  const recommendations = generateRecommendations({ github, leetcode, hackerrank, codeforces, codechef });
+  const jobMatch = computeJobMatch(github, leetcode, hackerrank, codeforces, codechef);
 
   return { developerScore, recommendations, jobMatch };
 }
 
-function computeJobMatch(github, leetcode, hackerrank, codeforces) {
+function computeJobMatch(github, leetcode, hackerrank, codeforces, codechef) {
   let score = 0;
 
   if (leetcode) {
@@ -21,12 +21,23 @@ function computeJobMatch(github, leetcode, hackerrank, codeforces) {
   if (codeforces) {
     const rating = codeforces.profile?.rating || 0;
     const cfSolved = codeforces.stats?.totalSolved || 0;
-    if (rating >= 1600) score += 20; // Expert+ (High-tier Product Companies)
-    else if (rating >= 1400) score += 14; // Specialist
-    else if (rating >= 1200) score += 8; // Pupil
+    if (rating >= 1600) score += 18; // Expert+ (High-tier Product Companies)
+    else if (rating >= 1400) score += 12; // Specialist
+    else if (rating >= 1200) score += 7; // Pupil
 
-    if (cfSolved > 100) score += 10;
-    else if (cfSolved > 50) score += 5;
+    if (cfSolved > 100) score += 8;
+    else if (cfSolved > 50) score += 4;
+  }
+
+  if (codechef) {
+    const rating = codechef.profile?.rating || codechef.rating || 0;
+    const ccSolved = codechef.stats?.totalSolved || codechef.totalSolved || 0;
+    if (rating >= 1800) score += 16; // 4★+
+    else if (rating >= 1600) score += 12; // 3★
+    else if (rating >= 1400) score += 7; // 2★
+
+    if (ccSolved > 100) score += 8;
+    else if (ccSolved > 50) score += 4;
   }
 
   if (github) {
@@ -56,7 +67,7 @@ function computeJobMatch(github, leetcode, hackerrank, codeforces) {
   return { score, companyLevel };
 }
 
-function generateRecommendations({ github, leetcode, hackerrank, codeforces }) {
+function generateRecommendations({ github, leetcode, hackerrank, codeforces, codechef }) {
   const recs = [];
 
   if (codeforces) {
@@ -76,10 +87,22 @@ function generateRecommendations({ github, leetcode, hackerrank, codeforces }) {
         priority: 'medium',
       });
     }
+  }
+
+  if (codechef) {
+    const rating = codechef.profile?.rating || codechef.rating || 0;
+    const stars = codechef.profile?.stars || 1;
+    if (rating < 1600 && rating > 0) {
+      recs.push({
+        title: 'Reach CodeChef 3-Star (1600+)',
+        description: `Currently ${stars}★ (${rating} rating). Compete in weekly Starters to break into Div 2.`,
+        priority: 'high',
+      });
+    }
   } else {
     recs.push({
-      title: 'Connect Codeforces',
-      description: 'Link Codeforces to demonstrate contest ratings and competitive programming prowess.',
+      title: 'Connect CodeChef',
+      description: 'Link CodeChef to showcase contest stars, global ranking, and speed solving.',
       priority: 'low',
     });
   }

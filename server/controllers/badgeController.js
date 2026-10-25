@@ -31,8 +31,15 @@ const getBadge = async (req, res) => {
     const leetcode = user.leetcodeData || null;
     const hackerrank = user.hackerRankData || null;
     const codeforces = user.codeforcesData || null;
+    const codechef = user.codeChefData || null;
 
-    const { developerScore, jobMatch } = calculateJobMatch({ github, leetcode, hackerrank, codeforces });
+    const { developerScore, jobMatch } = calculateJobMatch({
+      github,
+      leetcode,
+      hackerrank,
+      codeforces,
+      codechef,
+    });
 
     res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=1800, s-maxage=1800');
@@ -46,6 +53,7 @@ const getBadge = async (req, res) => {
         github,
         leetcode,
         codeforces,
+        codechef,
         hackerrank,
         theme,
       });
